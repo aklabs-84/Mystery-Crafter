@@ -1,0 +1,147 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Mystery Crafter</title>
+
+  <style>
+    @import url('https://fonts.googleapis.com/css2?family=Gowun+Batang:wght@400;700&family=Nanum+Gothic:wght@400;700;800&family=Noto+Sans+KR:wght@300;400;500;700;900&display=swap');
+
+    body {
+      font-family: 'Noto Sans KR', sans-serif;
+      background-color: #0a0a0a;
+      color: #e5e5e5;
+    }
+
+    /* 미스터리/서사 폰트 (고운 바탕) */
+    .mystery-font {
+      font-family: 'Gowun Batang', serif;
+    }
+
+    /* 강조/가이드 폰트 (나눔 고딕) */
+    .guide-font {
+      font-family: 'Nanum Gothic', sans-serif;
+    }
+
+    /* Visual Polish Animations */
+    @keyframes shake {
+
+      0%,
+      100% {
+        transform: translateX(0);
+      }
+
+      25% {
+        transform: translateX(-5px);
+      }
+
+      50% {
+        transform: translateX(5px);
+      }
+
+      75% {
+        transform: translateX(-5px);
+      }
+    }
+
+    .animate-shake {
+      animation: shake 0.3s ease-in-out;
+    }
+
+    @keyframes flash {
+      0% {
+        background-color: transparent;
+      }
+
+      50% {
+        background-color: rgba(255, 255, 255, 0.15);
+      }
+
+      100% {
+        background-color: transparent;
+      }
+    }
+
+    .animate-flash {
+      animation: flash 0.4s ease-out;
+    }
+
+    @keyframes laser-pulse {
+      0% {
+        transform: scale(1);
+        opacity: 1;
+        box-shadow: 0 0 0 0 rgba(220, 38, 38, 0.7);
+      }
+
+      70% {
+        transform: scale(1.8);
+        opacity: 0;
+        box-shadow: 0 0 0 20px rgba(220, 38, 38, 0);
+      }
+
+      100% {
+        transform: scale(1);
+        opacity: 0;
+        box-shadow: 0 0 0 0 rgba(220, 38, 38, 0);
+      }
+    }
+
+    .laser-point {
+      position: relative;
+      width: 12px;
+      height: 12px;
+      background-color: #dc2626;
+      border-radius: 50%;
+      box-shadow: 0 0 10px #dc2626;
+    }
+
+    .laser-point::after {
+      content: '';
+      position: absolute;
+      inset: -4px;
+      border-radius: 50%;
+      border: 2px solid #dc2626;
+      animation: laser-pulse 1.5s infinite;
+    }
+
+    /* Custom Scrollbar for Noir vibe */
+    .scrollbar-thin::-webkit-scrollbar {
+      width: 4px;
+    }
+
+    .scrollbar-thin::-webkit-scrollbar-track {
+      background: rgba(255, 255, 255, 0.05);
+    }
+
+    .scrollbar-thin::-webkit-scrollbar-thumb {
+      background: rgba(220, 38, 38, 0.5);
+      border-radius: 10px;
+    }
+
+    /* 한글 가독성을 위한 전역 최적화 */
+    h1,
+    h2,
+    h3,
+    h4,
+    button {
+      letter-spacing: -0.02em;
+    }
+  </style>
+  <script type="importmap">
+{
+  "imports": {
+    "@google/genai": "https://esm.sh/@google/genai@^1.35.0",
+    "react-dom/": "https://esm.sh/react-dom@^19.2.3/",
+    "react/": "https://esm.sh/react@^19.2.3/",
+    "react": "https://esm.sh/react@^19.2.3"
+  }
+}
+</script>
+  <link rel="stylesheet" href="/index.css">
+</head>
+<body>
+  <div id="root"></div>
+  <script type="module" src="/index.tsx"></script>
+</body>
+</html>
