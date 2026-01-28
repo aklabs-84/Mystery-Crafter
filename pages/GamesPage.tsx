@@ -28,7 +28,7 @@ const GamesPage: React.FC = () => {
         try {
             const { data, error } = await supabase
                 .from('games')
-                .select('*')
+                .select('id, title, description, thumbnail_url, views')
                 .eq('is_public', true)
                 .order('created_at', { ascending: false });
 
