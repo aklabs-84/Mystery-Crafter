@@ -5,6 +5,8 @@ import { translations, Language } from '../../translations';
 import { gemini } from '../../services/geminiService';
 import LocalizedInput from './LocalizedInput';
 import ImageUploader from './ImageUploader';
+import { AIManager } from '../../services/aiManager';
+import InputModal from '../UI/InputModal';
 
 interface NPCEditorProps {
   npc: NPC;
@@ -20,6 +22,10 @@ const NPCEditor: React.FC<NPCEditorProps> = ({ npc, onUpdate, lang, allAssets })
   const [imageError, setImageError] = useState(false);
   const [tempNodeId, setTempNodeId] = useState<string>('');
 
+  // API Key Check State
+  const [showApiKeyModal, setShowApiKeyModal] = useState(false);
+  const [pendingAction, setPendingAction] = useState<(() => Promise<void>) | null>(null);
+
   const l = (val: any) => {
     if (!val) return '';
     if (typeof val === 'string') return val;
@@ -28,13 +34,22 @@ const NPCEditor: React.FC<NPCEditorProps> = ({ npc, onUpdate, lang, allAssets })
 
   if (!npc) return <div className="p-10 text-zinc-500 text-center">NPC data missing...</div>;
 
-  const handleGeneratePortrait = async () => {
+  const executeGeneratePortrait = async () => {
     setIsGenerating(true);
     setImageError(false);
     const nameText = l(npc.name);
     const url = await gemini.generateImage(npc.imagePrompt || nameText, allAssets.visualStyle || VisualStyle.LIGNE_CLAIRE, 'NPC');
     if (url) onUpdate({ portraitUrl: url });
     setIsGenerating(false);
+  };
+
+  const handleGeneratePortrait = async () => {
+    if (!AIManager.getActiveKey()) {
+      setPendingAction(() => executeGeneratePortrait);
+      setShowApiKeyModal(true);
+      return;
+    }
+    await executeGeneratePortrait();
   };
 
   const handleAddNode = () => {
@@ -96,6 +111,27 @@ const NPCEditor: React.FC<NPCEditorProps> = ({ npc, onUpdate, lang, allAssets })
 
   return (
     <div className="p-8 max-6xl mx-auto space-y-10 pb-20">
+      <InputModal
+        isOpen={showApiKeyModal}
+        title={t.apiKeyRequired || "API Key Required"}
+        message={t.apiKeyPrompt || "Please enter your Gemini API Key to continue."}
+        onConfirm={(key) => {
+          const config = AIManager.getConfig();
+          config.keys.google = key;
+          AIManager.saveConfig(config);
+          setShowApiKeyModal(false);
+          if (pendingAction) {
+            pendingAction();
+            setPendingAction(null);
+          }
+        }}
+        onCancel={() => {
+          setShowApiKeyModal(false);
+          setPendingAction(null);
+        }}
+        placeholder="AIza..."
+        inputType="password"
+      />
       <header className="flex justify-between items-end border-b border-white/5 pb-6">
         <div className="flex-1 mr-10">
           <span className="text-[10px] font-bold text-emerald-500 tracking-[0.2em] uppercase">{t.editingNPC}</span>

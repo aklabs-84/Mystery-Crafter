@@ -4,6 +4,8 @@ import { CaseConclusion, Localized } from '../../types';
 import { translations, Language } from '../../translations';
 import { gemini } from '../../services/geminiService';
 import LocalizedInput from './LocalizedInput';
+import { AIManager } from '../../services/aiManager';
+import InputModal from '../UI/InputModal';
 
 interface ConclusionEditorProps {
   conclusion: CaseConclusion;
@@ -16,7 +18,11 @@ const ConclusionEditor: React.FC<ConclusionEditorProps> = ({ conclusion, onUpdat
   const t = translations[lang];
   const [isGenerating, setIsGenerating] = useState(false);
 
-  const handleGenerate = async () => {
+  // API Key Check State
+  const [showApiKeyModal, setShowApiKeyModal] = useState(false);
+  const [pendingAction, setPendingAction] = useState<(() => Promise<void>) | null>(null);
+
+  const executeGenerate = async () => {
     setIsGenerating(true);
     // Added implementation for generateConclusionLogic in geminiService
     const result = await gemini.generateConclusionLogic(gameTitle, lang);
@@ -24,15 +30,45 @@ const ConclusionEditor: React.FC<ConclusionEditorProps> = ({ conclusion, onUpdat
     setIsGenerating(false);
   };
 
+  const handleGenerate = async () => {
+    if (!AIManager.getActiveKey()) {
+      setPendingAction(() => executeGenerate);
+      setShowApiKeyModal(true);
+      return;
+    }
+    await executeGenerate();
+  };
+
   return (
     <div className="p-8 max-w-4xl mx-auto space-y-10 pb-20">
+      <InputModal
+        isOpen={showApiKeyModal}
+        title={t.apiKeyRequired || "API Key Required"}
+        message={t.apiKeyPrompt || "Please enter your Gemini API Key to continue."}
+        onConfirm={(key) => {
+          const config = AIManager.getConfig();
+          config.keys.google = key;
+          AIManager.saveConfig(config);
+          setShowApiKeyModal(false);
+          if (pendingAction) {
+            pendingAction();
+            setPendingAction(null);
+          }
+        }}
+        onCancel={() => {
+          setShowApiKeyModal(false);
+          setPendingAction(null);
+        }}
+        placeholder="AIza..."
+        inputType="password"
+      />
       <header className="flex justify-between items-end border-b border-white/5 pb-6">
         <div>
           <span className="text-[10px] font-bold text-red-500 tracking-[0.2em] uppercase">{t.conclusionSettings}</span>
           <h2 className="text-4xl mystery-font font-bold text-white mt-1">{t.conclusionSettings}</h2>
           <p className="text-zinc-500 text-xs mt-2">{t.conclusionHint}</p>
         </div>
-        <button 
+        <button
           onClick={handleGenerate}
           disabled={isGenerating}
           className="px-6 py-2 bg-red-600 hover:bg-red-500 text-white rounded-lg font-bold text-xs uppercase tracking-widest disabled:opacity-50 transition-all shadow-lg shadow-red-600/20"
@@ -44,12 +80,12 @@ const ConclusionEditor: React.FC<ConclusionEditorProps> = ({ conclusion, onUpdat
       <div className="space-y-8">
         <div className="bg-zinc-900/50 p-6 rounded-2xl border border-white/5 space-y-6">
           {/* Fixed: Added missing lang prop */}
-          <LocalizedInput 
-            label={t.mysterySolution} 
-            value={conclusion.mysterySolution} 
-            onChange={(v) => onUpdate({ mysterySolution: v })} 
-            multiline 
-            placeholder={lang === 'KO' ? "사건의 진상을 기록하세요. (예: 범인은 집사, 독살 트릭 사용...)" : "Record the truth of the case."} 
+          <LocalizedInput
+            label={t.mysterySolution}
+            value={conclusion.mysterySolution}
+            onChange={(v) => onUpdate({ mysterySolution: v })}
+            multiline
+            placeholder={lang === 'KO' ? "사건의 진상을 기록하세요. (예: 범인은 집사, 독살 트릭 사용...)" : "Record the truth of the case."}
             lang={lang}
           />
         </div>

@@ -5,6 +5,8 @@ import { gemini } from '../../services/geminiService';
 import { translations, Language } from '../../translations';
 import LocalizedInput from './LocalizedInput';
 import ImageUploader from './ImageUploader';
+import { AIManager } from '../../services/aiManager';
+import InputModal from '../UI/InputModal';
 
 interface SceneEditorProps {
   scene: Scene;
@@ -26,6 +28,10 @@ const SceneEditor: React.FC<SceneEditorProps> = ({ scene, onUpdate, lang, allAss
   const [foldedHsDetails, setFoldedHsDetails] = useState<Record<string, boolean>>({});
   const [dragState, setDragState] = useState<{ id: string, type: 'move' | 'resize', startX: number, startY: number, initialX: number, initialY: number, initialW: number, initialH: number } | null>(null);
 
+  // API Key Check State
+  const [showApiKeyModal, setShowApiKeyModal] = useState(false);
+  const [pendingAction, setPendingAction] = useState<(() => Promise<void>) | null>(null);
+
   const imageRef = useRef<HTMLDivElement>(null);
 
   const l = (val: any) => {
@@ -34,7 +40,7 @@ const SceneEditor: React.FC<SceneEditorProps> = ({ scene, onUpdate, lang, allAss
     return val[lang] || val['EN'] || val['KO'] || '';
   };
 
-  const handleGenerateImage = async () => {
+  const executeGenerateImage = async () => {
     setIsGenerating(true);
     setImageError(false);
     const url = await gemini.generateImage(scene.imagePrompt, scene.visualStyle, 'SCENE', { hotspots: scene.hotspots || [] });
@@ -42,11 +48,29 @@ const SceneEditor: React.FC<SceneEditorProps> = ({ scene, onUpdate, lang, allAss
     setIsGenerating(false);
   };
 
-  const handleGenerateHsDetail = async (hs: Hotspot) => {
+  const handleGenerateImage = async () => {
+    if (!AIManager.getActiveKey()) {
+      setPendingAction(() => executeGenerateImage);
+      setShowApiKeyModal(true);
+      return;
+    }
+    await executeGenerateImage();
+  };
+
+  const executeGenerateHsDetail = async (hs: Hotspot) => {
     setIsGeneratingHsDetail(hs.id);
     const url = await gemini.generateImage(l(hs.detailImagePrompt) || `Close-up view of ${l(hs.label)}`, scene.visualStyle || allAssets.visualStyle || VisualStyle.LIGNE_CLAIRE, 'SCENE');
     if (url) updateHotspot(hs.id, { detailImageUrl: url });
     setIsGeneratingHsDetail(null);
+  };
+
+  const handleGenerateHsDetail = async (hs: Hotspot) => {
+    if (!AIManager.getActiveKey()) {
+      setPendingAction(() => () => executeGenerateHsDetail(hs));
+      setShowApiKeyModal(true);
+      return;
+    }
+    await executeGenerateHsDetail(hs);
   };
 
   const handleImageClick = (e: React.MouseEvent) => {
@@ -203,6 +227,27 @@ const SceneEditor: React.FC<SceneEditorProps> = ({ scene, onUpdate, lang, allAss
 
   return (
     <div className="p-8 max-7xl mx-auto space-y-10 pb-20 select-none">
+      <InputModal
+        isOpen={showApiKeyModal}
+        title={t.apiKeyRequired || "API Key Required"}
+        message={t.apiKeyPrompt || "Please enter your Gemini API Key to continue."}
+        onConfirm={(key) => {
+          const config = AIManager.getConfig();
+          config.keys.google = key;
+          AIManager.saveConfig(config);
+          setShowApiKeyModal(false);
+          if (pendingAction) {
+            pendingAction();
+            setPendingAction(null);
+          }
+        }}
+        onCancel={() => {
+          setShowApiKeyModal(false);
+          setPendingAction(null);
+        }}
+        placeholder="AIza..."
+        inputType="password"
+      />
       <header className="flex justify-between items-end border-b border-white/5 pb-6">
         <LocalizedInput label={t.location} value={scene.name} onChange={(v) => onUpdate({ name: v })} lang={lang} className="flex-1 mr-10" />
         <button onClick={handleGenerateImage} disabled={isGenerating} className="px-6 py-2 bg-red-600 text-white rounded-lg font-bold text-xs uppercase tracking-widest disabled:opacity-50 hover:bg-red-500 shadow-lg shadow-red-600/20 transition-all">

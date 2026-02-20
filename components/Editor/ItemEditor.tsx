@@ -5,6 +5,8 @@ import { translations, Language } from '../../translations';
 import { gemini } from '../../services/geminiService';
 import LocalizedInput from './LocalizedInput';
 import ImageUploader from './ImageUploader';
+import { AIManager } from '../../services/aiManager';
+import InputModal from '../UI/InputModal';
 
 interface ItemEditorProps {
   item: Item;
@@ -20,13 +22,17 @@ const ItemEditor: React.FC<ItemEditorProps> = ({ item, onUpdate, lang, allAssets
   const [imageError, setImageError] = useState(false);
   const [detailImageError, setDetailImageError] = useState(false);
 
+  // API Key Check State
+  const [showApiKeyModal, setShowApiKeyModal] = useState(false);
+  const [pendingAction, setPendingAction] = useState<(() => Promise<void>) | null>(null);
+
   const l = (val: any) => {
     if (!val) return '';
     if (typeof val === 'string') return val;
     return val[lang] || val['EN'] || val['KO'] || '';
   };
 
-  const handleGenerateIcon = async () => {
+  const executeGenerateIcon = async () => {
     setIsGenerating(true);
     setImageError(false);
     const url = await gemini.generateImage(l(item.imagePrompt) || l(item.name), allAssets.visualStyle || VisualStyle.LIGNE_CLAIRE, 'ITEM');
@@ -34,12 +40,30 @@ const ItemEditor: React.FC<ItemEditorProps> = ({ item, onUpdate, lang, allAssets
     setIsGenerating(false);
   };
 
-  const handleGenerateDetail = async () => {
+  const handleGenerateIcon = async () => {
+    if (!AIManager.getActiveKey()) {
+      setPendingAction(() => executeGenerateIcon);
+      setShowApiKeyModal(true);
+      return;
+    }
+    await executeGenerateIcon();
+  };
+
+  const executeGenerateDetail = async () => {
     setIsGeneratingDetail(true);
     setDetailImageError(false);
     const url = await gemini.generateImage(l(item.detailImagePrompt) || `Detailed view of ${l(item.name)}`, allAssets.visualStyle || VisualStyle.LIGNE_CLAIRE, 'SCENE');
     if (url) onUpdate({ detailImageUrl: url });
     setIsGeneratingDetail(false);
+  };
+
+  const handleGenerateDetail = async () => {
+    if (!AIManager.getActiveKey()) {
+      setPendingAction(() => executeGenerateDetail);
+      setShowApiKeyModal(true);
+      return;
+    }
+    await executeGenerateDetail();
   };
 
   const otherItems = (Object.values(allAssets.items) as Item[]).filter(i => i.id !== item.id);
@@ -48,6 +72,27 @@ const ItemEditor: React.FC<ItemEditorProps> = ({ item, onUpdate, lang, allAssets
 
   return (
     <div className="p-8 max-w-4xl mx-auto space-y-10 pb-20">
+      <InputModal
+        isOpen={showApiKeyModal}
+        title={t.apiKeyRequired || "API Key Required"}
+        message={t.apiKeyPrompt || "Please enter your Gemini API Key to continue."}
+        onConfirm={(key) => {
+          const config = AIManager.getConfig();
+          config.keys.google = key;
+          AIManager.saveConfig(config);
+          setShowApiKeyModal(false);
+          if (pendingAction) {
+            pendingAction();
+            setPendingAction(null);
+          }
+        }}
+        onCancel={() => {
+          setShowApiKeyModal(false);
+          setPendingAction(null);
+        }}
+        placeholder="AIza..."
+        inputType="password"
+      />
       <header className="flex justify-between items-end border-b border-white/5 pb-6">
         <div className="flex-1 mr-10">
           <span className="text-[10px] font-bold text-blue-500 tracking-[0.2em] uppercase">{t.editingItem}</span>

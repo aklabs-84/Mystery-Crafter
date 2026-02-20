@@ -46,6 +46,9 @@ export interface Hotspot {
   puzzleAnswer?: string;
   puzzlePrompt?: Localized;
   failureMessage?: Localized;
+  // Unlock condition fields
+  unlock_keyword?: string;
+  locked_message?: Localized;
 }
 
 export interface SceneExit {
@@ -134,6 +137,15 @@ export interface GameData {
   initialFlags: Record<string, boolean>;
   conclusion?: CaseConclusion;
   globalBgmUrl?: string;
+  // Metadata from JSON import
+  author?: string;
+  version?: string;
+  playtime_minutes?: number;
+  sns_keywords?: {
+    episode: number | string;
+    keyword: string | null;
+    unlocks: string;
+  }[];
 }
 
 export interface GameState {

@@ -88,39 +88,25 @@ const StudioPage: React.FC<StudioPageProps> = ({ isAdmin = false }) => {
         setLoading(false);
     };
 
-    const handleImportSample = async () => {
-        if (!user) return;
+    const handleJsonUpload = async (event: React.ChangeEvent<HTMLInputElement>) => {
+        const file = event.target.files?.[0];
+        if (!file || !user) return;
+
         setImporting(true);
         try {
-            // 1. Fetch Sample JSON dynamically to keep bundle size small
-            const response = await fetch('/game_sample.json');
-            const gameSample = await response.json();
+            const text = await file.text();
+            const json = JSON.parse(text);
 
-            // 2. Create a skeleton game first to get the real UUID from Supabase
-            const skeletonData = {
-                ...gameSample,
-                scenes: {},
-                items: {},
-                npcs: {}
-            };
-
-            const newId = await DataManager.saveGame(null, skeletonData as any, user.id, false);
-
-            // 3. Process and optimize images using the REAL UUID for storage path
-            console.log(`Starting optimization for game: ${newId}`);
-            let gameData = { ...gameSample, id: newId };
-            gameData = await DataManager.processGameDataImages(gameData, newId, (msg) => console.log(msg));
-
-            // 4. Update the game with the full optimized data
-            await DataManager.saveGame(newId, gameData as any, user.id, false);
-
+            await DataManager.importGameFromJson(json, user.id);
             await fetchProjects();
-            showAlert('Success', 'Sample game imported successfully!');
-        } catch (e) {
+            showAlert('Success', 'Game imported successfully!');
+        } catch (e: any) {
             console.error(e);
-            showAlert('Error', 'Failed to import sample.');
+            showAlert('Error', 'Failed to import game: ' + e.message);
         } finally {
             setImporting(false);
+            // Reset input
+            event.target.value = '';
         }
     };
 
@@ -286,13 +272,18 @@ const StudioPage: React.FC<StudioPageProps> = ({ isAdmin = false }) => {
             <div className="flex justify-between items-center mb-8">
                 <h2 className="text-3xl font-bold font-mystery text-red-600">내 스튜디오</h2>
                 {isAdmin && (
-                    <button
-                        onClick={handleImportSample}
-                        disabled={importing}
-                        className="text-xs font-bold uppercase tracking-widest text-zinc-500 hover:text-white transition"
-                    >
-                        {importing ? '가져오는 중...' : '샘플 게임 가져오기'}
-                    </button>
+                    <div className="flex items-center gap-2">
+                        <label className={`text-xs font-bold uppercase tracking-widest text-zinc-500 hover:text-white transition cursor-pointer ${importing ? 'opacity-50 pointer-events-none' : ''}`}>
+                            {importing ? 'Importing...' : 'Import JSON Game'}
+                            <input
+                                type="file"
+                                accept=".json"
+                                onChange={handleJsonUpload}
+                                className="hidden"
+                                disabled={importing}
+                            />
+                        </label>
+                    </div>
                 )}
             </div>
 

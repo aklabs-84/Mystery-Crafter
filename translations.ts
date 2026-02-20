@@ -146,6 +146,8 @@ export const translations = {
     conclusionHint: '사건의 전말과 보상 등을 자동으로 구성합니다.',
     noTarget: '대상 없음',
     save: '저장',
+    apiKeyRequired: 'API 키 필요',
+    apiKeyPrompt: '이미지 생성을 위해 Gemini API 키가 필요합니다.',
   },
   EN: {
     playMode: 'Play Mode',
@@ -291,5 +293,7 @@ export const translations = {
     conclusionHint: 'Automatically generates solution logic and endings.',
     noTarget: 'No Target',
     save: 'Save',
+    apiKeyRequired: 'API Key Required',
+    apiKeyPrompt: 'A Gemini API Key is required to generate images.',
   }
 };
