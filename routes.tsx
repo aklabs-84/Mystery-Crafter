@@ -1,23 +1,27 @@
 
-import React, { Suspense, lazy } from 'react';
+import React, { Suspense, lazy } from 'react'; // lazy kept for React.lazy inside lazyWithRetry
 import { createBrowserRouter, Navigate } from 'react-router-dom';
 import Spinner from './components/Spinner';
 
+// Lazy import wrapper: auto-reload on chunk fetch failure (stale deployment)
+const lazyWithRetry = (importFn: () => Promise<any>) =>
+    lazy(() => importFn().catch(() => { window.location.reload(); return new Promise(() => {}); }));
+
 // Lazy load page components
-const GalleryPage = lazy(() => import('./pages/GalleryPage'));
-const GamesPage = lazy(() => import('./pages/GamesPage'));
-const GamePlayerPage = lazy(() => import('./pages/GamePlayerPage'));
-const AdminLayout = lazy(() => import('./layouts/AdminLayout'));
-const StudioPage = lazy(() => import('./pages/admin/StudioPage'));
-const EditorPage = lazy(() => import('./pages/admin/EditorPage'));
-const QuickEditorPage = lazy(() => import('./pages/admin/QuickEditorPage'));
-const WizardPage = lazy(() => import('./pages/admin/WizardPage'));
-const SettingsPage = lazy(() => import('./pages/admin/SettingsPage'));
-const AuthCallbackPage = lazy(() => import('./pages/AuthCallbackPage'));
+const GalleryPage = lazyWithRetry(() => import('./pages/GalleryPage'));
+const GamesPage = lazyWithRetry(() => import('./pages/GamesPage'));
+const GamePlayerPage = lazyWithRetry(() => import('./pages/GamePlayerPage'));
+const AdminLayout = lazyWithRetry(() => import('./layouts/AdminLayout'));
+const StudioPage = lazyWithRetry(() => import('./pages/admin/StudioPage'));
+const EditorPage = lazyWithRetry(() => import('./pages/admin/EditorPage'));
+const QuickEditorPage = lazyWithRetry(() => import('./pages/admin/QuickEditorPage'));
+const WizardPage = lazyWithRetry(() => import('./pages/admin/WizardPage'));
+const SettingsPage = lazyWithRetry(() => import('./pages/admin/SettingsPage'));
+const AuthCallbackPage = lazyWithRetry(() => import('./pages/AuthCallbackPage'));
 
 // Multiplayer
-const MultiplayerLounge = lazy(() => import('./components/Player/MultiplayerLounge'));
-const MultiplayerPlayer = lazy(() => import('./components/Player/MultiplayerPlayer'));
+const MultiplayerLounge = lazyWithRetry(() => import('./components/Player/MultiplayerLounge'));
+const MultiplayerPlayer = lazyWithRetry(() => import('./components/Player/MultiplayerPlayer'));
 
 const PageWrapper: React.FC<{ children: React.ReactNode }> = ({ children }) => (
     <Suspense fallback={
