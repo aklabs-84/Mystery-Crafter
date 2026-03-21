@@ -5,9 +5,9 @@ import { translations, Language } from '../../translations';
 
 interface EditorSidebarProps {
   gameData: GameData;
-  activeTab: 'SCENES' | 'ITEMS' | 'NPCS' | 'SETTINGS';
+  activeTab: 'SCENES' | 'ITEMS' | 'NPCS' | 'SETTINGS' | 'MAP';
   selectedId: string | null;
-  onTabChange: (tab: 'SCENES' | 'ITEMS' | 'NPCS' | 'SETTINGS') => void;
+  onTabChange: (tab: 'SCENES' | 'ITEMS' | 'NPCS' | 'SETTINGS' | 'MAP') => void;
   onSelect: (id: string) => void;
   onAdd: () => void;
   onDelete: (id: string) => void;
@@ -133,6 +133,10 @@ const EditorSidebar: React.FC<EditorSidebarProps> = ({
               <button onClick={() => onSelect('settings-conclusion')} className={`w-full text-left p-3 rounded-lg flex items-center gap-3 transition-all ${selectedId === 'settings-conclusion' ? 'bg-white/10' : 'hover:bg-white/5'}`}>
                 <div className="w-10 h-10 rounded bg-zinc-900 border border-white/5 flex items-center justify-center text-zinc-500 text-lg">🏁</div>
                 <div className="text-sm font-medium text-zinc-200">{t.conclusionSettings}</div>
+              </button>
+              <button onClick={() => onSelect('settings-map')} className={`w-full text-left p-3 rounded-lg flex items-center gap-3 transition-all ${selectedId === 'settings-map' ? 'bg-white/10' : 'hover:bg-white/5'}`}>
+                <div className="w-10 h-10 rounded bg-zinc-900 border border-white/5 flex items-center justify-center text-zinc-500 text-lg">🗺️</div>
+                <div className="text-sm font-medium text-zinc-200">{t.visualMap}</div>
               </button>
             </div>
           )}

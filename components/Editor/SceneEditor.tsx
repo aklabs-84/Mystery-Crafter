@@ -11,19 +11,23 @@ import InputModal from '../UI/InputModal';
 interface SceneEditorProps {
   scene: Scene;
   onUpdate: (updates: Partial<Scene>) => void;
+  onUpdateProject?: (newData: GameData) => void;
   lang: Language;
   allAssets: GameData;
 }
 
-const SceneEditor: React.FC<SceneEditorProps> = ({ scene, onUpdate, lang, allAssets }) => {
+const SceneEditor: React.FC<SceneEditorProps> = ({ scene, onUpdate, onUpdateProject, lang, allAssets }) => {
   const t = translations[lang];
   const [isGenerating, setIsGenerating] = useState(false);
+  const [isSuggestingDescription, setIsSuggestingDescription] = useState(false);
+  const [isSuggestingPrompt, setIsSuggestingPrompt] = useState(false);
   const [isPlacingHotspot, setIsPlacingHotspot] = useState(false);
   const [isGeneratingHsDetail, setIsGeneratingHsDetail] = useState<string | null>(null);
   const [selectedHsId, setSelectedHsId] = useState<string | null>(null);
   const [imageError, setImageError] = useState(false);
   const [expandedHsId, setExpandedHsId] = useState<string | null>(null);
   const [expandedExitId, setExpandedExitId] = useState<string | null>(null);
+  const [showTemplateMenu, setShowTemplateMenu] = useState(false);
 
   const [foldedHsDetails, setFoldedHsDetails] = useState<Record<string, boolean>>({});
   const [dragState, setDragState] = useState<{ id: string, type: 'move' | 'resize', startX: number, startY: number, initialX: number, initialY: number, initialW: number, initialH: number } | null>(null);
@@ -55,6 +59,109 @@ const SceneEditor: React.FC<SceneEditorProps> = ({ scene, onUpdate, lang, allAss
       return;
     }
     await executeGenerateImage();
+  };
+
+  const handleSuggestDescription = async () => {
+    if (!l(scene.name)) return;
+    setIsSuggestingDescription(true);
+    try {
+      const desc = await AIManager.generateDescription(l(scene.name), 'SCENE', allAssets.description?.KO || '');
+      if (desc) {
+        onUpdate({ descriptionText: { ...scene.descriptionText, [lang]: desc } });
+      }
+    } catch (e) {
+      console.error(e);
+    } finally {
+      setIsSuggestingDescription(false);
+    }
+  };
+
+  const handleSuggestPrompt = async () => {
+    const name = l(scene.name);
+    const desc = l(scene.descriptionText);
+    if (!name || !desc) return;
+    setIsSuggestingPrompt(true);
+    try {
+      const prompt = await AIManager.generateImagePrompt(name, desc, scene.visualStyle || allAssets.visualStyle || VisualStyle.LIGNE_CLAIRE);
+      if (prompt) {
+        onUpdate({ imagePrompt: prompt });
+      }
+    } catch (e) {
+      console.error(e);
+    } finally {
+      setIsSuggestingPrompt(false);
+    }
+  };
+
+  const applyTemplate = (template: 'LOCKED_BOX' | 'NUMBER_PUZZLE' | 'REVEAL_CLUE') => {
+    if (!onUpdateProject) return;
+    const newData = { ...allAssets };
+    const currentScene = { ...scene };
+
+    if (template === 'LOCKED_BOX') {
+      const itemId = `item_key_${Date.now()}`;
+      const hsId = `hs_box_${Date.now()}`;
+
+      // 1. Create Key Item
+      newData.items[itemId] = {
+        id: itemId,
+        name: { KO: '낡은 열쇠', EN: 'Old Key' },
+        description: { KO: '무언가를 열 수 있을 것 같은 열쇠입니다.', EN: 'A key that looks like it could open something.' }
+      };
+
+      // 2. Create Locked Box Hotspot
+      const newHs: Hotspot = {
+        id: hsId,
+        x: 45, y: 45, width: 10, height: 10,
+        label: { KO: '잠긴 상자', EN: 'Locked Box' },
+        actionType: 'EXAMINE',
+        requiredItemId: itemId,
+        successMessage: { KO: '상자가 열렸습니다!', EN: 'The box is open!' },
+        itemMissingMessage: { KO: '열쇠가 필요해보입니다.', EN: 'It seems to need a key.' }
+      };
+      currentScene.hotspots = [...(currentScene.hotspots || []), newHs];
+    } else if (template === 'NUMBER_PUZZLE') {
+      const hsId = `hs_puzzle_${Date.now()}`;
+      const newHs: Hotspot = {
+        id: hsId,
+        x: 45, y: 45, width: 10, height: 10,
+        label: { KO: '금고', EN: 'Safe' },
+        actionType: 'INPUT_PUZZLE',
+        puzzleAnswer: '1234',
+        puzzlePrompt: { KO: '비밀번호를 입력하세요.', EN: 'Enter the password.' },
+        successMessage: { KO: '금고가 열렸습니다!', EN: 'The safe is open!' },
+        failureMessage: { KO: '틀린 번호입니다.', EN: 'Wrong number.' }
+      };
+      currentScene.hotspots = [...(currentScene.hotspots || []), newHs];
+    } else if (template === 'REVEAL_CLUE') {
+      const parentId = `hs_parent_${Date.now()}`;
+      const childId = `hs_child_${Date.now()}`;
+
+      const childHs: Hotspot = {
+        id: childId,
+        x: 55, y: 45, width: 5, height: 5,
+        label: { KO: '숨겨진 단서', EN: 'Hidden Clue' },
+        actionType: 'EXAMINE',
+        initialHidden: true,
+        isSubAction: true,
+        successMessage: { KO: '중요한 단서를 발견했습니다!', EN: 'You found an important clue!' }
+      };
+
+      const parentHs: Hotspot = {
+        id: parentId,
+        x: 40, y: 40, width: 15, height: 15,
+        label: { KO: '수상한 장소', EN: 'Suspicious Spot' },
+        actionType: 'EXAMINE',
+        revealsHotspotIds: [childId],
+        successMessage: { KO: '이곳을 더 자세히 조사해볼 수 있을 것 같습니다.', EN: 'I can investigate this spot further.' }
+      };
+
+      currentScene.hotspots = [...(currentScene.hotspots || []), childHs, parentHs];
+    }
+
+    newData.scenes[scene.id] = currentScene;
+    onUpdateProject(newData);
+    setShowTemplateMenu(false);
   };
 
   const executeGenerateHsDetail = async (hs: Hotspot) => {
@@ -257,10 +364,31 @@ const SceneEditor: React.FC<SceneEditorProps> = ({ scene, onUpdate, lang, allAss
 
       <div className="grid grid-cols-1 lg:grid-cols-12 gap-10">
         <div className="lg:col-span-4 space-y-6">
-          <LocalizedInput label={t.atmosphericText} value={scene.descriptionText} onChange={(v) => onUpdate({ descriptionText: v })} lang={lang} multiline />
+          <div className="bg-zinc-900/50 p-6 rounded-2xl border border-white/5 space-y-4">
+            <div className="flex justify-between items-center mb-1">
+              <label className="block text-[10px] font-bold text-zinc-500 uppercase tracking-widest">{t.atmosphericText}</label>
+              <button
+                onClick={handleSuggestDescription}
+                disabled={isSuggestingDescription || !l(scene.name)}
+                className="text-[9px] font-bold text-red-500 hover:text-white disabled:opacity-30 transition-all uppercase tracking-widest"
+              >
+                {isSuggestingDescription ? t.working : '✨ ' + t.aiSuggest}
+              </button>
+            </div>
+            <LocalizedInput label="" value={scene.descriptionText} onChange={(v) => onUpdate({ descriptionText: v })} lang={lang} multiline />
+          </div>
 
           <div className="bg-zinc-900/50 p-6 rounded-2xl border border-white/5 space-y-4">
-            <label className="block text-[10px] font-bold text-zinc-500 uppercase tracking-widest">{t.aiPrompt}</label>
+            <div className="flex justify-between items-center mb-1">
+              <label className="block text-[10px] font-bold text-zinc-500 uppercase tracking-widest">{t.aiPrompt}</label>
+              <button
+                onClick={handleSuggestPrompt}
+                disabled={isSuggestingPrompt || !l(scene.descriptionText)}
+                className="text-[9px] font-bold text-red-500 hover:text-white disabled:opacity-30 transition-all uppercase tracking-widest"
+              >
+                {isSuggestingPrompt ? t.working : '✨ ' + t.aiSuggest}
+              </button>
+            </div>
             <textarea value={scene.imagePrompt} onChange={(e) => onUpdate({ imagePrompt: e.target.value })} className="w-full h-24 bg-zinc-800 border border-white/10 rounded-lg p-3 text-xs text-white outline-none focus:border-red-500 transition-all resize-none" />
           </div>
 
@@ -399,9 +527,21 @@ const SceneEditor: React.FC<SceneEditorProps> = ({ scene, onUpdate, lang, allAss
           <div className="bg-zinc-950 p-8 rounded-3xl border border-white/5 shadow-2xl">
             <div className="flex justify-between items-center mb-8">
               <h3 className="mystery-font text-2xl text-white font-bold">{t.hotspots} ({scene.hotspots?.length || 0})</h3>
-              <button onClick={() => setIsPlacingHotspot(!isPlacingHotspot)} className={`text-[10px] px-6 py-2 rounded-xl font-bold uppercase tracking-widest transition-all ${isPlacingHotspot ? 'bg-red-600 text-white' : 'bg-zinc-800 text-zinc-400 hover:text-white'}`}>
-                {isPlacingHotspot ? t.cancelPlacement : t.addHotspot}
-              </button>
+              <div className="flex gap-2 relative">
+                <button onClick={() => setShowTemplateMenu(!showTemplateMenu)} className="text-[10px] px-4 py-2 bg-emerald-600/10 text-emerald-500 border border-emerald-500/30 rounded-xl font-bold uppercase tracking-widest hover:bg-emerald-600 hover:text-white transition-all">
+                  {t.templates}
+                </button>
+                {showTemplateMenu && (
+                  <div className="absolute top-full right-0 mt-2 w-48 bg-zinc-900 border border-white/10 rounded-xl shadow-2xl z-50 p-2 space-y-1">
+                    <button onClick={() => applyTemplate('LOCKED_BOX')} className="w-full text-left p-2 text-[9px] font-bold text-zinc-400 hover:text-white hover:bg-white/5 rounded-lg transition-all uppercase tracking-tighter">{t.templateLockedBox}</button>
+                    <button onClick={() => applyTemplate('NUMBER_PUZZLE')} className="w-full text-left p-2 text-[9px] font-bold text-zinc-400 hover:text-white hover:bg-white/5 rounded-lg transition-all uppercase tracking-tighter">{t.templateNumberPuzzle}</button>
+                    <button onClick={() => applyTemplate('REVEAL_CLUE')} className="w-full text-left p-2 text-[9px] font-bold text-zinc-400 hover:text-white hover:bg-white/5 rounded-lg transition-all uppercase tracking-tighter">{t.templateRevealClue}</button>
+                  </div>
+                )}
+                <button onClick={() => setIsPlacingHotspot(!isPlacingHotspot)} className={`text-[10px] px-6 py-2 rounded-xl font-bold uppercase tracking-widest transition-all ${isPlacingHotspot ? 'bg-red-600 text-white' : 'bg-zinc-800 text-zinc-400 hover:text-white'}`}>
+                  {isPlacingHotspot ? t.cancelPlacement : t.addHotspot}
+                </button>
+              </div>
             </div>
 
             <div className="space-y-3 overflow-y-auto max-h-[600px] pr-2 scrollbar-thin">

@@ -3,6 +3,7 @@ import React from 'react';
 import { useParams, Link, useNavigate } from 'react-router-dom';
 import { supabase } from '../services/supabase';
 import GamePlayer from '../components/Player/GamePlayer';
+import QuickModePlayer from '../components/Player/QuickModePlayer';
 
 const GamePlayerPage: React.FC = () => {
     const { gameId } = useParams();
@@ -93,6 +94,16 @@ const GamePlayerPage: React.FC = () => {
                     Return to Gallery
                 </Link>
             </div>
+        );
+    }
+
+    if (gameData.isQuickMode) {
+        return (
+            <QuickModePlayer 
+                gameData={gameData}
+                gameId={gameId}
+                onBackToHome={() => navigate('/games')}
+            />
         );
     }
 

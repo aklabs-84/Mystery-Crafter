@@ -148,6 +148,13 @@ export const translations = {
     save: '저장',
     apiKeyRequired: 'API 키 필요',
     apiKeyPrompt: '이미지 생성을 위해 Gemini API 키가 필요합니다.',
+    aiSuggest: 'AI 추천',
+    templates: '템플릿',
+    templateLockedBox: '잠긴 상자 & 열쇠',
+    templateNumberPuzzle: '숫자 퍼즐',
+    templateRevealClue: '단서 발견',
+    visualMap: '시각적 맵',
+    mapHelp: '장소 사이의 연결 관계를 한눈에 확인하세요. 노드를 클릭하면 해당 장소로 이동합니다.',
   },
   EN: {
     playMode: 'Play Mode',
@@ -295,5 +302,12 @@ export const translations = {
     save: 'Save',
     apiKeyRequired: 'API Key Required',
     apiKeyPrompt: 'A Gemini API Key is required to generate images.',
+    aiSuggest: 'AI Suggest',
+    templates: 'Templates',
+    templateLockedBox: 'Locked Box & Key',
+    templateNumberPuzzle: 'Number Puzzle',
+    templateRevealClue: 'Clue Revelation',
+    visualMap: 'Visual Map',
+    mapHelp: 'View connections between scenes at a glance. Click a node to navigate.',
   }
 };

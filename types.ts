@@ -129,6 +129,7 @@ export interface GameData {
   id: string;
   title: Localized;
   description?: Localized;
+  isQuickMode?: boolean;
   visualStyle: VisualStyle;
   startSceneId: string;
   scenes: Record<string, Scene>;

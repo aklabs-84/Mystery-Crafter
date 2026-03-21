@@ -107,24 +107,31 @@ const StudioTutorialOverlay: React.FC<StudioTutorialOverlayProps> = ({ lang, onF
 
             {/* 가이드 메시지 박스 */}
             <div
-                className={`absolute transition-all duration-700 ease-in-out flex flex-col items-center gap-6 max-w-sm w-full`}
+                className={`absolute transition-all duration-700 ease-in-out flex flex-col items-center gap-5 max-w-[320px] w-full mx-4`}
                 style={{
-                    left: targetRect ? Math.min(Math.max(20, targetRect.left + targetRect.width / 2 - 192), window.innerWidth - 404) : '50%',
-                    top: targetRect ? (targetRect.top > window.innerHeight / 2 ? targetRect.top - 280 : targetRect.bottom + 40) : '50%',
-                    transform: targetRect ? 'none' : 'translate(-50%, -50%)'
+                    left: targetRect
+                        ? Math.min(Math.max(16, targetRect.left + targetRect.width / 2 - 160), window.innerWidth - 336)
+                        : '50%',
+                    top: targetRect
+                        ? (targetRect.top > window.innerHeight / 2
+                            ? Math.max(16, targetRect.top - 280)
+                            : Math.min(window.innerHeight - 280, targetRect.bottom + 24))
+                        : '50%',
+                    transform: targetRect ? 'none' : 'translate(-50%, -50%)',
+                    zIndex: 10000
                 }}
             >
-                <div className="bg-[#0a0a0a] border border-red-900/40 p-8 rounded-[2.5rem] shadow-[0_30px_70px_rgba(0,0,0,0.8)] space-y-5 ring-1 ring-white/5 backdrop-blur-xl">
-                    <div className="flex items-center gap-3 border-b border-white/5 pb-4">
-                        <div className="w-2.5 h-2.5 bg-red-600 rounded-full shadow-[0_0_15px_rgba(220,38,38,0.8)] animate-pulse" />
-                        <h4 className="guide-font text-white font-bold text-xl tracking-tight">{(t as any)[currentStep.titleKey]}</h4>
+                <div className="bg-[#0a0a0a] border border-red-900/40 p-6 rounded-[2rem] shadow-[0_30px_70px_rgba(0,0,0,0.8)] space-y-4 ring-1 ring-white/5 backdrop-blur-xl w-full">
+                    <div className="flex items-center gap-3 border-b border-white/5 pb-3">
+                        <div className="w-2 h-2 bg-red-600 rounded-full shadow-[0_0_15px_rgba(220,38,38,0.8)] animate-pulse" />
+                        <h4 className="guide-font text-white font-bold text-lg tracking-tight">{(t as any)[currentStep.titleKey]}</h4>
                     </div>
 
-                    <p className="text-zinc-400 text-sm leading-relaxed guide-font font-medium min-h-[60px]">
+                    <p className="text-zinc-400 text-sm leading-relaxed guide-font font-medium min-h-[50px] break-keep">
                         {(t as any)[currentStep.descKey]}
                     </p>
 
-                    <div className="flex items-center gap-4 pt-4">
+                    <div className="flex items-center gap-3 pt-2">
                         <button
                             onClick={handleSkip}
                             className="px-2 py-2 text-[10px] font-bold text-zinc-600 hover:text-red-500 uppercase tracking-widest transition-colors guide-font"
@@ -133,7 +140,7 @@ const StudioTutorialOverlay: React.FC<StudioTutorialOverlayProps> = ({ lang, onF
                         </button>
                         <button
                             onClick={(e) => handleNext(e)}
-                            className="flex-1 py-4 bg-white text-black font-bold rounded-2xl hover:bg-red-600 hover:text-white transition-all text-xs uppercase tracking-widest shadow-xl active:scale-95 guide-font"
+                            className="flex-1 py-3 bg-white text-black font-bold rounded-xl hover:bg-red-600 hover:text-white transition-all text-xs uppercase tracking-widest shadow-lg active:scale-95 guide-font"
                         >
                             {stepIndex === steps.length - 1 ? t.tutorialFinish : t.tutorialNext}
                         </button>

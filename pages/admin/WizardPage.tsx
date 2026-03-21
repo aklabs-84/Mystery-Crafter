@@ -36,6 +36,8 @@ const WizardPage: React.FC = () => {
 
     // General
     const [errorMsg, setErrorMsg] = useState('');
+    const [successMsg, setSuccessMsg] = useState('');
+    const [verifyingProvider, setVerifyingProvider] = useState<'google' | 'openai' | 'anthropic' | null>(null);
 
     useEffect(() => {
         // Load initial config
@@ -51,6 +53,30 @@ const WizardPage: React.FC = () => {
 
     const saveConfig = () => {
         AIManager.saveConfig(config);
+    };
+
+    const handleVerifyKey = async (provider: 'google' | 'openai' | 'anthropic') => {
+        const key = config.keys[provider];
+        if (!key) {
+            setErrorMsg('검증할 API 키를 먼저 입력해주세요.');
+            return;
+        }
+
+        setVerifyingProvider(provider);
+        try {
+            const modelId = config.activeModel.provider === provider
+                ? config.activeModel.modelId
+                : AI_MODELS[provider][0].id;
+
+            const isValid = await AIManager.validateAPIKey(provider, key, modelId);
+            if (isValid) {
+                setSuccessMsg(`${provider.toUpperCase()} API 키가 유효합니다!`);
+            }
+        } catch (e: any) {
+            setErrorMsg(`${provider.toUpperCase()} API 키 검증 실패: ${e.message}`);
+        } finally {
+            setVerifyingProvider(null);
+        }
     };
 
     const handleGenerateConcepts = async () => {
@@ -100,27 +126,47 @@ const WizardPage: React.FC = () => {
         }
     };
 
+    const [isDeepGenerating, setIsDeepGenerating] = useState(false);
+    const [deepProgress, setDeepProgress] = useState('');
+
     const handleFinalSave = async () => {
         if (!storyboard) return;
+        setIsDeepGenerating(true);
         try {
             if (!storyboard.id) storyboard.id = `game_${Date.now()}`;
-            // Ensure ownerId is retrieved - assume user is authenticated for now or handle in DataManager
-            // For now, passing 'wizard-user' until proper auth context is hooked if missing
-            // But Studio requires Auth. Assuming safe here since it's /admin route.
-            // Let's get real user ID using supabase check if possible, or pass null and let DataManager handle checks?
-            // DataManager needs ownerId.
-            // We'll rely on the existing auth context in the App. 
-            // Ideally we'd use useAuth hook here.
 
-            // Temporary: fetch user from session storage or let DataManager resolve current session
+            const updatedStoryboard = { ...storyboard };
+
+            // 1. Deep Generate Scenes
+            const sceneKeys = Object.keys(updatedStoryboard.scenes);
+            for (let i = 0; i < sceneKeys.length; i++) {
+                const sceneId = sceneKeys[i];
+                setDeepProgress(`장면 심층 설계 중... (${i + 1}/${sceneKeys.length}): ${updatedStoryboard.scenes[sceneId].name.KO}`);
+                const detailedScene = await AIManager.generateSceneDetails(updatedStoryboard.scenes[sceneId], updatedStoryboard);
+                updatedStoryboard.scenes[sceneId] = detailedScene;
+            }
+
+            // 2. Deep Generate NPCs
+            const npcKeys = Object.keys(updatedStoryboard.npcs);
+            for (let i = 0; i < npcKeys.length; i++) {
+                const npcId = npcKeys[i];
+                setDeepProgress(`인물 대화 및 로직 구성 중... (${i + 1}/${npcKeys.length}): ${updatedStoryboard.npcs[npcId].name.KO}`);
+                const detailedNpc = await AIManager.generateNPCDialogue(updatedStoryboard.npcs[npcId], updatedStoryboard);
+                updatedStoryboard.npcs[npcId] = detailedNpc;
+            }
+
+            setDeepProgress('게임 저장 중...');
             const { data: { user } } = await import('../../services/supabase').then(m => m.supabase.auth.getUser());
             if (!user) throw new Error("Please log in to save.");
 
-            await DataManager.saveGame(null, storyboard, user.id);
+            await DataManager.saveGame(null, updatedStoryboard, user.id);
             const studioBase = userType === 'admin' ? '/admin/studio' : '/user/studio';
             navigate(`${studioBase}/${storyboard.id}`);
         } catch (e: any) {
             setErrorMsg(e.message);
+        } finally {
+            setIsDeepGenerating(false);
+            setDeepProgress('');
         }
     };
 
@@ -176,6 +222,13 @@ const WizardPage: React.FC = () => {
                                     >
                                         {AI_MODELS.google.map(m => <option key={m.id} value={m.id}>{m.name}</option>)}
                                     </select>
+                                    <button
+                                        onClick={(e) => { e.stopPropagation(); handleVerifyKey('google'); }}
+                                        disabled={verifyingProvider === 'google'}
+                                        className="w-full py-1.5 bg-zinc-700/50 hover:bg-zinc-700 text-[10px] font-bold text-zinc-300 rounded transition-all uppercase tracking-widest disabled:opacity-50"
+                                    >
+                                        {verifyingProvider === 'google' ? '검증 중...' : '키 검증하기'}
+                                    </button>
                                 </div>
                             </div>
 
@@ -200,6 +253,13 @@ const WizardPage: React.FC = () => {
                                     >
                                         {AI_MODELS.openai.map(m => <option key={m.id} value={m.id}>{m.name}</option>)}
                                     </select>
+                                    <button
+                                        onClick={(e) => { e.stopPropagation(); handleVerifyKey('openai'); }}
+                                        disabled={verifyingProvider === 'openai'}
+                                        className="w-full py-1.5 bg-zinc-700/50 hover:bg-zinc-700 text-[10px] font-bold text-zinc-300 rounded transition-all uppercase tracking-widest disabled:opacity-50"
+                                    >
+                                        {verifyingProvider === 'openai' ? '검증 중...' : '키 검증하기'}
+                                    </button>
                                 </div>
                             </div>
 
@@ -224,6 +284,13 @@ const WizardPage: React.FC = () => {
                                     >
                                         {AI_MODELS.anthropic.map(m => <option key={m.id} value={m.id}>{m.name}</option>)}
                                     </select>
+                                    <button
+                                        onClick={(e) => { e.stopPropagation(); handleVerifyKey('anthropic'); }}
+                                        disabled={verifyingProvider === 'anthropic'}
+                                        className="w-full py-1.5 bg-zinc-700/50 hover:bg-zinc-700 text-[10px] font-bold text-zinc-300 rounded transition-all uppercase tracking-widest disabled:opacity-50"
+                                    >
+                                        {verifyingProvider === 'anthropic' ? '검증 중...' : '키 검증하기'}
+                                    </button>
                                 </div>
                             </div>
                         </div>
@@ -416,6 +483,25 @@ const WizardPage: React.FC = () => {
                                                 placeholder="예: 더 길게, 더 복잡하게, 더 많은 인원과 장소 추가해줘, 아이템 조합 요소도 넣어줘..."
                                                 className="w-full bg-black/50 border border-zinc-700 rounded-lg p-3 text-sm text-white focus:border-red-600 outline-none min-h-[80px] resize-none"
                                             />
+                                            {/* Deep Generation Overlay */}
+                                            {isDeepGenerating && (
+                                                <div className="fixed inset-0 z-[100] bg-black/90 backdrop-blur-md flex flex-col items-center justify-center p-8 text-center animate-in fade-in duration-500">
+                                                    <div className="relative mb-8">
+                                                        <Spinner className="w-20 h-20 border-4 border-red-600 border-t-transparent" />
+                                                        <div className="absolute inset-0 flex items-center justify-center">
+                                                            <span className="text-white text-xs font-bold animate-pulse">AI</span>
+                                                        </div>
+                                                    </div>
+                                                    <h3 className="text-3xl font-mystery font-bold text-white mb-4">마스터 디자인 심층 설계 중</h3>
+                                                    <p className="text-zinc-400 max-w-md mx-auto mb-2">
+                                                        사용자가 수동으로 입력해야 할 모든 디테일(조사 지점, 아이템 조합, 대화 트리)을 생성하고 있습니다.
+                                                    </p>
+                                                    <div className="px-4 py-2 bg-red-600/10 border border-red-600/20 rounded-full">
+                                                        <p className="text-red-500 font-mono text-sm tracking-tight">{deepProgress}</p>
+                                                    </div>
+                                                    <p className="mt-12 text-zinc-600 text-xs uppercase tracking-[0.3em]">잠시만 기다려 주세요...</p>
+                                                </div>
+                                            )}
                                         </div>
                                         <button
                                             onClick={handleRefine}
@@ -431,6 +517,19 @@ const WizardPage: React.FC = () => {
                     </div>
                 )}
             </div>
+
+            {/* Success Modal */}
+            {
+                successMsg && (
+                    <MessageModal
+                        isOpen={!!successMsg}
+                        type="INFO"
+                        title="Success"
+                        message={successMsg}
+                        onConfirm={() => setSuccessMsg('')}
+                    />
+                )
+            }
 
             {/* Error Modal */}
             {

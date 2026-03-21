@@ -88,20 +88,10 @@ export class DataManager {
         const title = gameData.title;
         const description = gameData.description || { KO: '설명 없음', EN: 'No description' };
 
-        // 2. Upload Thumbnail if it's a blob/base64 (simplification: assume currently handled or derived)
-        // For now, let's assume gameData might contain temp blob URLs that need to be processed?
-        // In a full implementation, we'd recursively scan gameData for Blob URLs, upload them, and replace with Storage URLs.
-        // BUT for this step, let's focus on the Save Logic first. 
-        // The Editor usually handles individual image uploads IMMEDIATELY when added? 
-        // OR we do it at save time? doing it at save time is safer for "Cancel" operations, but slower.
-        // Let's assume we do it at save time for now to ensure consistency.
-
-        // TODO: Recursive image processing implementation
-
         let targetGameId = gameId;
 
+        // 2. Create New Row if no ID to get the real DB UUID for Storage Path
         if (!targetGameId) {
-            // Create New
             const { data, error } = await supabase
                 .from('games')
                 .insert({
@@ -109,36 +99,51 @@ export class DataManager {
                     title,
                     description,
                     is_public: isPublic,
-                    thumbnail_url: null // Todo
+                    thumbnail_url: null 
                 })
                 .select()
                 .single();
 
             if (error) throw error;
             targetGameId = data.id;
-        } else {
-            // Update Metadata
-            await supabase
-                .from('games')
-                .update({
-                    title,
-                    description,
-                    is_public: isPublic
-                })
-                .eq('id', targetGameId);
+            gameData.id = targetGameId; 
         }
 
-        // Save Game Data Blob
+        // 3. Recursively Process & Upload Any Base64 Images
+        const processedGameData = await this.processGameDataImages(gameData, targetGameId);
+
+        // 4. Extract Thumbnail URL (Primary: gameData.thumbnail_url, Secondary: startScene.imageUrl)
+        let thumbnailUrl = null;
+        if ((processedGameData as any).thumbnail_url) {
+            thumbnailUrl = (processedGameData as any).thumbnail_url;
+        } else if (processedGameData.startSceneId && processedGameData.scenes[processedGameData.startSceneId]?.imageUrl) {
+            thumbnailUrl = processedGameData.scenes[processedGameData.startSceneId].imageUrl;
+        }
+
+        // 5. Update Metadata & Thumbnail
+        await supabase
+            .from('games')
+            .update({
+                title,
+                description,
+                is_public: isPublic,
+                thumbnail_url: thumbnailUrl
+            })
+            .eq('id', targetGameId);
+            
+        processedGameData.id = targetGameId; 
+
+        // 6. Save Processed Game Data JSON
         const { error: dataError } = await supabase
             .from('game_data')
             .upsert({
                 game_id: targetGameId,
-                data: gameData
+                data: processedGameData
             }, { onConflict: 'game_id' });
 
         if (dataError) throw dataError;
 
-        return targetGameId!;
+        return targetGameId;
     }
 
     static async deleteGame(gameId: string): Promise<void> {

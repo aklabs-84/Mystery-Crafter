@@ -8,6 +8,7 @@ import ItemEditor from './ItemEditor';
 import NPCEditor from './NPCEditor';
 import EditorSidebar from './EditorSidebar';
 import ConclusionEditor from './ConclusionEditor';
+import VisualMap from './VisualMap';
 import LocalizedInput from './LocalizedInput';
 import MessageModal from '../UI/MessageModal';
 
@@ -24,7 +25,7 @@ const GameEditor: React.FC<GameEditorProps> = ({ gameData, onSave, isSaving, isP
   const location = useLocation();
   const lang = 'KO'; // Force KO or fetch from user pref
   const t = translations[lang];
-  const [activeTab, setActiveTab] = useState<'SCENES' | 'ITEMS' | 'NPCS' | 'SETTINGS' | 'CONCLUSION'>('SCENES');
+  const [activeTab, setActiveTab] = useState<'SCENES' | 'ITEMS' | 'NPCS' | 'SETTINGS' | 'CONCLUSION' | 'MAP'>('SCENES');
   const [selectedEntityId, setSelectedEntityId] = useState<string | null>(gameData.startSceneId || (Object.keys(gameData.scenes)[0] || null));
   const [isSidebarOpen, setIsSidebarOpen] = useState(true);
   const [isTranslatingAll, setIsTranslatingAll] = useState(false);
@@ -278,6 +279,19 @@ const GameEditor: React.FC<GameEditorProps> = ({ gameData, onSave, isSaving, isP
       );
     }
 
+    if (activeTab === 'MAP') {
+      return (
+        <VisualMap
+          gameData={gameData}
+          lang={lang}
+          onSelectScene={(id) => {
+            setActiveTab('SCENES');
+            setSelectedEntityId(id);
+          }}
+        />
+      );
+    }
+
     if (!selectedEntityId) return (
       <div className="h-full flex flex-col items-center justify-center text-zinc-600 p-10 text-center">
         <div className="text-6xl mb-4 opacity-20">📂</div>
@@ -292,6 +306,7 @@ const GameEditor: React.FC<GameEditorProps> = ({ gameData, onSave, isSaving, isP
           <SceneEditor
             scene={gameData.scenes[selectedEntityId]}
             onUpdate={(u) => handleUpdate('scenes', selectedEntityId, u)}
+            onUpdateProject={(newData) => onSave(newData)}
             lang={lang}
             allAssets={gameData}
           />
@@ -370,7 +385,7 @@ const GameEditor: React.FC<GameEditorProps> = ({ gameData, onSave, isSaving, isP
         <div id="asset-sidebar-container" className="h-full">
           <EditorSidebar
             gameData={gameData}
-            activeTab={activeTab === 'CONCLUSION' ? 'SETTINGS' : activeTab}
+            activeTab={activeTab === 'CONCLUSION' || activeTab === 'MAP' ? 'SETTINGS' : activeTab}
             selectedId={selectedIdForSidebar(activeTab, selectedEntityId)}
             onTabChange={(t) => {
               if (t === 'SETTINGS') {
@@ -383,6 +398,7 @@ const GameEditor: React.FC<GameEditorProps> = ({ gameData, onSave, isSaving, isP
             onSelect={(id) => {
               if (id === 'settings-global') setActiveTab('SETTINGS');
               else if (id === 'settings-conclusion') setActiveTab('CONCLUSION');
+              else if (id === 'settings-map') setActiveTab('MAP');
               else setSelectedEntityId(id);
             }}
             onAdd={handleAdd}
@@ -419,6 +435,7 @@ const GameEditor: React.FC<GameEditorProps> = ({ gameData, onSave, isSaving, isP
 function selectedIdForSidebar(activeTab: string, selectedEntityId: string | null) {
   if (activeTab === 'SETTINGS') return 'settings-global';
   if (activeTab === 'CONCLUSION') return 'settings-conclusion';
+  if (activeTab === 'MAP') return 'settings-map';
   return selectedEntityId;
 }
 

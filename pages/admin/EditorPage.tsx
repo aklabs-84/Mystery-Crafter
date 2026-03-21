@@ -1,6 +1,6 @@
 
 import React, { useEffect, useState } from 'react';
-import { useParams, useNavigate } from 'react-router-dom';
+import { useParams, useNavigate, useLocation } from 'react-router-dom';
 import { DataManager } from '../../services/dataManager';
 import { GameData } from '../../types';
 import GameEditor from '../../components/Editor/GameEditor';
@@ -14,6 +14,7 @@ const EditorPage: React.FC = () => {
     const { gameId } = useParams();
     const { user } = useAuth();
     const navigate = useNavigate();
+    const location = useLocation();
     const [gameData, setGameData] = useState<GameData | null>(null);
     const [loading, setLoading] = useState(true);
     const [saving, setSaving] = useState(false);
@@ -54,6 +55,11 @@ const EditorPage: React.FC = () => {
             ]);
 
             if (data) {
+                if (data.isQuickMode) {
+                    const basePath = location.pathname.startsWith('/admin') ? '/admin/studio' : '/user/studio';
+                    navigate(`${basePath}/quick/${id}`, { replace: true });
+                    return;
+                }
                 setGameData(data);
                 if (meta) setIsPublic(meta.is_public);
             } else {

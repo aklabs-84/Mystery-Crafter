@@ -79,7 +79,7 @@ export class GeminiService {
 
         let specializedPrompt = prompt;
         const ratio = type === 'SCENE' ? '16:9' : type === 'NPC' ? '3:4' : '1:1';
-        const model = tier === AIModelTier.PRO ? 'gemini-3-pro-image-preview' : 'gemini-2.5-flash-image';
+        const model = tier === AIModelTier.PRO ? 'gemini-3-pro-image-preview' : 'gemini-3.1-flash-image-preview';
 
         if (type === 'ITEM') {
           context += " Single object, centered, high quality asset.";
@@ -284,6 +284,119 @@ export class GeminiService {
         const response = await ai.models.generateContent({ model: 'gemini-3-flash-preview', contents: prompt, config: { responseMimeType: 'application/json' } });
         return JSON.parse(response.text);
       } catch (error) { throw error; }
+    });
+  }
+
+  async generateQuickModeMystery(idea: string): Promise<{ title: string, imagePrompt: string, surfaceStory: string, hiddenTruth: string }> {
+    return this.callWithRetry(async () => {
+      const ai = new GoogleGenAI({ apiKey: AIManager.getActiveKey() });
+      const prompt = `You are a master creator of "Turtle Soup" (lateral thinking) puzzles.
+      Based on the following seed idea: "${idea}"
+      
+      Create a complete, chilling and clever Turtle Soup puzzle in Korean.
+      Output ONLY valid JSON in this exact format:
+      {
+        "title": "A catchy title for the mystery (Korean)",
+        "surfaceStory": "The surface story presented to the player. It should be mysterious, seemingly illogical, and intriguing. (Korean)",
+        "hiddenTruth": "The complete, shocking, but logically sound hidden truth. This is the absolute truth that the AI will use to answer players' Yes/No questions. (Korean)",
+        "imagePrompt": "An English prompt for an AI image generator to create a single dramatic scene illustrating the surface story. (English)"
+      }`;
+
+      const response = await ai.models.generateContent({
+        model: 'gemini-3-flash-preview',
+        contents: prompt,
+        config: { responseMimeType: 'application/json' }
+      });
+      return JSON.parse(response.text);
+    });
+  }
+
+  async askQuickModeQuestion(question: string, surfaceStory: string, hiddenTruth: string): Promise<{ status: 'yes'|'no'|'irrelevant'|'close', message: string }> {
+    return this.callWithRetry(async () => {
+      const ai = new GoogleGenAI({ apiKey: AIManager.getActiveKey() });
+      const prompt = `You are a strict Game Master for a "Turtle Soup" (lateral thinking) puzzle.
+      
+      SURFACE STORY (Player knows this): "${surfaceStory}"
+      HIDDEN TRUTH (Player must guess this): "${hiddenTruth}"
+      
+      THE PLAYER ASKS: "${question}"
+      
+      RULES:
+      1. You must answer strictly based on if the player's question is true or false according to the HIDDEN TRUTH.
+      2. If the question asks about something not mentioned in or not logically deducible from the HIDDEN TRUTH, answer 'irrelevant'.
+      3. If the question correctly guesses a HUGE part of the HIDDEN TRUTH, answer 'close'.
+      4. Output ONLY valid JSON in this exact format:
+      {
+        "status": "yes" | "no" | "irrelevant" | "close",
+        "message": "A short, atmospheric Korean response perfectly fitting the status. Examples: '예, 그렇습니다.', '아니오, 사실이 아닙니다.', '이 사건과 관계없는 질문입니다.', '정답에 매우 근접했습니다!'"
+      }`;
+
+      const response = await ai.models.generateContent({
+        model: 'gemini-3-flash-preview',
+        contents: prompt,
+        config: { responseMimeType: 'application/json' }
+      });
+      return JSON.parse(response.text);
+    });
+  }
+
+  async askQuickModeHint(surfaceStory: string, hiddenTruth: string, chatHistory: string): Promise<{ status: 'hint', message: string }> {
+    return this.callWithRetry(async () => {
+      const ai = new GoogleGenAI({ apiKey: AIManager.getActiveKey() });
+      const prompt = `You are a helpful but mysterious Game Master for a "Turtle Soup" puzzle.
+      
+      SURFACE STORY (Player knows this): "${surfaceStory}"
+      HIDDEN TRUTH (Player must guess this): "${hiddenTruth}"
+      
+      QUESTIONS ASKED SO FAR: 
+      ${chatHistory || "None"}
+      
+      The player is stuck and requested a hint.
+      Provide ONE subtle, mysterious clue in Korean that nudges them toward the HIDDEN TRUTH without giving away the direct answer.
+      If they haven't asked many questions, give a very broad hint. If they've asked a lot, give a more specific hint.
+      
+      Output ONLY valid JSON in this exact format:
+      {
+        "status": "hint",
+        "message": "The text of your hint in Korean."
+      }`;
+
+      const response = await ai.models.generateContent({
+        model: 'gemini-3-flash-preview',
+        contents: prompt,
+        config: { responseMimeType: 'application/json' }
+      });
+      return JSON.parse(response.text);
+    });
+  }
+
+  async evaluateQuickModeSolution(surfaceStory: string, hiddenTruth: string, playerSolution: string): Promise<{ isCorrect: boolean, feedback: string }> {
+    return this.callWithRetry(async () => {
+      const ai = new GoogleGenAI({ apiKey: AIManager.getActiveKey() });
+      const prompt = `You are the ultimate judge for a "Turtle Soup" mystery.
+      
+      SURFACE STORY (What the player saw originally): "${surfaceStory}"
+      HIDDEN TRUTH (The actual full answer): "${hiddenTruth}"
+      
+      PLAYER'S FINAL DEDUCTION: "${playerSolution}"
+      
+      CRITICAL INSTRUCTION:
+      Compare the PLAYER'S FINAL DEDUCTION against the HIDDEN TRUTH.
+      Determine if the player has successfully deduced the core, crucial elements of the hidden truth. 
+      They do not need to have every single minor detail perfect, but the absolute main twist/motive/cause must be present.
+      
+      Output ONLY valid JSON in this exact format:
+      {
+        "isCorrect": true | false,
+        "feedback": "A short, atmospheric Korean message. If correct, confirm their brilliance and briefly restate the tragedy. If wrong, give a chilling warning that they missed the mark (e.g., '당신의 추리는 표면만 핥고 있습니다...')."
+      }`;
+
+      const response = await ai.models.generateContent({
+        model: 'gemini-3-flash-preview',
+        contents: prompt,
+        config: { responseMimeType: 'application/json' }
+      });
+      return JSON.parse(response.text);
     });
   }
 }

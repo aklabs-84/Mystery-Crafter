@@ -4,7 +4,7 @@ import { useAuth } from '../context/AuthContext';
 import Header from '../components/UI/Header';
 
 const GalleryPage: React.FC = () => {
-    const { user, signInWithGoogle, signInWithKakao, signOut } = useAuth();
+    const { user, userType, signInWithGoogle, signInWithKakao, signOut } = useAuth();
 
 
     return (
@@ -35,7 +35,8 @@ const GalleryPage: React.FC = () => {
                         </Link>
                         {user ? (
                             <Link
-                                to="/admin/wizard"
+                                to={userType === 'admin' ? "/admin/studio" : "/user/studio"}
+                                state={{ createModalOpen: true }}
                                 className="w-full sm:w-auto px-8 md:px-10 py-4 md:py-5 bg-red-600 text-white font-bold rounded-full hover:bg-red-500 hover:scale-105 transition-all shadow-[0_0_30px_rgba(220,38,38,0.3)] min-w-[200px] flex items-center justify-center gap-3 text-sm md:text-base"
                             >
                                 <span>나만의 사건 만들기</span>

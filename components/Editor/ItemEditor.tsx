@@ -19,6 +19,8 @@ const ItemEditor: React.FC<ItemEditorProps> = ({ item, onUpdate, lang, allAssets
   const t = translations[lang];
   const [isGenerating, setIsGenerating] = useState(false);
   const [isGeneratingDetail, setIsGeneratingDetail] = useState(false);
+  const [isSuggestingDesc, setIsSuggestingDesc] = useState(false);
+  const [isSuggestingPrompt, setIsSuggestingPrompt] = useState(false);
   const [imageError, setImageError] = useState(false);
   const [detailImageError, setDetailImageError] = useState(false);
 
@@ -64,6 +66,38 @@ const ItemEditor: React.FC<ItemEditorProps> = ({ item, onUpdate, lang, allAssets
       return;
     }
     await executeGenerateDetail();
+  };
+
+  const handleSuggestDescription = async () => {
+    if (!l(item.name)) return;
+    setIsSuggestingDesc(true);
+    try {
+      const desc = await AIManager.generateDescription(l(item.name), 'ITEM', allAssets.description.KO);
+      if (desc) {
+        onUpdate({ description: { ...item.description, [lang]: desc } });
+      }
+    } catch (e) {
+      console.error(e);
+    } finally {
+      setIsSuggestingDesc(false);
+    }
+  };
+
+  const handleSuggestPrompt = async () => {
+    const name = l(item.name);
+    const desc = l(item.description);
+    if (!name || !desc) return;
+    setIsSuggestingPrompt(true);
+    try {
+      const prompt = await AIManager.generateImagePrompt(name, desc, allAssets.visualStyle || VisualStyle.LIGNE_CLAIRE);
+      if (prompt) {
+        onUpdate({ imagePrompt: { ...item.imagePrompt, [lang]: prompt } });
+      }
+    } catch (e) {
+      console.error(e);
+    } finally {
+      setIsSuggestingPrompt(false);
+    }
   };
 
   const otherItems = (Object.values(allAssets.items) as Item[]).filter(i => i.id !== item.id);
@@ -128,18 +162,37 @@ const ItemEditor: React.FC<ItemEditorProps> = ({ item, onUpdate, lang, allAssets
       <div className="grid grid-cols-1 md:grid-cols-2 gap-10">
         <section className="space-y-6">
           <div className="bg-zinc-900/50 p-6 rounded-2xl border border-white/5">
-            <label className="block text-xs font-bold text-zinc-500 uppercase tracking-widest mb-4">{t.aiPrompt}</label>
+            <div className="flex justify-between items-center mb-4">
+              <label className="block text-xs font-bold text-zinc-500 uppercase tracking-widest">{t.aiPrompt}</label>
+              <button
+                onClick={handleSuggestPrompt}
+                disabled={isSuggestingPrompt || !l(item.description)}
+                className="text-[9px] font-bold text-blue-500 hover:text-white disabled:opacity-30 transition-all uppercase tracking-widest"
+              >
+                {isSuggestingPrompt ? t.working : '✨ ' + t.aiSuggest}
+              </button>
+            </div>
             <textarea
               value={l(item.imagePrompt) || ''}
-              onChange={(e) => onUpdate({ imagePrompt: e.target.value })}
+              onChange={(e) => onUpdate({ imagePrompt: { ...item.imagePrompt, [lang]: e.target.value } })}
               className="w-full h-24 bg-zinc-800 border border-white/10 rounded-lg p-3 text-sm outline-none focus:border-blue-500 transition-all resize-none text-white"
               placeholder="..."
             />
           </div>
 
           <div className="bg-zinc-900/50 p-6 rounded-2xl border border-white/5">
+            <div className="flex justify-between items-center mb-1">
+              <label className="block text-[10px] font-bold text-zinc-500 uppercase tracking-widest">{t.description}</label>
+              <button
+                onClick={handleSuggestDescription}
+                disabled={isSuggestingDesc || !l(item.name)}
+                className="text-[9px] font-bold text-blue-500 hover:text-white disabled:opacity-30 transition-all uppercase tracking-widest"
+              >
+                {isSuggestingDesc ? t.working : '✨ ' + t.aiSuggest}
+              </button>
+            </div>
             <LocalizedInput
-              label={t.description}
+              label=""
               value={item.description}
               onChange={(v) => onUpdate({ description: v })}
               lang={lang}

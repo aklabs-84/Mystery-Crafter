@@ -18,6 +18,8 @@ interface NPCEditorProps {
 const NPCEditor: React.FC<NPCEditorProps> = ({ npc, onUpdate, lang, allAssets }) => {
   const t = translations[lang];
   const [isGenerating, setIsGenerating] = useState(false);
+  const [isSuggestingPersona, setIsSuggestingPersona] = useState(false);
+  const [isSuggestingPrompt, setIsSuggestingPrompt] = useState(false);
   const [editingNodeId, setEditingNodeId] = useState<string | null>(npc?.initialDialogueId || null);
   const [imageError, setImageError] = useState(false);
   const [tempNodeId, setTempNodeId] = useState<string>('');
@@ -50,6 +52,38 @@ const NPCEditor: React.FC<NPCEditorProps> = ({ npc, onUpdate, lang, allAssets })
       return;
     }
     await executeGeneratePortrait();
+  };
+
+  const handleSuggestPersona = async () => {
+    if (!l(npc.name)) return;
+    setIsSuggestingPersona(true);
+    try {
+      const persona = await AIManager.generateDescription(l(npc.name), 'NPC', allAssets.description.KO);
+      if (persona) {
+        onUpdate({ secretPersona: { ...npc.secretPersona, [lang]: persona } });
+      }
+    } catch (e) {
+      console.error(e);
+    } finally {
+      setIsSuggestingPersona(false);
+    }
+  };
+
+  const handleSuggestPrompt = async () => {
+    const name = l(npc.name);
+    const persona = l(npc.secretPersona);
+    if (!name || !persona) return;
+    setIsSuggestingPrompt(true);
+    try {
+      const prompt = await AIManager.generateImagePrompt(name, persona, allAssets.visualStyle || VisualStyle.LIGNE_CLAIRE);
+      if (prompt) {
+        onUpdate({ imagePrompt: prompt });
+      }
+    } catch (e) {
+      console.error(e);
+    } finally {
+      setIsSuggestingPrompt(false);
+    }
   };
 
   const handleAddNode = () => {
@@ -201,7 +235,16 @@ const NPCEditor: React.FC<NPCEditorProps> = ({ npc, onUpdate, lang, allAssets })
             </div>
           </div>
           <div className="bg-zinc-900/50 p-6 rounded-2xl border border-white/5">
-            <label className="block text-xs font-bold text-zinc-500 uppercase tracking-widest mb-4">{t.aiPrompt}</label>
+            <div className="flex justify-between items-center mb-4">
+              <label className="block text-xs font-bold text-zinc-500 uppercase tracking-widest">{t.aiPrompt}</label>
+              <button
+                onClick={handleSuggestPrompt}
+                disabled={isSuggestingPrompt || !l(npc.secretPersona)}
+                className="text-[9px] font-bold text-emerald-500 hover:text-white disabled:opacity-30 transition-all uppercase tracking-widest"
+              >
+                {isSuggestingPrompt ? t.working : '✨ ' + t.aiSuggest}
+              </button>
+            </div>
             <textarea value={npc.imagePrompt || ''} onChange={(e) => onUpdate({ imagePrompt: e.target.value })} className="w-full h-24 bg-zinc-800 border border-white/10 rounded-lg p-3 text-sm text-white outline-none focus:border-emerald-500 transition-all resize-none" placeholder="..." />
           </div>
 
@@ -221,7 +264,19 @@ const NPCEditor: React.FC<NPCEditorProps> = ({ npc, onUpdate, lang, allAssets })
         </section>
 
         <section className="lg:col-span-8 space-y-8">
-          <LocalizedInput label={t.secretPersona} value={npc.secretPersona || { KO: '', EN: '' }} onChange={(v) => onUpdate({ secretPersona: v })} lang={lang} multiline className="bg-emerald-900/5 p-6 rounded-2xl border border-emerald-500/10" />
+          <div className="bg-emerald-900/5 p-6 rounded-2xl border border-emerald-500/10">
+            <div className="flex justify-between items-center mb-1">
+              <label className="block text-xs font-bold text-emerald-500/70 uppercase tracking-widest">{t.secretPersona}</label>
+              <button
+                onClick={handleSuggestPersona}
+                disabled={isSuggestingPersona || !l(npc.name)}
+                className="text-[9px] font-bold text-emerald-500 hover:text-white disabled:opacity-30 transition-all uppercase tracking-widest"
+              >
+                {isSuggestingPersona ? t.working : '✨ ' + t.aiSuggest}
+              </button>
+            </div>
+            <LocalizedInput label="" value={npc.secretPersona || { KO: '', EN: '' }} onChange={(v) => onUpdate({ secretPersona: v })} lang={lang} multiline />
+          </div>
 
           <div className="bg-zinc-900/30 rounded-3xl border border-white/5 p-8 space-y-6">
             <div className="flex justify-between items-center border-b border-white/5 pb-4">

@@ -2,7 +2,7 @@
 import React, { useEffect, useState } from 'react';
 import { useAuth } from '../../context/AuthContext';
 import { supabase } from '../../services/supabase';
-import { Link, useNavigate } from 'react-router-dom';
+import { Link, useNavigate, useLocation } from 'react-router-dom';
 
 import { DataManager } from '../../services/dataManager';
 // Removed static import of gameSample (44MB)
@@ -16,8 +16,9 @@ interface StudioPageProps {
 }
 
 const StudioPage: React.FC<StudioPageProps> = ({ isAdmin = false }) => {
-    const { user, signInWithGoogle, signInWithKakao } = useAuth();
+    const { user, loading: authLoading, signInWithGoogle, signInWithKakao } = useAuth();
     const navigate = useNavigate();
+    const location = useLocation();
     const [projects, setProjects] = useState<any[]>([]);
     const [loading, setLoading] = useState(true);
     const [importing, setImporting] = useState(false);
@@ -74,8 +75,20 @@ const StudioPage: React.FC<StudioPageProps> = ({ isAdmin = false }) => {
     };
 
     useEffect(() => {
-        if (user) fetchProjects();
-    }, [user]);
+        if (location.state && (location.state as any).createModalOpen) {
+            setShowCreateModal(true);
+            window.history.replaceState({}, document.title);
+        }
+    }, [location]);
+
+    useEffect(() => {
+        if (authLoading) return;
+        if (user) {
+            fetchProjects();
+        } else {
+            setLoading(false);
+        }
+    }, [user, authLoading]);
 
     const fetchProjects = async () => {
         const { data, error } = await supabase
@@ -107,6 +120,46 @@ const StudioPage: React.FC<StudioPageProps> = ({ isAdmin = false }) => {
             setImporting(false);
             // Reset input
             event.target.value = '';
+        }
+    };
+
+    // Quick Mode Creation Handler
+    const handleQuickCreate = async () => {
+        if (!user) return;
+        setCreating(true);
+        try {
+            const tempId = `temp_${Date.now()}`;
+            const emptyGame = {
+                id: tempId,
+                title: { KO: '바다거북스프 미스터리', EN: 'Turtle Soup Mystery' },
+                description: { KO: '설명을 입력하세요.', EN: 'Enter description.' },
+                startSceneId: 'scene_1',
+                scenes: {
+                    'scene_1': {
+                        id: 'scene_1',
+                        name: { KO: '단일 씬', EN: 'Single Scene' },
+                        visualStyle: 'ligne_claire',
+                        imagePrompt: '',
+                        descriptionText: { KO: '', EN: '' },
+                        hotspots: [],
+                        npcIds: []
+                    }
+                },
+                items: {},
+                npcs: {},
+                initialFlags: {},
+                isQuickMode: true
+            };
+            const realId = await DataManager.saveGame(null, emptyGame as any, user.id, false);
+            await fetchProjects();
+            const studioBase = isAdmin ? '/admin/studio' : '/user/studio';
+            navigate(`${studioBase}/quick/${realId}`);
+            setShowCreateModal(false);
+        } catch (e) {
+            console.error(e);
+            showAlert('Error', 'Failed to create Quick Mode game.');
+        } finally {
+            setCreating(false);
         }
     };
 
@@ -270,7 +323,15 @@ const StudioPage: React.FC<StudioPageProps> = ({ isAdmin = false }) => {
     return (
         <div className="relative min-h-full">
             <div className="flex justify-between items-center mb-8">
-                <h2 className="text-3xl font-bold font-mystery text-red-600">내 스튜디오</h2>
+                <div className="flex items-center gap-4">
+                    <h2 className="text-3xl font-bold font-mystery text-red-600">내 스튜디오</h2>
+                    <button 
+                        onClick={() => navigate('/play/multiplayer')}
+                        className="flex items-center gap-2 px-4 py-2 bg-zinc-900 hover:bg-zinc-800 border border-zinc-800 hover:border-emerald-600/50 text-emerald-400 rounded-xl font-bold text-xs transition-all shadow-lg"
+                    >
+                        <span>🚪</span> 참여 코드로 입장
+                    </button>
+                </div>
                 {isAdmin && (
                     <div className="flex items-center gap-2">
                         <label className={`text-xs font-bold uppercase tracking-widest text-zinc-500 hover:text-white transition cursor-pointer ${importing ? 'opacity-50 pointer-events-none' : ''}`}>
@@ -353,6 +414,17 @@ const StudioPage: React.FC<StudioPageProps> = ({ isAdmin = false }) => {
                                     )}
                                 </button>
                                 <button
+                                    onClick={(e) => {
+                                        e.preventDefault();
+                                        e.stopPropagation();
+                                        navigate(`/play/multiplayer/host/${p.id}`);
+                                    }}
+                                    className="p-2 bg-black/60 hover:bg-emerald-600 rounded-full text-zinc-300 hover:text-white transition backdrop-blur-sm"
+                                    title="Host Multiplayer"
+                                >
+                                    <svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"/><circle cx="9" cy="7" r="4"/><path d="M23 21v-2a4 4 0 0 0-3-3.87"/><path d="M16 3.13a4 4 0 0 1 0 7.75"/></svg>
+                                </button>
+                                <button
                                     onClick={(e) => handleEditClick(e, p)}
                                     className="p-2 bg-black/60 hover:bg-red-600 rounded-full text-zinc-300 hover:text-white transition backdrop-blur-sm"
                                     title="Edit Details"
@@ -393,33 +465,48 @@ const StudioPage: React.FC<StudioPageProps> = ({ isAdmin = false }) => {
                             <p className="text-zinc-500">새로운 사건을 생성할 방법을 선택하세요.</p>
                         </div>
 
-                        <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-                            {/* AI Wizard Option */}
+                        <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
+                            {/* Quick Mode Option */}
+                            <button
+                                onClick={handleQuickCreate}
+                                disabled={creating}
+                                className="group relative h-72 border border-zinc-800 bg-zinc-900/50 hover:bg-zinc-900 hover:border-red-600/50 rounded-2xl p-6 flex flex-col items-center justify-center gap-6 transition-all"
+                            >
+                                <div className="p-4 rounded-full bg-gradient-to-br from-green-500/20 to-emerald-500/20 border border-green-500/30 group-hover:scale-110 transition-transform duration-500">
+                                    <span className="text-2xl">🐢</span>
+                                </div>
+                                <div className="text-center space-y-2">
+                                    <h4 className="text-xl font-bold text-white group-hover:text-green-400 transition-colors">Quick Mode<br/><span className="inline-block mt-2 text-xs border border-white/20 px-3 py-1 bg-white/5 rounded-full">(바다거북스프)</span></h4>
+                                    <p className="text-sm text-zinc-500 break-keep pt-2">단 3개의 서식만 입력하여 1분 만에 AI 심문 게임을 만듭니다.</p>
+                                </div>
+                            </button>
+
+                            {/* Pro Mode: AI Option */}
                             <button
                                 onClick={handleAiCreate}
-                                className="group relative h-64 border border-zinc-800 bg-zinc-900/50 hover:bg-zinc-900 hover:border-red-600/50 rounded-2xl p-6 flex flex-col items-center justify-center gap-6 transition-all"
+                                className="group relative h-72 border border-zinc-800 bg-zinc-900/50 hover:bg-zinc-900 hover:border-red-600/50 rounded-2xl p-6 flex flex-col items-center justify-center gap-6 transition-all"
                             >
                                 <div className="p-4 rounded-full bg-gradient-to-br from-indigo-500/20 to-purple-500/20 border border-indigo-500/30 group-hover:scale-110 transition-transform duration-500">
                                     <svg xmlns="http://www.w3.org/2000/svg" width="32" height="32" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" className="text-indigo-400"><path d="M12 2a10 10 0 1 0 10 10H12V2z" /><path d="M12 12 2.1 10.5M22 22l-10-10" /></svg>
                                 </div>
                                 <div className="text-center space-y-2">
-                                    <h4 className="text-xl font-bold text-white group-hover:text-indigo-400 transition-colors">AI 어시스턴트</h4>
-                                    <p className="text-sm text-zinc-500 break-keep">AI를 사용하여 전체 미스터리 구조를 생성합니다. 빠른 시작에 적합합니다.</p>
+                                    <h4 className="text-xl font-bold text-white group-hover:text-indigo-400 transition-colors">Pro Mode<br/><span className="inline-block mt-2 text-xs text-indigo-400 border border-indigo-400/50 bg-indigo-500/10 px-3 py-1 rounded-full">AI 맵 설계</span></h4>
+                                    <p className="text-sm text-zinc-500 break-keep pt-2">AI 어시스턴트를 통해 깊이 있는 다중 씬 로직을 자동 생성합니다.</p>
                                 </div>
                             </button>
 
-                            {/* Manual Option */}
+                            {/* Pro Mode: Manual Option */}
                             <button
                                 onClick={handleManualCreate}
                                 disabled={creating}
-                                className="group relative h-64 border border-zinc-800 bg-zinc-900/50 hover:bg-zinc-900 hover:border-red-600/50 rounded-2xl p-6 flex flex-col items-center justify-center gap-6 transition-all"
+                                className="group relative h-72 border border-zinc-800 bg-zinc-900/50 hover:bg-zinc-900 hover:border-red-600/50 rounded-2xl p-6 flex flex-col items-center justify-center gap-6 transition-all"
                             >
                                 <div className="p-4 rounded-full bg-zinc-800 border border-zinc-700 group-hover:scale-110 transition-transform duration-500">
                                     <svg xmlns="http://www.w3.org/2000/svg" width="32" height="32" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" className="text-zinc-400 group-hover:text-white"><line x1="12" y1="5" x2="12" y2="19" /><line x1="5" y1="12" x2="19" y2="12" /></svg>
                                 </div>
                                 <div className="text-center space-y-2">
-                                    <h4 className="text-xl font-bold text-white group-hover:text-white transition-colors">직접 만들기</h4>
-                                    <p className="text-sm text-zinc-500 break-keep">모든 디테일을 직접 구성합니다. 완벽한 제어를 원할 때 적합합니다.</p>
+                                    <h4 className="text-xl font-bold text-white group-hover:text-white transition-colors">Pro Mode<br/><span className="inline-block mt-2 text-xs text-zinc-400 border border-zinc-400/50 bg-zinc-800/50 px-3 py-1 rounded-full">수동 설계</span></h4>
+                                    <p className="text-sm text-zinc-500 break-keep pt-2">모든 디테일을 직접 구성합니다. 완벽한 제어를 원할 때 적합합니다.</p>
                                 </div>
                             </button>
                         </div>
