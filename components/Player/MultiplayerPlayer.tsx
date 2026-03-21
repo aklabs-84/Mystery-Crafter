@@ -18,6 +18,8 @@ const MultiplayerPlayer: React.FC = () => {
     const [isSolving, setIsSolving] = useState(false);
     const chatEndRef = useRef<HTMLDivElement>(null);
     const handledMsgIdsRef = useRef<Set<string>>(new Set());
+    const hasAutoPassedRef = useRef(false);
+    const lastTurnPlayerRef = useRef<string | null>(null);
 
     // 1. Realtime Sync Hook
     const { session, players, messages, loading, error, timeLeft, sendMessage, passTurn, leaveSession, endSession } = useMultiplayer(
@@ -36,12 +38,25 @@ const MultiplayerPlayer: React.FC = () => {
 
     // ── 모든 useEffect는 early return 이전에 선언 (Rules of Hooks) ──
 
-    // 0.6 타이머 만료 시 자동 턴 넘기기
+    // 0.6 타이머 만료 시 자동 턴 넘기기 (턴당 1회만)
     useEffect(() => {
-        if (timeLeft === 0 && isMyTurn) {
-            passTurn();
+        const currentTurnPlayer = session?.current_turn_player;
+        if (!currentTurnPlayer) return;
+
+        // 턴이 바뀌면 자동 넘기기 플래그 리셋
+        if (lastTurnPlayerRef.current !== currentTurnPlayer) {
+            lastTurnPlayerRef.current = currentTurnPlayer;
+            hasAutoPassedRef.current = false;
         }
-        if (timeLeft === -5 && session?.host_name === playerName && session?.current_turn_player !== playerName) {
+
+        if (hasAutoPassedRef.current) return;
+
+        if (timeLeft === 0 && isMyTurn) {
+            hasAutoPassedRef.current = true;
+            passTurn();
+        } else if (timeLeft === -5 && session?.host_name === playerName && !isMyTurn) {
+            // 호스트 백업: 다른 플레이어 타이머 만료 시 강제 넘기기
+            hasAutoPassedRef.current = true;
             passTurn();
         }
     }, [timeLeft, isMyTurn, passTurn, session?.host_name, session?.current_turn_player, playerName]);
