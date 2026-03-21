@@ -12,6 +12,12 @@ dist
 dist-ssr
 *.local
 
+# Internal tool files
+.agents/
+Docs/.bkit-memory.json
+Docs/.pdca-snapshots/
+Docs/.pdca-status.json
+
 # Editor directories and files
 .vscode/*
 !.vscode/extensions.json
