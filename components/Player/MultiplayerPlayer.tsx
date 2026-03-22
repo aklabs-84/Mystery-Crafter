@@ -95,13 +95,22 @@ const MultiplayerPlayer: React.FC = () => {
         // 승리 메시지에서 winner 이름 파싱
         const victoryMsg = messages.find(m => m.message_type === 'system' && m.content.includes('[수사 완료]'));
         if (victoryMsg) {
-            // "🏆 [수사 완료] OOO 탐정이 진실을 밝혀냈습니다!!" 패턴에서 이름 추출
             const match = victoryMsg.content.match(/\[수사 완료\] (.+?) 탐정이/);
             const winner = match ? match[1] : '알 수 없음';
             setGameResult({ winner });
         } else {
-            // 승리 메시지 없이 종료 = 방장이 강제 폐쇄
-            navigate('/games');
+            // 메시지가 아직 안 도착했을 수 있으므로 2초 대기 후 재확인
+            const timer = setTimeout(() => {
+                const delayed = messages.find(m => m.message_type === 'system' && m.content.includes('[수사 완료]'));
+                if (delayed) {
+                    const match = delayed.content.match(/\[수사 완료\] (.+?) 탐정이/);
+                    setGameResult({ winner: match ? match[1] : '알 수 없음' });
+                } else {
+                    // 2초 후에도 승리 메시지 없음 = 방장 강제 폐쇄
+                    navigate('/games');
+                }
+            }, 2000);
+            return () => clearTimeout(timer);
         }
     }, [session?.is_active, messages, gameResult, navigate]);
 
@@ -205,23 +214,41 @@ const MultiplayerPlayer: React.FC = () => {
     if (gameResult) {
         const isWinner = gameResult.winner === playerName;
         return (
-            <div className="fixed inset-0 bg-black/95 flex flex-col items-center justify-center z-50 text-white text-center p-8">
-                <div className="text-8xl mb-6">{isWinner ? '🏆' : '🕵️'}</div>
-                <h1 className="text-4xl font-black font-mystery tracking-widest text-red-500 mb-4">
-                    {isWinner ? '수사 완료!' : '사건 해결!'}
-                </h1>
-                <p className="text-xl text-zinc-300 mb-2">
-                    {isWinner
-                        ? '당신이 진실을 밝혀냈습니다!'
-                        : `${gameResult.winner} 탐정이 진실을 밝혀냈습니다!`}
-                </p>
-                <p className="text-sm text-zinc-500 mb-10">숨겨진 진실: {hiddenTruth}</p>
-                <button
-                    onClick={() => navigate('/games')}
-                    className="px-8 py-3 bg-red-600 hover:bg-red-700 text-white font-bold rounded-xl transition text-lg"
-                >
-                    게임 목록으로 돌아가기
-                </button>
+            <div className="fixed inset-0 bg-[#050505] flex flex-col items-center justify-center z-50 text-white text-center px-6 py-12 overflow-y-auto">
+                <div className="max-w-2xl w-full mx-auto flex flex-col items-center gap-6">
+                    {/* 트로피 */}
+                    <div className="text-8xl">{isWinner ? '🏆' : '🕵️'}</div>
+
+                    {/* 타이틀 */}
+                    <h1 className="text-5xl font-black font-mystery tracking-widest text-red-500">
+                        수사 완료!
+                    </h1>
+
+                    {/* 승자 */}
+                    <p className="text-xl text-zinc-300">
+                        {isWinner
+                            ? '당신이 진실을 밝혀냈습니다!'
+                            : `${gameResult.winner} 탐정이 진실을 밝혀냈습니다!`}
+                    </p>
+
+                    {/* 숨겨진 진실 박스 */}
+                    <div className="w-full bg-zinc-900/80 border border-zinc-700 rounded-2xl p-6 text-left mt-2">
+                        <p className="text-xs font-bold text-zinc-500 uppercase tracking-widest mb-3 flex items-center gap-2">
+                            <span className="w-1.5 h-1.5 bg-red-500 rounded-full"></span>
+                            숨겨진 진실
+                        </p>
+                        <p className="text-zinc-100 text-base md:text-lg leading-relaxed break-keep font-serif">
+                            {hiddenTruth}
+                        </p>
+                    </div>
+
+                    <button
+                        onClick={() => navigate('/games')}
+                        className="mt-4 px-10 py-4 bg-red-600 hover:bg-red-700 text-white font-bold rounded-xl transition text-lg"
+                    >
+                        게임 목록으로 돌아가기
+                    </button>
+                </div>
             </div>
         );
     }
@@ -297,9 +324,8 @@ const MultiplayerPlayer: React.FC = () => {
 
                         {(isMyTurn || session?.host_name === playerName) && session?.current_turn_player && (
                             <button
-                                onClick={passTurn}
-                                disabled={isThinking}
-                                className="text-xs bg-zinc-800 hover:bg-zinc-700 px-2 py-1.5 rounded border border-zinc-700 transition disabled:opacity-40"
+                                onClick={() => passTurn()}
+                                className="text-xs bg-zinc-800 hover:bg-zinc-700 px-2 py-1.5 rounded border border-zinc-700 transition"
                             >
                                 턴 넘기기 ➡️
                             </button>
