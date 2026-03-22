@@ -17,6 +17,9 @@ dist-ssr
 Docs/.bkit-memory.json
 Docs/.pdca-snapshots/
 Docs/.pdca-status.json
+Docs/Log_*.md
+Docs/Phase*.md
+Docs/V1_*.md
 
 # Editor directories and files
 .vscode/*
