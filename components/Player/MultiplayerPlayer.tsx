@@ -16,6 +16,7 @@ const MultiplayerPlayer: React.FC = () => {
     const [isThinking, setIsThinking] = useState(false);
     const [inputValue, setInputValue] = useState('');
     const [isSolving, setIsSolving] = useState(false);
+    const [gameResult, setGameResult] = useState<{ winner: string } | null>(null);
     const chatEndRef = useRef<HTMLDivElement>(null);
 
     // 1. Realtime Sync Hook
@@ -82,12 +83,23 @@ const MultiplayerPlayer: React.FC = () => {
         chatEndRef.current?.scrollIntoView({ behavior: 'smooth' });
     }, [messages]);
 
-    // 세션 종료 시 모든 참가자 이동
+    // 세션 종료 시 처리
     useEffect(() => {
-        if (session && !session.is_active) {
+        if (!session || session.is_active) return;
+        if (gameResult) return; // 이미 결과 화면 표시 중
+
+        // 승리 메시지에서 winner 이름 파싱
+        const victoryMsg = messages.find(m => m.message_type === 'system' && m.content.includes('[수사 완료]'));
+        if (victoryMsg) {
+            // "🏆 [수사 완료] OOO 탐정이 진실을 밝혀냈습니다!!" 패턴에서 이름 추출
+            const match = victoryMsg.content.match(/\[수사 완료\] (.+?) 탐정이/);
+            const winner = match ? match[1] : '알 수 없음';
+            setGameResult({ winner });
+        } else {
+            // 승리 메시지 없이 종료 = 방장이 강제 폐쇄
             navigate('/games');
         }
-    }, [session?.is_active, navigate]);
+    }, [session?.is_active, messages, gameResult, navigate]);
 
     // (HOST 중계 구조 제거 - 각 플레이어가 직접 AI 호출)
 
@@ -159,6 +171,7 @@ const MultiplayerPlayer: React.FC = () => {
             await sendMessage(reply.feedback, 'answer_ai', reply.isCorrect ? 'yes' : 'no');
 
             if (reply.isCorrect) {
+                setGameResult({ winner: playerName });
                 await supabase.from('game_sessions').update({ is_active: false }).eq('id', session.id);
                 await sendMessage(`🏆 [수사 완료] ${playerName} 탐정이 진실을 밝혀냈습니다!!`, 'system');
             } else {
@@ -183,6 +196,31 @@ const MultiplayerPlayer: React.FC = () => {
     const isCritical = timeLeft <= 5 && !!session?.current_turn_player;
     const isUrgent = timeLeft <= 10 && !!session?.current_turn_player;
     const timerColor = isCritical ? '#ef4444' : isUrgent ? '#f97316' : '#22c55e';
+
+    // 승리 화면 오버레이
+    if (gameResult) {
+        const isWinner = gameResult.winner === playerName;
+        return (
+            <div className="fixed inset-0 bg-black/95 flex flex-col items-center justify-center z-50 text-white text-center p-8">
+                <div className="text-8xl mb-6">{isWinner ? '🏆' : '🕵️'}</div>
+                <h1 className="text-4xl font-black font-mystery tracking-widest text-red-500 mb-4">
+                    {isWinner ? '수사 완료!' : '사건 해결!'}
+                </h1>
+                <p className="text-xl text-zinc-300 mb-2">
+                    {isWinner
+                        ? '당신이 진실을 밝혀냈습니다!'
+                        : `${gameResult.winner} 탐정이 진실을 밝혀냈습니다!`}
+                </p>
+                <p className="text-sm text-zinc-500 mb-10">숨겨진 진실: {hiddenTruth}</p>
+                <button
+                    onClick={() => navigate('/games')}
+                    className="px-8 py-3 bg-red-600 hover:bg-red-700 text-white font-bold rounded-xl transition text-lg"
+                >
+                    게임 목록으로 돌아가기
+                </button>
+            </div>
+        );
+    }
 
     return (
         <div className="min-h-screen bg-[#050505] text-white font-sans">
