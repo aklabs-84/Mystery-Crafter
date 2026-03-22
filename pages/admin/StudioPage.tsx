@@ -495,18 +495,27 @@ const StudioPage: React.FC<StudioPageProps> = ({ isAdmin = false }) => {
             {/* Create New Modal */}
             {showCreateModal && (
                 <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/90 backdrop-blur-md p-4 animate-in fade-in duration-200" onClick={() => setShowCreateModal(false)}>
-                    <div className="bg-[#111] border border-zinc-800 rounded-2xl w-full max-w-2xl p-8 shadow-2xl space-y-8" onClick={e => e.stopPropagation()}>
-                        <div className="text-center space-y-2">
-                            <h3 className="text-3xl font-bold font-mystery text-white">새로운 미스터리 생성</h3>
-                            <p className="text-zinc-500">새로운 사건을 생성할 방법을 선택하세요.</p>
+                    <div className="bg-[#111] border border-zinc-800 rounded-2xl w-full max-w-2xl shadow-2xl overflow-y-auto max-h-[90vh]" onClick={e => e.stopPropagation()}>
+                        <div className="p-6 md:p-8 space-y-6 md:space-y-8">
+                        <div className="flex items-start justify-between">
+                            <div className="space-y-1">
+                                <h3 className="text-2xl md:text-3xl font-bold font-mystery text-white">새로운 미스터리 생성</h3>
+                                <p className="text-zinc-500 text-sm">새로운 사건을 생성할 방법을 선택하세요.</p>
+                            </div>
+                            <button
+                                onClick={() => setShowCreateModal(false)}
+                                className="ml-4 mt-1 shrink-0 p-2 rounded-full text-zinc-500 hover:text-white hover:bg-zinc-800 transition"
+                            >
+                                <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg>
+                            </button>
                         </div>
 
-                        <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
+                        <div className="grid grid-cols-1 md:grid-cols-3 gap-4 md:gap-6">
                             {/* Quick Mode Option */}
                             <button
                                 onClick={handleQuickCreate}
                                 disabled={creating}
-                                className="group relative h-72 border border-zinc-800 bg-zinc-900/50 hover:bg-zinc-900 hover:border-red-600/50 rounded-2xl p-6 flex flex-col items-center justify-center gap-6 transition-all"
+                                className="group relative h-56 md:h-72 border border-zinc-800 bg-zinc-900/50 hover:bg-zinc-900 hover:border-red-600/50 rounded-2xl p-6 flex flex-col items-center justify-center gap-4 md:gap-6 transition-all"
                             >
                                 <div className="p-4 rounded-full bg-gradient-to-br from-green-500/20 to-emerald-500/20 border border-green-500/30 group-hover:scale-110 transition-transform duration-500">
                                     <span className="text-2xl">🐢</span>
@@ -520,7 +529,7 @@ const StudioPage: React.FC<StudioPageProps> = ({ isAdmin = false }) => {
                             {/* Pro Mode: AI Option */}
                             <button
                                 onClick={handleAiCreate}
-                                className="group relative h-72 border border-zinc-800 bg-zinc-900/50 hover:bg-zinc-900 hover:border-red-600/50 rounded-2xl p-6 flex flex-col items-center justify-center gap-6 transition-all"
+                                className="group relative h-56 md:h-72 border border-zinc-800 bg-zinc-900/50 hover:bg-zinc-900 hover:border-red-600/50 rounded-2xl p-6 flex flex-col items-center justify-center gap-4 md:gap-6 transition-all"
                             >
                                 <div className="p-4 rounded-full bg-gradient-to-br from-indigo-500/20 to-purple-500/20 border border-indigo-500/30 group-hover:scale-110 transition-transform duration-500">
                                     <svg xmlns="http://www.w3.org/2000/svg" width="32" height="32" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" className="text-indigo-400"><path d="M12 2a10 10 0 1 0 10 10H12V2z" /><path d="M12 12 2.1 10.5M22 22l-10-10" /></svg>
@@ -535,7 +544,7 @@ const StudioPage: React.FC<StudioPageProps> = ({ isAdmin = false }) => {
                             <button
                                 onClick={handleManualCreate}
                                 disabled={creating}
-                                className="group relative h-72 border border-zinc-800 bg-zinc-900/50 hover:bg-zinc-900 hover:border-red-600/50 rounded-2xl p-6 flex flex-col items-center justify-center gap-6 transition-all"
+                                className="group relative h-56 md:h-72 border border-zinc-800 bg-zinc-900/50 hover:bg-zinc-900 hover:border-red-600/50 rounded-2xl p-6 flex flex-col items-center justify-center gap-4 md:gap-6 transition-all"
                             >
                                 <div className="p-4 rounded-full bg-zinc-800 border border-zinc-700 group-hover:scale-110 transition-transform duration-500">
                                     <svg xmlns="http://www.w3.org/2000/svg" width="32" height="32" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" className="text-zinc-400 group-hover:text-white"><line x1="12" y1="5" x2="12" y2="19" /><line x1="5" y1="12" x2="19" y2="12" /></svg>
@@ -547,8 +556,6 @@ const StudioPage: React.FC<StudioPageProps> = ({ isAdmin = false }) => {
                             </button>
                         </div>
 
-                        <div className="flex justify-center pt-4">
-                            <button onClick={() => setShowCreateModal(false)} className="text-zinc-500 hover:text-white text-sm font-bold uppercase tracking-widest">취소</button>
                         </div>
                     </div>
                 </div>
