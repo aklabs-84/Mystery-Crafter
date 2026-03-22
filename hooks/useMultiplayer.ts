@@ -293,13 +293,20 @@ export const useMultiplayer = (sessionCode: string | undefined, playerName: stri
     }, [playerName]);
 
     // ── passTurn: playersRef(메모리) 사용으로 DB 쿼리 제거 ──
-    const passTurn = useCallback(async () => {
+    // expectedCurrentPlayer: 제공 시, 현재 턴 플레이어가 일치하지 않으면 실행 차단 (이중 호출 방지)
+    const passTurn = useCallback(async (expectedCurrentPlayer?: string) => {
         if (isPassingTurnRef.current) return;
         isPassingTurnRef.current = true;
 
         try {
             const currentSession = sessionRef.current;
             if (!currentSession) return;
+
+            // 이미 다른 passTurn이 턴을 넘긴 경우 차단 (race condition 방지)
+            if (expectedCurrentPlayer && currentSession.current_turn_player !== expectedCurrentPlayer) {
+                console.log(`passTurn skipped: expected ${expectedCurrentPlayer}, but current is ${currentSession.current_turn_player}`);
+                return;
+            }
 
             const currentPlayers = playersRef.current;
             if (currentPlayers.length === 0) {

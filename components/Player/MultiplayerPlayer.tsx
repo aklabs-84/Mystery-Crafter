@@ -56,9 +56,9 @@ const MultiplayerPlayer: React.FC = () => {
 
         if (!hasAutoPassedRef.current && timeLeft === 0 && isMyTurn && !isThinking) {
             hasAutoPassedRef.current = true;
-            passTurn();
+            passTurn(playerName); // 현재 세션에서 내 턴이 아니면 차단됨
         }
-    }, [timeLeft, isMyTurn, isThinking, passTurn, session?.current_turn_player]);
+    }, [timeLeft, isMyTurn, isThinking, passTurn, session?.current_turn_player, playerName]);
 
     // 2. 게임 데이터 로드
     useEffect(() => {
@@ -151,11 +151,11 @@ const MultiplayerPlayer: React.FC = () => {
             await sendMessage(userQ, 'question');
             const reply = await gemini.askQuickModeQuestion(userQ, surfaceStory, hiddenTruth);
             await sendMessage(reply.message, 'answer_ai', reply.status);
-            await passTurn();
+            await passTurn(playerName); // 내 턴이 아직 유효할 때만 넘김
         } catch (err: any) {
             console.error("AI Question Error:", err);
             await sendMessage(`⚠️ 통신 혼선 (AI 오류): ${err.message || '대답 지연 중'}`, 'answer_ai', 'error');
-            await passTurn();
+            await passTurn(playerName);
         } finally {
             setIsThinking(false);
         }
@@ -180,12 +180,12 @@ const MultiplayerPlayer: React.FC = () => {
                 await sendMessage(`🏆 [수사 완료] ${playerName} 탐정이 진실을 밝혀냈습니다!!`, 'system');
             } else {
                 setIsSolving(false);
-                await passTurn();
+                await passTurn(playerName);
             }
         } catch (err: any) {
             console.error("AI Solve Error:", err);
             await sendMessage(`⚠️ 판독 시스템 장애: ${err.message || '분석 실패'}`, 'answer_ai', 'error');
-            await passTurn();
+            await passTurn(playerName);
         } finally {
             setIsThinking(false);
         }
