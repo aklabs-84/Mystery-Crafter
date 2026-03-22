@@ -83,6 +83,11 @@ export class AIManager {
         return key || null;
     }
 
+    static getGoogleKey(): string | null {
+        const config = this.getConfig();
+        return config.keys.google || (import.meta as any).env.VITE_GEMINI_API_KEY || null;
+    }
+
     static async generateStoryConcepts(theme: string): Promise<string[]> {
         const prompt = `Based on the user's interest in "${theme}", first research the context, plot, or specific motifs related to this topic on the web. 
         Then, suggest 3 distinct, intriguing, and sophisticated mystery game concepts that are deeply inspired by the research.

@@ -44,7 +44,7 @@ export class GeminiService {
   async translateText(text: string, targetLang: 'English' | 'Korean'): Promise<string> {
     if (!text || text.trim() === "") return "";
     return this.callWithRetry(async () => {
-      const ai = new GoogleGenAI({ apiKey: AIManager.getActiveKey() });
+      const ai = new GoogleGenAI({ apiKey: AIManager.getGoogleKey() });
       const prompt = `You are a professional localizer for noir mystery games.
       Translate the following content into ${targetLang}. 
       RULES:
@@ -73,7 +73,7 @@ export class GeminiService {
   ): Promise<string | null> {
     return this.callWithRetry(async () => {
       try {
-        const ai = new GoogleGenAI({ apiKey: AIManager.getActiveKey() });
+        const ai = new GoogleGenAI({ apiKey: AIManager.getGoogleKey() });
         let context = STYLE_PRESETS[style];
         const forbiddenElements = " ABSOLUTELY NO TEXT. NO LETTERS. NO WORDS. NO LOGOS. Pure visual art only.";
 
@@ -138,7 +138,7 @@ export class GeminiService {
     lang: Language
   ): Promise<GameBlueprint> {
     return this.callWithRetry(async () => {
-      const ai = new GoogleGenAI({ apiKey: AIManager.getActiveKey() });
+      const ai = new GoogleGenAI({ apiKey: AIManager.getGoogleKey() });
       const prompt = `Based on the following mystery theme and details, create a brief "Game Design Blueprint". 
       Theme: ${subject}
       Details: ${answers.join(" | ")}
@@ -170,7 +170,7 @@ export class GeminiService {
     tier: AIModelTier = AIModelTier.FLASH
   ): Promise<GameData> {
     return this.callWithRetry(async () => {
-      const ai = new GoogleGenAI({ apiKey: AIManager.getActiveKey() });
+      const ai = new GoogleGenAI({ apiKey: AIManager.getGoogleKey() });
       const model = tier === AIModelTier.PRO ? 'gemini-3-pro-preview' : 'gemini-3-flash-preview';
 
       const prompt = `Design a complete, high-quality point-and-click mystery game.
@@ -222,7 +222,7 @@ export class GeminiService {
   async npcChat(npc: NPC, scene: Scene, gameTitle: Localized, question: string, lang: Language, currentNode?: DialogueNode): Promise<string> {
     return this.callWithRetry(async () => {
       try {
-        const ai = new GoogleGenAI({ apiKey: AIManager.getActiveKey() });
+        const ai = new GoogleGenAI({ apiKey: AIManager.getGoogleKey() });
         const npcName = typeof npc.name === 'string' ? npc.name : npc.name[lang];
         const gameTitleStr = typeof gameTitle === 'string' ? gameTitle : gameTitle[lang];
         const secret = npc.secretPersona ? (typeof npc.secretPersona === 'string' ? npc.secretPersona : npc.secretPersona[lang]) : "";
@@ -259,7 +259,7 @@ export class GeminiService {
 
   async generateStoryQuestions(subject: string, lang: 'KO' | 'EN'): Promise<string[]> {
     return this.callWithRetry(async () => {
-      const ai = new GoogleGenAI({ apiKey: AIManager.getActiveKey() });
+      const ai = new GoogleGenAI({ apiKey: AIManager.getGoogleKey() });
       const prompt = `Based on the mystery theme "${subject}", generate 3 specific questions for the creator to deepen the plot. Output as JSON array of strings in ${lang}.`;
       const response = await ai.models.generateContent({ model: 'gemini-3-flash-preview', contents: prompt, config: { responseMimeType: 'application/json' } });
       return JSON.parse(response.text);
@@ -268,7 +268,7 @@ export class GeminiService {
 
   async generateStoryAnswers(subject: string, questions: string[], lang: 'KO' | 'EN'): Promise<string[]> {
     return this.callWithRetry(async () => {
-      const ai = new GoogleGenAI({ apiKey: AIManager.getActiveKey() });
+      const ai = new GoogleGenAI({ apiKey: AIManager.getGoogleKey() });
       const prompt = `Theme: "${subject}". Answers for: 1. ${questions[0]} 2. ${questions[1]} 3. ${questions[2]}. Provide intriguing and consistent answers. Output as JSON array of 3 strings in ${lang}.`;
       const response = await ai.models.generateContent({ model: 'gemini-3-flash-preview', contents: prompt, config: { responseMimeType: 'application/json' } });
       return JSON.parse(response.text);
@@ -278,7 +278,7 @@ export class GeminiService {
   async generateConclusionLogic(gameTitle: Localized | string, lang: Language): Promise<CaseConclusion | null> {
     return this.callWithRetry(async () => {
       try {
-        const ai = new GoogleGenAI({ apiKey: AIManager.getActiveKey() });
+        const ai = new GoogleGenAI({ apiKey: AIManager.getGoogleKey() });
         const titleStr = typeof gameTitle === 'string' ? gameTitle : gameTitle[lang];
         const prompt = `Generate case conclusion for "${titleStr}" as JSON: { "mysterySolution": {KO, EN}, "successTitle": {KO, EN}, "successBody": {KO, EN}, "failureTitle": {KO, EN}, "failureBody": {KO, EN} }`;
         const response = await ai.models.generateContent({ model: 'gemini-3-flash-preview', contents: prompt, config: { responseMimeType: 'application/json' } });
@@ -289,7 +289,7 @@ export class GeminiService {
 
   async generateQuickModeMystery(idea: string): Promise<{ title: string, imagePrompt: string, surfaceStory: string, hiddenTruth: string }> {
     return this.callWithRetry(async () => {
-      const ai = new GoogleGenAI({ apiKey: AIManager.getActiveKey() });
+      const ai = new GoogleGenAI({ apiKey: AIManager.getGoogleKey() });
       const prompt = `You are a master creator of "Turtle Soup" (lateral thinking) puzzles.
       Based on the following seed idea: "${idea}"
       
@@ -313,7 +313,7 @@ export class GeminiService {
 
   async askQuickModeQuestion(question: string, surfaceStory: string, hiddenTruth: string): Promise<{ status: 'yes'|'no'|'irrelevant'|'close', message: string }> {
     return this.callWithRetry(async () => {
-      const ai = new GoogleGenAI({ apiKey: AIManager.getActiveKey() });
+      const ai = new GoogleGenAI({ apiKey: AIManager.getGoogleKey() });
       const prompt = `You are a strict Game Master for a "Turtle Soup" (lateral thinking) puzzle.
       
       SURFACE STORY (Player knows this): "${surfaceStory}"
@@ -342,7 +342,7 @@ export class GeminiService {
 
   async askQuickModeHint(surfaceStory: string, hiddenTruth: string, chatHistory: string): Promise<{ status: 'hint', message: string }> {
     return this.callWithRetry(async () => {
-      const ai = new GoogleGenAI({ apiKey: AIManager.getActiveKey() });
+      const ai = new GoogleGenAI({ apiKey: AIManager.getGoogleKey() });
       const prompt = `You are a helpful but mysterious Game Master for a "Turtle Soup" puzzle.
       
       SURFACE STORY (Player knows this): "${surfaceStory}"
@@ -372,7 +372,7 @@ export class GeminiService {
 
   async evaluateQuickModeSolution(surfaceStory: string, hiddenTruth: string, playerSolution: string): Promise<{ isCorrect: boolean, feedback: string }> {
     return this.callWithRetry(async () => {
-      const ai = new GoogleGenAI({ apiKey: AIManager.getActiveKey() });
+      const ai = new GoogleGenAI({ apiKey: AIManager.getGoogleKey() });
       const prompt = `You are the ultimate judge for a "Turtle Soup" mystery.
       
       SURFACE STORY (What the player saw originally): "${surfaceStory}"
