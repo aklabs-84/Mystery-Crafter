@@ -313,7 +313,9 @@ export class GeminiService {
 
   async askQuickModeQuestion(question: string, surfaceStory: string, hiddenTruth: string): Promise<{ status: 'yes'|'no'|'irrelevant'|'close', message: string }> {
     return this.callWithRetry(async () => {
-      const ai = new GoogleGenAI({ apiKey: AIManager.getGoogleKey() });
+      const googleKey = AIManager.getGoogleKey();
+      if (!googleKey) throw new Error('Google API 키가 없습니다. 스튜디오 → 설정(Settings)에서 Google Gemini API 키를 입력해주세요.');
+      const ai = new GoogleGenAI({ apiKey: googleKey });
       const prompt = `You are a strict Game Master for a "Turtle Soup" (lateral thinking) puzzle.
       
       SURFACE STORY (Player knows this): "${surfaceStory}"
