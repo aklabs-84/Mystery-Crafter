@@ -15,10 +15,14 @@ const Header: React.FC = () => {
         { path: '/', label: '홈' },
         { path: studioPath, label: '스튜디오', protected: true },
         { path: '/games', label: '게임 둘러보기' },
+        { path: '/games?mode=multiplayer', label: '🔴 멀티플레이', multiplayer: true },
     ];
 
     const isActive = (path: string) => {
         if (path === '/') return location.pathname === '/';
+        if (path.includes('?mode=multiplayer')) {
+            return location.pathname.startsWith('/games') && location.search.includes('mode=multiplayer');
+        }
         return location.pathname.startsWith(path);
     };
 
@@ -44,10 +48,15 @@ const Header: React.FC = () => {
                                     key={item.path}
                                     to={item.path}
                                     onClick={(e) => handleNavClick(e, item)}
-                                    className={`px-5 py-2 rounded-full text-sm font-bold transition-all ${isActive(item.path)
-                                        ? 'bg-red-600 text-white shadow-lg shadow-red-900/20'
-                                        : 'text-zinc-400 hover:text-white'
-                                        }`}
+                                    className={`px-5 py-2 rounded-full text-sm font-bold transition-all ${
+                                        (item as any).multiplayer
+                                            ? isActive(item.path)
+                                                ? 'bg-emerald-600 text-white shadow-lg shadow-emerald-900/20'
+                                                : 'text-emerald-400 hover:text-emerald-300 border border-emerald-900/50'
+                                            : isActive(item.path)
+                                                ? 'bg-red-600 text-white shadow-lg shadow-red-900/20'
+                                                : 'text-zinc-400 hover:text-white'
+                                    }`}
                                 >
                                     {item.label}
                                 </Link>
