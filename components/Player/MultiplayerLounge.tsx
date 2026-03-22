@@ -1,15 +1,18 @@
 import React, { useState } from 'react';
-import { useParams, useNavigate } from 'react-router-dom';
+import { useParams, useNavigate, useLocation } from 'react-router-dom';
 import { supabase } from '../../services/supabase';
 import { generateSessionCode, useMultiplayer } from '../../hooks/useMultiplayer';
 
 const MultiplayerLounge: React.FC = () => {
     const { gameId } = useParams<{ gameId: string }>();
-    const [playerName, setPlayerName] = useState('');
-    const [sessionCode, setSessionCode] = useState('');
+    const location = useLocation();
+    const locationState = (location.state || {}) as { prefilledName?: string; prefilledCode?: string };
+
+    const [playerName, setPlayerName] = useState(locationState.prefilledName || '');
+    const [sessionCode, setSessionCode] = useState(locationState.prefilledCode || '');
     const [joinedCode, setJoinedCode] = useState<string | null>(null);
     const [isHost, setIsHost] = useState(false);
-    
+
     const navigate = useNavigate();
 
     // Custom Hook for Realtime Sync

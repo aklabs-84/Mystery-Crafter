@@ -55,7 +55,6 @@ const GalleryPage: React.FC = () => {
                         {user ? (
                             <Link
                                 to={userType === 'admin' ? '/admin/studio' : '/user/studio'}
-                                state={{ createModalOpen: true }}
                                 className="w-full sm:w-auto px-8 py-4 bg-red-600 hover:bg-red-500 text-white font-bold rounded-full hover:scale-105 transition-all shadow-[0_0_30px_rgba(220,38,38,0.2)] text-sm md:text-base flex items-center justify-center gap-2"
                             >
                                 ⚡ 나만의 사건 만들기
@@ -235,7 +234,6 @@ const GalleryPage: React.FC = () => {
                         {user ? (
                             <Link
                                 to={userType === 'admin' ? '/admin/studio' : '/user/studio'}
-                                state={{ createModalOpen: true }}
                                 className="inline-flex items-center gap-3 px-8 py-4 bg-red-600 hover:bg-red-500 text-white font-bold rounded-full hover:scale-105 transition-all shadow-[0_0_30px_rgba(220,38,38,0.2)] text-sm md:text-base"
                             >
                                 지금 나만의 사건 만들기

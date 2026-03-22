@@ -23,6 +23,14 @@ const GamesPage: React.FC = () => {
     const navigate = useNavigate();
     const isMultiplayerMode = searchParams.get('mode') === 'multiplayer';
 
+    const [joinName, setJoinName] = useState('');
+    const [joinCode, setJoinCode] = useState('');
+
+    const handleJoinWithCode = () => {
+        if (!joinName.trim() || joinCode.length < 6) return;
+        navigate('/play/multiplayer', { state: { prefilledName: joinName.trim(), prefilledCode: joinCode.trim().toUpperCase() } });
+    };
+
     useEffect(() => {
         fetchGames();
     }, []);
@@ -64,8 +72,37 @@ const GamesPage: React.FC = () => {
                             </div>
                             <h1 className="text-4xl md:text-7xl font-bold font-mystery animate-slide-up">함께 수사할<br className="md:hidden" /> 사건을 고르세요</h1>
                             <p className="text-zinc-500 text-sm md:text-xl max-w-2xl animate-slide-up [animation-delay:200ms]">
-                                게임을 선택하면 방을 만들고 친구를 초대할 수 있습니다.
+                                게임을 선택해 방을 만들거나, 받은 코드로 바로 입장하세요.
                             </p>
+
+                            {/* 코드로 바로 입장 */}
+                            <div className="mt-2 p-5 rounded-2xl bg-emerald-950/20 border border-emerald-900/40 max-w-xl w-full mx-auto md:mx-0">
+                                <p className="text-emerald-400 text-xs font-bold uppercase tracking-widest mb-3">🚪 참여코드로 바로 입장</p>
+                                <div className="flex flex-col sm:flex-row gap-2">
+                                    <input
+                                        type="text"
+                                        value={joinName}
+                                        onChange={(e) => setJoinName(e.target.value)}
+                                        placeholder="닉네임"
+                                        className="flex-1 bg-black/50 border border-zinc-800 rounded-xl px-4 py-2.5 text-white text-sm focus:outline-none focus:border-emerald-500 transition placeholder:text-zinc-600"
+                                    />
+                                    <input
+                                        type="text"
+                                        value={joinCode}
+                                        onChange={(e) => setJoinCode(e.target.value.toUpperCase())}
+                                        placeholder="6자리 코드"
+                                        maxLength={6}
+                                        className="w-full sm:w-32 bg-black/50 border border-zinc-800 rounded-xl px-4 py-2.5 text-emerald-400 font-mono font-bold tracking-widest text-sm text-center focus:outline-none focus:border-emerald-500 transition placeholder:text-zinc-600"
+                                    />
+                                    <button
+                                        onClick={handleJoinWithCode}
+                                        disabled={!joinName.trim() || joinCode.length < 6}
+                                        className="w-full sm:w-auto px-5 py-2.5 bg-emerald-600 hover:bg-emerald-500 text-white text-sm font-bold rounded-xl transition disabled:opacity-30"
+                                    >
+                                        입장
+                                    </button>
+                                </div>
+                            </div>
                         </>
                     ) : (
                         <>
