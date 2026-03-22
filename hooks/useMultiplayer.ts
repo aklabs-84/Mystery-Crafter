@@ -64,7 +64,13 @@ export const useMultiplayer = (sessionCode: string | undefined, playerName: stri
                     .select('*')
                     .eq('session_id', sess.id)
                     .order('created_at', { ascending: true });
-                setPlayers(initPlayers || []);
+
+                // 호스트는 session 데이터에 항상 있으므로, DB 조회 실패(RLS 등)에도 보장
+                const playersList = initPlayers || [];
+                if (sess.host_name && !playersList.some((p: any) => p.player_name === sess.host_name)) {
+                    playersList.unshift({ id: `host_${sess.id}`, session_id: sess.id, player_name: sess.host_name, is_ready: true });
+                }
+                setPlayers(playersList);
 
                 const { data: initMsgs } = await supabase
                     .from('session_messages')
@@ -124,6 +130,16 @@ export const useMultiplayer = (sessionCode: string | undefined, playerName: stri
                                 if (prev.some((p: any) => p.player_name === player.player_name)) return prev;
                                 return [...prev, player];
                             });
+                            // 새 플레이어가 들어오면 내 존재를 다시 알려서 상대방 목록에도 내가 보이게 함
+                            if (player.player_name !== playerName && channelRef.current) {
+                                setTimeout(() => {
+                                    channelRef.current?.send({
+                                        type: 'broadcast',
+                                        event: 'player_change',
+                                        payload: { type: 'join', player: { id: Date.now().toString(), session_id: sess.id, player_name: playerName, is_ready: true } }
+                                    });
+                                }, 300);
+                            }
                         }
                     })
 
