@@ -35,32 +35,50 @@ const Header: React.FC = () => {
 
     return (
         <>
-            <nav className="fixed top-0 left-0 right-0 z-50 bg-black/80 backdrop-blur-md border-b border-white/10">
-                <div className="max-w-7xl mx-auto px-4 md:px-6 h-16 md:h-20 flex justify-between items-center">
-                    <Link to="/" className="text-xl md:text-2xl font-mystery font-bold text-red-600 tracking-tighter cursor-pointer">
-                        Mystery Crafter
+            <nav className="fixed top-0 left-0 right-0 z-50 bg-black/90 backdrop-blur-xl border-b border-white/[0.06]">
+                <div className="max-w-7xl mx-auto px-4 md:px-8 h-16 flex justify-between items-center">
+                    <Link to="/" className="text-lg md:text-xl font-mystery font-bold text-white tracking-tight cursor-pointer hover:text-red-500 transition-colors">
+                        Mystery<span className="text-red-600">·</span>Crafter
                     </Link>
 
-                    <div className="flex items-center gap-2 md:gap-4">
-                        <div className="hidden md:flex items-center gap-2 bg-zinc-900/50 p-1 rounded-full border border-white/5 mr-4">
-                            {navItems.map((item) => (
-                                <Link
-                                    key={item.path}
-                                    to={item.path}
-                                    onClick={(e) => handleNavClick(e, item)}
-                                    className={`px-5 py-2 rounded-full text-sm font-bold transition-all ${
-                                        (item as any).multiplayer
-                                            ? isActive(item.path)
-                                                ? 'bg-emerald-600 text-white shadow-lg shadow-emerald-900/20'
-                                                : 'text-emerald-400 hover:text-emerald-300 border border-emerald-900/50'
-                                            : isActive(item.path)
-                                                ? 'bg-red-600 text-white shadow-lg shadow-red-900/20'
-                                                : 'text-zinc-400 hover:text-white'
-                                    }`}
-                                >
-                                    {item.label}
-                                </Link>
-                            ))}
+                    <div className="flex items-center gap-2 md:gap-6">
+                        <div className="hidden md:flex items-center gap-1 mr-2">
+                            {navItems.map((item) => {
+                                const active = isActive(item.path);
+                                const isMultiplayer = (item as any).multiplayer;
+                                return (
+                                    <Link
+                                        key={item.path}
+                                        to={item.path}
+                                        onClick={(e) => handleNavClick(e, item)}
+                                        className={`relative px-4 py-2 text-sm font-medium transition-all duration-200 rounded-lg group ${
+                                            active
+                                                ? isMultiplayer
+                                                    ? 'text-emerald-400'
+                                                    : 'text-white'
+                                                : 'text-zinc-500 hover:text-zinc-200'
+                                        }`}
+                                    >
+                                        {/* 활성 인디케이터 점 */}
+                                        {active && (
+                                            <span className={`absolute -bottom-px left-1/2 -translate-x-1/2 w-1 h-1 rounded-full ${isMultiplayer ? 'bg-emerald-500' : 'bg-red-500'}`} />
+                                        )}
+                                        {/* 멀티플레이 뱃지 */}
+                                        {isMultiplayer ? (
+                                            <span className={`inline-flex items-center gap-1.5 px-3 py-1 rounded-full border text-xs font-bold tracking-wide transition-all ${
+                                                active
+                                                    ? 'bg-emerald-950/60 border-emerald-500/50 text-emerald-400 shadow-[0_0_12px_rgba(16,185,129,0.2)]'
+                                                    : 'bg-transparent border-emerald-900/40 text-zinc-500 hover:border-emerald-700/50 hover:text-emerald-500'
+                                            }`}>
+                                                <span className={`w-1.5 h-1.5 rounded-full ${active ? 'bg-emerald-400 animate-pulse' : 'bg-zinc-600'}`} />
+                                                LIVE
+                                            </span>
+                                        ) : (
+                                            <span className={active ? 'font-semibold' : ''}>{item.label}</span>
+                                        )}
+                                    </Link>
+                                );
+                            })}
                         </div>
 
                         {user ? (
