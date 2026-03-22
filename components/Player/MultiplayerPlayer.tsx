@@ -43,14 +43,18 @@ const MultiplayerPlayer: React.FC = () => {
         const currentTurnPlayer = session?.current_turn_player;
         if (!currentTurnPlayer) return;
 
+        // 턴이 바뀌면 차단 상태로 시작 (타이머가 45로 리셋된 후에만 해제)
         if (lastTurnPlayerRef.current !== currentTurnPlayer) {
             lastTurnPlayerRef.current = currentTurnPlayer;
+            hasAutoPassedRef.current = true; // 즉시 auto-pass 방지
+        }
+
+        // 타이머가 실제로 리셋(양수)된 것을 확인한 후에만 해제
+        if (timeLeft > 10 && isMyTurn) {
             hasAutoPassedRef.current = false;
         }
 
-        if (hasAutoPassedRef.current) return;
-
-        if (timeLeft === 0 && isMyTurn && !isThinking) {
+        if (!hasAutoPassedRef.current && timeLeft === 0 && isMyTurn && !isThinking) {
             hasAutoPassedRef.current = true;
             passTurn();
         }
