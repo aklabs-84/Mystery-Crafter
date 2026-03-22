@@ -297,7 +297,21 @@ export const useMultiplayer = (sessionCode: string | undefined, playerName: stri
             const nextIndex = (safeIndex + 1) % currentPlayers.length;
             const nextPlayer = currentPlayers[nextIndex].player_name;
 
-            // DB 업데이트 (postgres_changes + 폴링이 모든 클라이언트에 전달)
+            // 로컬 즉각 업데이트 (낙관적 업데이트 - DB 응답 기다리지 않고 즉시 반영)
+            setSession((prev: Record<string, any> | null) =>
+                prev ? { ...prev, current_turn_player: nextPlayer } : prev
+            );
+
+            // Broadcast로 다른 클라이언트에 즉각 알림
+            if (channelRef.current) {
+                channelRef.current.send({
+                    type: 'broadcast',
+                    event: 'turn_change',
+                    payload: { current_turn_player: nextPlayer }
+                });
+            }
+
+            // DB 업데이트 (폴링으로 복구 가능)
             const { error: updateErr } = await supabase
                 .from('game_sessions')
                 .update({ current_turn_player: nextPlayer })
@@ -305,21 +319,11 @@ export const useMultiplayer = (sessionCode: string | undefined, playerName: stri
 
             if (updateErr) {
                 console.error("Turn Update Fail:", updateErr);
+                // DB 실패 시 로컬 상태 복구
+                setSession((prev: Record<string, any> | null) =>
+                    prev ? { ...prev, current_turn_player: currentSession.current_turn_player } : prev
+                );
                 return;
-            }
-
-            // 로컬 즉각 업데이트 (postgres_changes 응답 기다리지 않음)
-            setSession((prev: Record<string, any> | null) =>
-                prev ? { ...prev, current_turn_player: nextPlayer } : prev
-            );
-
-            // Broadcast로 다른 클라이언트에 즉각 알림 (빠른 경로)
-            if (channelRef.current) {
-                channelRef.current.send({
-                    type: 'broadcast',
-                    event: 'turn_change',
-                    payload: { current_turn_player: nextPlayer }
-                });
             }
 
             // 시스템 메시지 DB 저장 (postgres_changes/폴링으로 모든 클라이언트에 전달)
