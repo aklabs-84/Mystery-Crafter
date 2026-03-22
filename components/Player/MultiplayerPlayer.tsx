@@ -17,9 +17,6 @@ const MultiplayerPlayer: React.FC = () => {
     const [inputValue, setInputValue] = useState('');
     const [isSolving, setIsSolving] = useState(false);
     const chatEndRef = useRef<HTMLDivElement>(null);
-    const handledMsgIdsRef = useRef<Set<string>>(new Set());
-    const hasAutoPassedRef = useRef(false);
-    const lastTurnPlayerRef = useRef<string | null>(null);
 
     // 1. Realtime Sync Hook
     const { session, players, messages, loading, error, timeLeft, sendMessage, passTurn, leaveSession, endSession } = useMultiplayer(
@@ -38,12 +35,13 @@ const MultiplayerPlayer: React.FC = () => {
 
     // ── 모든 useEffect는 early return 이전에 선언 (Rules of Hooks) ──
 
-    // 0.6 타이머 만료 시 자동 턴 넘기기 (턴당 1회만)
+    // 0.6 타이머 만료 시 자동 턴 넘기기
+    const hasAutoPassedRef = useRef(false);
+    const lastTurnPlayerRef = useRef<string | null>(null);
     useEffect(() => {
         const currentTurnPlayer = session?.current_turn_player;
         if (!currentTurnPlayer) return;
 
-        // 턴이 바뀌면 자동 넘기기 플래그 리셋
         if (lastTurnPlayerRef.current !== currentTurnPlayer) {
             lastTurnPlayerRef.current = currentTurnPlayer;
             hasAutoPassedRef.current = false;
@@ -51,15 +49,11 @@ const MultiplayerPlayer: React.FC = () => {
 
         if (hasAutoPassedRef.current) return;
 
-        if (timeLeft === 0 && isMyTurn) {
-            hasAutoPassedRef.current = true;
-            passTurn();
-        } else if (timeLeft === -5 && session?.host_name === playerName && !isMyTurn) {
-            // 호스트 백업: 다른 플레이어 타이머 만료 시 강제 넘기기
+        if (timeLeft === 0 && isMyTurn && !isThinking) {
             hasAutoPassedRef.current = true;
             passTurn();
         }
-    }, [timeLeft, isMyTurn, passTurn, session?.host_name, session?.current_turn_player, playerName]);
+    }, [timeLeft, isMyTurn, isThinking, passTurn, session?.current_turn_player]);
 
     // 2. 게임 데이터 로드
     useEffect(() => {
@@ -95,60 +89,7 @@ const MultiplayerPlayer: React.FC = () => {
         }
     }, [session?.is_active, navigate]);
 
-    // 0.7 호스트 전용: 게스트 질문/정답 제출에 AI 응답 후 턴 넘기기
-    useEffect(() => {
-        const isHost = session?.host_name === playerName;
-        if (!isHost || messages.length === 0 || isThinking) return;
-
-        const lastMsg = messages[messages.length - 1];
-        const isQuestion = lastMsg.message_type === 'question';
-        const isFromOthers = lastMsg.sender_name !== playerName;
-
-        if (isQuestion && isFromOthers && !handledMsgIdsRef.current.has(lastMsg.id)) {
-            handledMsgIdsRef.current.add(lastMsg.id);
-
-            const isSolutionSubmit = lastMsg.content.startsWith('[최종 진상 제출]:');
-
-            const runHostAi = async () => {
-                setIsThinking(true);
-                try {
-                    if (isSolutionSubmit) {
-                        // 게스트 정답 제출 처리
-                        const solutionText = lastMsg.content.replace('[최종 진상 제출]:', '').trim();
-                        const reply = await gemini.evaluateQuickModeSolution(surfaceStory, hiddenTruth, solutionText);
-                        await sendMessage(reply.feedback, 'answer_ai', reply.isCorrect ? 'yes' : 'no');
-
-                        if (reply.isCorrect) {
-                            await supabase.from('game_sessions').update({ is_active: false }).eq('id', session.id);
-                            await sendMessage(`🏆 [수사 완료] ${lastMsg.sender_name} 탐정이 진실을 밝혀냈습니다!!`, 'system');
-                        } else {
-                            await passTurn();
-                        }
-                    } else {
-                        // 게스트 일반 질문 처리
-                        const reply = await gemini.askQuickModeQuestion(lastMsg.content, surfaceStory, hiddenTruth);
-                        await sendMessage(reply.message, 'answer_ai', reply.status);
-                        await passTurn();
-                    }
-                } catch (err: any) {
-                    console.error("Host AI Execution Error:", err);
-                    await sendMessage(`⚠️ 방장 AI 오류: ${err.message || '분석 실패'}`, 'answer_ai', 'error');
-                } finally {
-                    setIsThinking(false);
-                }
-            };
-            runHostAi();
-        }
-    }, [messages, session, playerName, surfaceStory, hiddenTruth, sendMessage, passTurn, isThinking]);
-
-    // 0.8 게스트: answer_ai 수신 시 isThinking 해제
-    useEffect(() => {
-        if (messages.length === 0) return;
-        const lastMsg = messages[messages.length - 1];
-        if (lastMsg.message_type === 'answer_ai' && isThinking) {
-            setIsThinking(false);
-        }
-    }, [messages, isThinking]);
+    // (HOST 중계 구조 제거 - 각 플레이어가 직접 AI 호출)
 
     // ── early return은 모든 hook 선언 이후 ──
 
@@ -182,7 +123,7 @@ const MultiplayerPlayer: React.FC = () => {
         }
     };
 
-    // 3. 질문 제출
+    // 3. 질문 제출 - 각 플레이어가 직접 AI 호출 후 자동 턴 넘기기
     const handleAsk = async () => {
         if (!inputValue.trim() || isThinking || !isMyTurn) return;
 
@@ -192,24 +133,19 @@ const MultiplayerPlayer: React.FC = () => {
 
         try {
             await sendMessage(userQ, 'question');
-
-            const isHost = session?.host_name === playerName;
-
-            if (isHost) {
-                const reply = await gemini.askQuickModeQuestion(userQ, surfaceStory, hiddenTruth);
-                await sendMessage(reply.message, 'answer_ai', reply.status);
-                await passTurn();
-                setIsThinking(false);
-            }
-            // 게스트: 호스트 AI 응답을 기다림 (effect 0.7에서 호스트가 처리, effect 0.8에서 isThinking 해제)
+            const reply = await gemini.askQuickModeQuestion(userQ, surfaceStory, hiddenTruth);
+            await sendMessage(reply.message, 'answer_ai', reply.status);
+            await passTurn();
         } catch (err: any) {
             console.error("AI Question Error:", err);
             await sendMessage(`⚠️ 통신 혼선 (AI 오류): ${err.message || '대답 지연 중'}`, 'answer_ai', 'error');
+            await passTurn();
+        } finally {
             setIsThinking(false);
         }
     };
 
-    // 4. 정답 제출
+    // 4. 정답 제출 - 각 플레이어가 직접 AI 평가 후 자동 턴 넘기기
     const handleSolveSubmit = async () => {
         if (!inputValue.trim() || isThinking || !isMyTurn) return;
 
@@ -217,30 +153,23 @@ const MultiplayerPlayer: React.FC = () => {
         setInputValue('');
         setIsThinking(true);
 
-        const isHost = session?.host_name === playerName;
-
         try {
             await sendMessage(`[최종 진상 제출]: ${userSolution}`, 'question');
+            const reply = await gemini.evaluateQuickModeSolution(surfaceStory, hiddenTruth, userSolution);
+            await sendMessage(reply.feedback, 'answer_ai', reply.isCorrect ? 'yes' : 'no');
 
-            if (isHost) {
-                // 호스트: 직접 AI 평가
-                const reply = await gemini.evaluateQuickModeSolution(surfaceStory, hiddenTruth, userSolution);
-                await sendMessage(reply.feedback, 'answer_ai', reply.isCorrect ? 'yes' : 'no');
-
-                if (reply.isCorrect) {
-                    await supabase.from('game_sessions').update({ is_active: false }).eq('id', session.id);
-                    await sendMessage(`🏆 [수사 완료] ${playerName} 탐정이 진실을 밝혀냈습니다!!`, 'system');
-                } else {
-                    setIsSolving(false);
-                    await passTurn();
-                }
-                setIsThinking(false);
+            if (reply.isCorrect) {
+                await supabase.from('game_sessions').update({ is_active: false }).eq('id', session.id);
+                await sendMessage(`🏆 [수사 완료] ${playerName} 탐정이 진실을 밝혀냈습니다!!`, 'system');
+            } else {
+                setIsSolving(false);
+                await passTurn();
             }
-            // 게스트: [최종 진상 제출] 접두어 붙인 question 메시지를 호스트의 effect 0.7이 감지해서 처리
-            // isThinking은 effect 0.8에서 answer_ai 수신 시 해제
         } catch (err: any) {
             console.error("AI Solve Error:", err);
             await sendMessage(`⚠️ 판독 시스템 장애: ${err.message || '분석 실패'}`, 'answer_ai', 'error');
+            await passTurn();
+        } finally {
             setIsThinking(false);
         }
     };

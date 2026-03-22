@@ -14,12 +14,17 @@ export const useMultiplayer = (sessionCode: string | undefined, playerName: stri
     const [timeLeft, setTimeLeft] = useState(45);
 
     const sessionRef = useRef<any>(null);
+    const playersRef = useRef<any[]>([]);
     const channelRef = useRef<any>(null);
     const isPassingTurnRef = useRef(false);
 
     useEffect(() => {
         sessionRef.current = session;
     }, [session]);
+
+    useEffect(() => {
+        playersRef.current = players;
+    }, [players]);
 
     // ── 채널 구독 셋업 ──
     useEffect(() => {
@@ -57,7 +62,8 @@ export const useMultiplayer = (sessionCode: string | undefined, playerName: stri
                 const { data: initPlayers } = await supabase
                     .from('session_players')
                     .select('*')
-                    .eq('session_id', sess.id);
+                    .eq('session_id', sess.id)
+                    .order('created_at', { ascending: true });
                 setPlayers(initPlayers || []);
 
                 const { data: initMsgs } = await supabase
@@ -270,7 +276,7 @@ export const useMultiplayer = (sessionCode: string | undefined, playerName: stri
         }
     }, [playerName]);
 
-    // ── passTurn: DB 업데이트 후 로컬+broadcast로 즉각 동기화 ──
+    // ── passTurn: playersRef(메모리) 사용으로 DB 쿼리 제거 ──
     const passTurn = useCallback(async () => {
         if (isPassingTurnRef.current) return;
         isPassingTurnRef.current = true;
@@ -279,23 +285,16 @@ export const useMultiplayer = (sessionCode: string | undefined, playerName: stri
             const currentSession = sessionRef.current;
             if (!currentSession) return;
 
-            const { data: currentPlayers, error: fetchErr } = await supabase
-                .from('session_players')
-                .select('*')
-                .eq('session_id', currentSession.id);
-
-            if (fetchErr || !currentPlayers || currentPlayers.length === 0) {
-                console.error("Failed to fetch players:", fetchErr);
+            const currentPlayers = playersRef.current;
+            if (currentPlayers.length === 0) {
+                console.error("No players in ref for turn pass");
                 return;
             }
 
             const currentIndex = currentPlayers.findIndex((p: any) => p.player_name === currentSession.current_turn_player);
-            if (currentIndex === -1) {
-                console.error(`Current player "${currentSession.current_turn_player}" not found`);
-                return;
-            }
-
-            const nextIndex = (currentIndex + 1) % currentPlayers.length;
+            // currentIndex === -1이면 첫 번째 플레이어로 fallback
+            const safeIndex = currentIndex === -1 ? 0 : currentIndex;
+            const nextIndex = (safeIndex + 1) % currentPlayers.length;
             const nextPlayer = currentPlayers[nextIndex].player_name;
 
             // DB 업데이트 (postgres_changes + 폴링이 모든 클라이언트에 전달)
