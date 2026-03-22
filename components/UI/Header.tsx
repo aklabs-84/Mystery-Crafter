@@ -15,7 +15,7 @@ const Header: React.FC = () => {
         { path: '/', label: '홈' },
         { path: studioPath, label: '스튜디오', protected: true },
         { path: '/games', label: '게임 둘러보기' },
-        { path: '/games?mode=multiplayer', label: '🔴 멀티플레이', multiplayer: true },
+        { path: '/games?mode=multiplayer', label: '멀티플레이', multiplayer: true },
     ];
 
     const isActive = (path: string) => {
@@ -42,7 +42,7 @@ const Header: React.FC = () => {
                     </Link>
 
                     <div className="flex items-center gap-2 md:gap-6">
-                        <div className="hidden md:flex items-center gap-1 mr-2">
+                        <div className="hidden md:flex items-center gap-0 mr-2">
                             {navItems.map((item) => {
                                 const active = isActive(item.path);
                                 const isMultiplayer = (item as any).multiplayer;
@@ -51,31 +51,20 @@ const Header: React.FC = () => {
                                         key={item.path}
                                         to={item.path}
                                         onClick={(e) => handleNavClick(e, item)}
-                                        className={`relative px-4 py-2 text-sm font-medium transition-all duration-200 rounded-lg group ${
+                                        className={`px-4 py-2 transition-all duration-200 flex items-center gap-1.5 ${
                                             active
                                                 ? isMultiplayer
-                                                    ? 'text-emerald-400'
-                                                    : 'text-white'
-                                                : 'text-zinc-500 hover:text-zinc-200'
+                                                    ? 'text-emerald-400 text-base font-bold'
+                                                    : 'text-white text-base font-bold'
+                                                : isMultiplayer
+                                                    ? 'text-zinc-500 text-sm font-medium hover:text-emerald-400'
+                                                    : 'text-zinc-500 text-sm font-medium hover:text-zinc-100'
                                         }`}
                                     >
-                                        {/* 활성 인디케이터 점 */}
-                                        {active && (
-                                            <span className={`absolute -bottom-px left-1/2 -translate-x-1/2 w-1 h-1 rounded-full ${isMultiplayer ? 'bg-emerald-500' : 'bg-red-500'}`} />
+                                        {isMultiplayer && (
+                                            <span className={`w-1.5 h-1.5 rounded-full shrink-0 ${active ? 'bg-emerald-400 animate-pulse' : 'bg-zinc-600'}`} />
                                         )}
-                                        {/* 멀티플레이 뱃지 */}
-                                        {isMultiplayer ? (
-                                            <span className={`inline-flex items-center gap-1.5 px-3 py-1 rounded-full border text-xs font-bold tracking-wide transition-all ${
-                                                active
-                                                    ? 'bg-emerald-950/60 border-emerald-500/50 text-emerald-400 shadow-[0_0_12px_rgba(16,185,129,0.2)]'
-                                                    : 'bg-transparent border-emerald-900/40 text-zinc-500 hover:border-emerald-700/50 hover:text-emerald-500'
-                                            }`}>
-                                                <span className={`w-1.5 h-1.5 rounded-full ${active ? 'bg-emerald-400 animate-pulse' : 'bg-zinc-600'}`} />
-                                                LIVE
-                                            </span>
-                                        ) : (
-                                            <span className={active ? 'font-semibold' : ''}>{item.label}</span>
-                                        )}
+                                        {item.label}
                                     </Link>
                                 );
                             })}
