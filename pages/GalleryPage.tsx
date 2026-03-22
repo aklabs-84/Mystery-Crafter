@@ -46,7 +46,7 @@ const GalleryPage: React.FC = () => {
                         </Link>
 
                         <Link
-                            to="/play/multiplayer"
+                            to="/games?mode=multiplayer"
                             className="w-full sm:w-auto px-8 py-4 bg-emerald-600 hover:bg-emerald-500 text-white font-bold rounded-full hover:scale-105 transition-all shadow-[0_0_30px_rgba(16,185,129,0.2)] text-sm md:text-base flex items-center justify-center gap-2"
                         >
                             👥 실시간 멀티플레이
@@ -97,7 +97,7 @@ const GalleryPage: React.FC = () => {
                         </Link>
 
                         {/* 멀티플레이어 - Highlighted */}
-                        <Link to="/play/multiplayer" className="block p-7 md:p-9 rounded-[2rem] bg-emerald-950/20 border border-emerald-900/40 hover:border-emerald-500/50 hover:bg-emerald-950/30 transition-all duration-500 group relative overflow-hidden">
+                        <Link to="/games?mode=multiplayer" className="block p-7 md:p-9 rounded-[2rem] bg-emerald-950/20 border border-emerald-900/40 hover:border-emerald-500/50 hover:bg-emerald-950/30 transition-all duration-500 group relative overflow-hidden">
                             <div className="absolute top-4 right-4 px-2 py-0.5 bg-emerald-500/20 border border-emerald-500/40 rounded-full text-[9px] font-bold text-emerald-400 uppercase tracking-widest">New</div>
                             <div className="absolute inset-0 bg-gradient-to-br from-emerald-900/10 to-transparent pointer-events-none" />
                             <div className="relative z-10">
@@ -143,7 +143,7 @@ const GalleryPage: React.FC = () => {
                                 </p>
                                 <div className="flex flex-col sm:flex-row gap-3">
                                     <Link
-                                        to="/play/multiplayer"
+                                        to="/games?mode=multiplayer"
                                         className="px-6 py-3 bg-emerald-600 hover:bg-emerald-500 text-white font-bold rounded-full transition-all text-sm flex items-center justify-center gap-2"
                                     >
                                         👥 지금 방 만들기

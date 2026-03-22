@@ -1,7 +1,7 @@
 
 import React, { useEffect, useState } from 'react';
 import { useAuth } from '../context/AuthContext';
-import { Link } from 'react-router-dom';
+import { Link, useSearchParams, useNavigate } from 'react-router-dom';
 import { supabase } from '../services/supabase';
 
 import Header from '../components/UI/Header';
@@ -19,6 +19,9 @@ const GamesPage: React.FC = () => {
     const { user, signInWithGoogle, signInWithKakao, signOut } = useAuth();
     const [games, setGames] = useState<GameMetadata[]>([]);
     const [loading, setLoading] = useState(true);
+    const [searchParams] = useSearchParams();
+    const navigate = useNavigate();
+    const isMultiplayerMode = searchParams.get('mode') === 'multiplayer';
 
     useEffect(() => {
         fetchGames();
@@ -53,11 +56,26 @@ const GamesPage: React.FC = () => {
             {/* Page Header */}
             <header className="pt-32 md:pt-48 pb-12 md:pb-24 px-6 max-w-7xl mx-auto">
                 <div className="space-y-4 md:space-y-6 text-center md:text-left">
-                    <div className="text-red-600 font-bold uppercase tracking-[0.4em] text-[10px] md:text-xs animate-fade-in">Gallery</div>
-                    <h1 className="text-4xl md:text-7xl font-bold font-mystery animate-slide-up">모든 미스터리<br className="md:hidden" /> 사건 현장</h1>
-                    <p className="text-zinc-500 text-sm md:text-xl max-w-2xl animate-slide-up [animation-delay:200ms]">
-                        전 세계 창작자들이 설계한 정교한 트릭과 이야기를 탐험하세요. 당신의 추리력이 필요합니다.
-                    </p>
+                    {isMultiplayerMode ? (
+                        <>
+                            <div className="inline-flex items-center gap-2 px-3 py-1 bg-emerald-950/40 border border-emerald-900/50 rounded-full text-emerald-400 text-[10px] uppercase tracking-widest font-bold animate-fade-in">
+                                <span className="w-1.5 h-1.5 bg-emerald-500 rounded-full animate-pulse" />
+                                멀티플레이어 · 게임 선택
+                            </div>
+                            <h1 className="text-4xl md:text-7xl font-bold font-mystery animate-slide-up">함께 수사할<br className="md:hidden" /> 사건을 고르세요</h1>
+                            <p className="text-zinc-500 text-sm md:text-xl max-w-2xl animate-slide-up [animation-delay:200ms]">
+                                게임을 선택하면 방을 만들고 친구를 초대할 수 있습니다.
+                            </p>
+                        </>
+                    ) : (
+                        <>
+                            <div className="text-red-600 font-bold uppercase tracking-[0.4em] text-[10px] md:text-xs animate-fade-in">Gallery</div>
+                            <h1 className="text-4xl md:text-7xl font-bold font-mystery animate-slide-up">모든 미스터리<br className="md:hidden" /> 사건 현장</h1>
+                            <p className="text-zinc-500 text-sm md:text-xl max-w-2xl animate-slide-up [animation-delay:200ms]">
+                                전 세계 창작자들이 설계한 정교한 트릭과 이야기를 탐험하세요. 당신의 추리력이 필요합니다.
+                            </p>
+                        </>
+                    )}
                 </div>
             </header>
 
@@ -71,8 +89,13 @@ const GamesPage: React.FC = () => {
                 ) : games.length > 0 ? (
                     <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-8 md:gap-12 animate-in fade-in slide-in-from-bottom-8 duration-700">
                         {games.map((game) => (
-                            <Link to={`/play/${game.id}`} key={game.id} className="block group h-full">
-                                <div className="h-full border border-white/5 rounded-[2rem] md:rounded-[2.5rem] p-5 md:p-7 hover:border-red-600/30 hover:bg-zinc-900/40 transition-all duration-700 cursor-pointer relative overflow-hidden bg-zinc-950/30 flex flex-col">
+                            <div key={game.id} className="group h-full">
+                                <div className={`h-full border rounded-[2rem] md:rounded-[2.5rem] p-5 md:p-7 transition-all duration-700 relative overflow-hidden bg-zinc-950/30 flex flex-col ${
+                                    isMultiplayerMode
+                                        ? 'border-emerald-900/30 hover:border-emerald-500/40 hover:bg-zinc-900/40'
+                                        : 'border-white/5 hover:border-red-600/30 hover:bg-zinc-900/40'
+                                }`}>
+                                    {/* 썸네일 */}
                                     <div className="aspect-[16/10] bg-zinc-900 rounded-[1.5rem] md:rounded-[2rem] mb-6 md:mb-8 overflow-hidden relative shrink-0">
                                         {game.thumbnail_url ? (
                                             <img src={game.thumbnail_url} alt={l(game.title)} className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-1000 opacity-60 group-hover:opacity-90 grayscale-[0.3] group-hover:grayscale-0" />
@@ -82,27 +105,44 @@ const GamesPage: React.FC = () => {
                                             </div>
                                         )}
                                         <div className="absolute inset-x-0 bottom-0 h-2/3 bg-gradient-to-t from-black via-black/40 to-transparent" />
-                                        <div className="absolute inset-0 bg-red-900/10 opacity-0 group-hover:opacity-100 transition-opacity flex items-center justify-center backdrop-blur-[2px]">
-                                            <div className="bg-white text-black text-[10px] md:text-xs font-black uppercase tracking-[0.3em] px-8 md:px-10 py-3 md:py-4 rounded-full translate-y-6 group-hover:translate-y-0 transition-transform duration-700 ease-out">
-                                                Solve Case
-                                            </div>
-                                        </div>
                                     </div>
 
                                     <div className="flex-1 flex flex-col px-1 md:px-2">
-                                        <h2 className="text-xl md:text-2xl font-bold mb-3 md:mb-5 group-hover:text-red-500 transition-colors line-clamp-1">{l(game.title)}</h2>
+                                        <h2 className={`text-xl md:text-2xl font-bold mb-3 md:mb-5 line-clamp-1 transition-colors ${isMultiplayerMode ? 'group-hover:text-emerald-400' : 'group-hover:text-red-500'}`}>{l(game.title)}</h2>
                                         <p className="text-zinc-500 text-sm md:text-base line-clamp-2 font-sans mb-6 md:mb-8 flex-1 leading-relaxed italic break-keep">{l(game.description)}</p>
 
-                                        <div className="pt-6 md:pt-8 border-t border-white/5 flex justify-between items-center text-[10px] md:text-[11px] text-zinc-600 font-black tracking-[0.2em] uppercase mt-auto">
-                                            <div className="flex items-center gap-2 md:gap-3">
-                                                <span className="w-1.5 h-1.5 bg-red-600 rounded-full animate-pulse shadow-[0_0_8px_#dc2626]"></span>
-                                                VIEWS {game.views}
-                                            </div>
-                                            <span className="text-red-900 group-hover:text-red-600 transition-colors">INVESTIGATING...</span>
+                                        <div className="pt-4 border-t border-white/5 mt-auto">
+                                            {isMultiplayerMode ? (
+                                                /* 멀티 모드: 방 만들기 버튼 */
+                                                <div className="flex gap-2">
+                                                    <button
+                                                        onClick={() => navigate(`/play/multiplayer/host/${game.id}`)}
+                                                        className="flex-1 py-3 bg-emerald-600 hover:bg-emerald-500 text-white text-sm font-bold rounded-xl transition-all flex items-center justify-center gap-2"
+                                                    >
+                                                        👥 멀티 방 만들기
+                                                    </button>
+                                                    <Link
+                                                        to={`/play/${game.id}`}
+                                                        className="px-4 py-3 bg-zinc-800 hover:bg-zinc-700 text-zinc-400 text-xs font-bold rounded-xl transition-all flex items-center justify-center"
+                                                        title="솔로 플레이"
+                                                    >
+                                                        🔍
+                                                    </Link>
+                                                </div>
+                                            ) : (
+                                                /* 일반 모드: 기존 스타일 */
+                                                <Link to={`/play/${game.id}`} className="flex justify-between items-center text-[10px] md:text-[11px] text-zinc-600 font-black tracking-[0.2em] uppercase">
+                                                    <div className="flex items-center gap-2 md:gap-3">
+                                                        <span className="w-1.5 h-1.5 bg-red-600 rounded-full animate-pulse shadow-[0_0_8px_#dc2626]"></span>
+                                                        VIEWS {game.views}
+                                                    </div>
+                                                    <span className="text-red-900 group-hover:text-red-600 transition-colors">INVESTIGATING...</span>
+                                                </Link>
+                                            )}
                                         </div>
                                     </div>
                                 </div>
-                            </Link>
+                            </div>
                         ))}
                     </div>
                 ) : (
