@@ -32,30 +32,25 @@ Deno.serve(async (req) => {
         );
 
         const { data: { user }, error: authError } = await supabaseUser.auth.getUser();
+        console.log('[use-credit] auth:', user?.id, authError?.message);
         if (authError || !user) {
-            return new Response(JSON.stringify({ error: '인증 실패' }), {
+            return new Response(JSON.stringify({ error: '인증 실패', detail: authError?.message }), {
                 status: 401, headers: { ...corsHeaders, 'Content-Type': 'application/json' }
             });
         }
 
         // 2. service_role 클라이언트로 크레딧 차감 (RLS 우회)
-        const supabaseAdmin = createClient(
-            Deno.env.get('SUPABASE_URL')!,
-            Deno.env.get('SUPABASE_SERVICE_ROLE_KEY')!
-        );
+        const serviceKey = Deno.env.get('SUPABASE_SERVICE_ROLE_KEY');
+        const supabaseUrl = Deno.env.get('SUPABASE_URL');
+        console.log('[use-credit] env check — url:', !!supabaseUrl, 'serviceKey:', !!serviceKey);
 
-        // 현재 크레딧 조회
-        const { data: profile, error: profileError } = await supabaseAdmin
-            .from('profiles')
-            .select('credits')
-            .eq('id', user.id)
-            .single();
-
-        if (profileError || !profile) {
-            return new Response(JSON.stringify({ error: '프로필을 찾을 수 없습니다.' }), {
-                status: 404, headers: { ...corsHeaders, 'Content-Type': 'application/json' }
+        if (!serviceKey || !supabaseUrl) {
+            return new Response(JSON.stringify({ error: 'env_missing', detail: 'SUPABASE_SERVICE_ROLE_KEY or SUPABASE_URL not set' }), {
+                status: 500, headers: { ...corsHeaders, 'Content-Type': 'application/json' }
             });
         }
+
+        const supabaseAdmin = createClient(supabaseUrl, serviceKey);
 
         // 3. amount 파싱 (기본값 1)
         let amount = 1;
@@ -65,11 +60,27 @@ Deno.serve(async (req) => {
                 amount = Math.floor(body.amount);
             }
         } catch { /* body 없으면 기본값 사용 */ }
+        console.log('[use-credit] amount:', amount);
+
+        // 현재 크레딧 조회
+        const { data: profile, error: profileError } = await supabaseAdmin
+            .from('profiles')
+            .select('credits')
+            .eq('id', user.id)
+            .single();
+        console.log('[use-credit] profile:', profile, profileError?.message);
+
+        if (profileError || !profile) {
+            return new Response(JSON.stringify({ error: '프로필을 찾을 수 없습니다.', detail: profileError?.message }), {
+                status: 404, headers: { ...corsHeaders, 'Content-Type': 'application/json' }
+            });
+        }
 
         const descriptionMap: Record<number, string> = {
             1:  'AI 질문 1회',
             5:  '게임 참여',
             10: '게임 생성',
+            20: 'AI 위저드',
         };
         const description = descriptionMap[amount] ?? `크레딧 ${amount}개 사용`;
 
@@ -88,27 +99,31 @@ Deno.serve(async (req) => {
             .eq('credits', profile.credits) // optimistic lock
             .select('credits')
             .single();
+        console.log('[use-credit] update:', updated, updateError?.message);
 
         if (updateError || !updated) {
-            return new Response(JSON.stringify({ error: '크레딧 차감 실패, 다시 시도해주세요.' }), {
+            return new Response(JSON.stringify({ error: '크레딧 차감 실패, 다시 시도해주세요.', detail: updateError?.message }), {
                 status: 409, headers: { ...corsHeaders, 'Content-Type': 'application/json' }
             });
         }
 
-        // 6. 거래 로그 기록
-        await supabaseAdmin.from('credit_transactions').insert({
+        // 6. 거래 로그 기록 (실패해도 차감은 성공으로 처리)
+        const { error: txError } = await supabaseAdmin.from('credit_transactions').insert({
             user_id: user.id,
             amount: -amount,
             type: 'use',
             description,
         });
+        if (txError) console.warn('[use-credit] tx log 실패 (무시):', txError.message);
 
         return new Response(JSON.stringify({ success: true, credits: updated.credits }), {
             status: 200, headers: { ...corsHeaders, 'Content-Type': 'application/json' }
         });
 
     } catch (err) {
-        return new Response(JSON.stringify({ error: err.message }), {
+        const message = err instanceof Error ? err.message : String(err);
+        console.error('[use-credit] 예외:', message);
+        return new Response(JSON.stringify({ error: message }), {
             status: 500, headers: { ...corsHeaders, 'Content-Type': 'application/json' }
         });
     }
