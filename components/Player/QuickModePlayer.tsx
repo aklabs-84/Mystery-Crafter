@@ -68,6 +68,7 @@ const QuickModePlayer: React.FC<QuickModePlayerProps> = ({ gameData, gameId, onB
     const [sessionPaid, setSessionPaid] = useState<boolean>(isSessionValid());
     const [sessionError, setSessionError] = useState<string | null>(null);
     const [hintsLeft, setHintsLeft] = useState(HINT_COUNTS[difficulty]);
+    const [creditAttempted, setCreditAttempted] = useState(false);
 
     // Quick Mode always uses the start scene
     const startSceneId = gameData.startSceneId || 'scene_1';
@@ -78,9 +79,10 @@ const QuickModePlayer: React.FC<QuickModePlayerProps> = ({ gameData, gameId, onB
 
     const chatEndRef = useRef<HTMLDivElement>(null);
 
-    // 입장 크레딧 차감 (세션 미존재 시에만)
+    // 입장 크레딧 차감 (세션 미존재 시에만, auth 로딩 완료 후 실행)
     useEffect(() => {
-        if (sessionPaid) return;
+        if (sessionPaid || creditAttempted || credits === null) return;
+        setCreditAttempted(true);
         (async () => {
             const ok = await useCredit(5);
             if (ok) {
@@ -88,10 +90,14 @@ const QuickModePlayer: React.FC<QuickModePlayerProps> = ({ gameData, gameId, onB
                 localStorage.setItem(getSessionKey(gameIdKey), JSON.stringify(session));
                 setSessionPaid(true);
             } else {
-                setSessionError('크레딧이 부족합니다. 게임 참여에는 5크레딧이 필요합니다.');
+                if (credits >= 5) {
+                    setSessionError('게임 입장 중 오류가 발생했습니다. 다시 시도해 주세요.');
+                } else {
+                    setSessionError('크레딧이 부족합니다. 게임 참여에는 5크레딧이 필요합니다.');
+                }
             }
         })();
-    }, []); // eslint-disable-line react-hooks/exhaustive-deps
+    }, [credits, creditAttempted, sessionPaid]); // eslint-disable-line react-hooks/exhaustive-deps
 
     // 채팅 기록 localStorage 저장
     useEffect(() => {
