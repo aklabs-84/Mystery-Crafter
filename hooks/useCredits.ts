@@ -31,10 +31,9 @@ export const useCredits = () => {
 
         setLoading(true);
         try {
-            // 세션 갱신 후 최신 토큰 사용 (만료 토큰 방지)
-            const { data: { session } } = await supabase.auth.refreshSession();
+            const { data: { session } } = await supabase.auth.getSession();
             if (!session) {
-                console.error('[useCredit] 세션 갱신 실패 — 재로그인 필요');
+                console.error('[useCredit] 세션 없음 — 재로그인 필요');
                 return false;
             }
 
