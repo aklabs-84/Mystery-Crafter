@@ -36,7 +36,7 @@ const NPCEditor: React.FC<NPCEditorProps> = ({ npc, onUpdate, lang, allAssets })
     return val[lang] || val['EN'] || val['KO'] || '';
   };
 
-  if (!npc) return <div className="p-10 text-zinc-500 text-center">NPC data missing...</div>;
+  if (!npc) return <div className="p-10 text-muted-foreground text-center">NPC data missing...</div>;
 
   const executeGeneratePortrait = async () => {
     setIsGenerating(true);
@@ -148,7 +148,7 @@ const NPCEditor: React.FC<NPCEditorProps> = ({ npc, onUpdate, lang, allAssets })
   const itemsList = Object.values(allAssets.items) as Item[];
 
   return (
-    <div className="p-8 max-6xl mx-auto space-y-10 pb-20">
+    <div className="p-8 max-w-6xl mx-auto space-y-10 pb-20">
       <InputModal
         isOpen={showApiKeyModal}
         title={t.apiKeyRequired || "API Key Required"}
@@ -170,7 +170,7 @@ const NPCEditor: React.FC<NPCEditorProps> = ({ npc, onUpdate, lang, allAssets })
         placeholder="AIza..."
         inputType="password"
       />
-      <header className="flex justify-between items-end border-b border-white/5 pb-6">
+      <header className="flex justify-between items-end border-b border-border pb-6">
         <div className="flex-1 mr-10">
           <span className="text-[10px] font-bold text-emerald-500 tracking-[0.2em] uppercase">{t.editingNPC}</span>
           <LocalizedInput
@@ -194,7 +194,7 @@ const NPCEditor: React.FC<NPCEditorProps> = ({ npc, onUpdate, lang, allAssets })
 
       <div className="grid grid-cols-1 lg:grid-cols-12 gap-10">
         <section className="lg:col-span-4 space-y-6">
-          <div className="bg-zinc-950 rounded-3xl border border-white/5 overflow-hidden aspect-[3/4] shadow-2xl relative flex flex-col items-center justify-center">
+          <div className="bg-background rounded-3xl border border-border overflow-hidden aspect-[3/4] shadow-2xl relative flex flex-col items-center justify-center">
             {!showPlaceholder ? (
               <img
                 src={npc.portraitUrl}
@@ -203,31 +203,31 @@ const NPCEditor: React.FC<NPCEditorProps> = ({ npc, onUpdate, lang, allAssets })
                 alt="NPC Portrait"
               />
             ) : (
-              <div className="w-full h-full bg-[#0d0d0d] flex flex-col items-center justify-center relative">
+              <div className="w-full h-full bg-card flex flex-col items-center justify-center relative">
                 <div className="absolute inset-0 opacity-5">
-                  <div className="absolute top-4 left-4 text-[40px] font-bold uppercase -rotate-12 border-4 border-white p-4">Classified</div>
+                   <div className="absolute top-4 left-4 text-[40px] font-bold uppercase -rotate-12 border-4 border-foreground p-4">Classified</div>
                 </div>
 
                 <div className="flex flex-col items-center gap-6 relative z-10">
-                  <div className="w-32 h-32 bg-zinc-900 rounded-full flex items-center justify-center border border-white/5 shadow-2xl">
-                    <svg xmlns="http://www.w3.org/2000/svg" width="64" height="64" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1" strokeLinecap="round" strokeLinejoin="round" className="text-zinc-800">
+                  <div className="w-32 h-32 bg-background rounded-full flex items-center justify-center border border-border shadow-2xl">
+                    <svg xmlns="http://www.w3.org/2000/svg" width="64" height="64" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1" strokeLinecap="round" strokeLinejoin="round" className="text-muted-foreground">
                       <path d="M19 21v-2a4 4 0 0 0-4-4H9a4 4 0 0 0-4 4v2" /><circle cx="12" cy="7" r="4" />
                     </svg>
                   </div>
                   <div className="flex flex-col items-center gap-2">
-                    <div className="text-[10px] font-bold uppercase tracking-[0.4em] text-zinc-600">Identity Not Confirmed</div>
+                    <div className="text-[10px] font-bold uppercase tracking-[0.4em] text-muted-foreground">Identity Not Confirmed</div>
                   </div>
                 </div>
               </div>
             )}
           </div>
-          <div className="bg-zinc-900/50 p-6 rounded-2xl border border-white/5 space-y-4">
-            <label className="block text-[8px] font-bold text-zinc-600 uppercase tracking-widest mb-2">{t.portraitUrl}</label>
+          <div className="bg-card p-6 rounded-2xl border border-border space-y-4 shadow-sm">
+            <label className="block text-[8px] font-bold text-muted-foreground uppercase tracking-widest mb-2">{t.portraitUrl}</label>
             <div className="flex gap-2">
               <input
                 value={npc.portraitUrl || ''}
                 onChange={(e) => { setImageError(false); onUpdate({ portraitUrl: e.target.value }); }}
-                className="flex-1 bg-zinc-950 border border-white/5 rounded-lg p-3 text-[10px] outline-none text-zinc-500 focus:border-emerald-500 transition-all"
+                className="flex-1 bg-background border border-border rounded-lg p-3 text-[10px] outline-none text-muted-foreground focus:border-emerald-500 transition-all"
                 placeholder="https://..."
               />
               <ImageUploader
@@ -238,21 +238,21 @@ const NPCEditor: React.FC<NPCEditorProps> = ({ npc, onUpdate, lang, allAssets })
               />
             </div>
           </div>
-          <div className="bg-zinc-900/50 p-6 rounded-2xl border border-white/5">
+          <div className="bg-card p-6 rounded-2xl border border-border shadow-sm">
             <div className="flex justify-between items-center mb-4">
-              <label className="block text-xs font-bold text-zinc-500 uppercase tracking-widest">{t.aiPrompt}</label>
+              <label className="block text-xs font-bold text-muted-foreground uppercase tracking-widest">{t.aiPrompt}</label>
               <button
                 onClick={handleSuggestPrompt}
                 disabled={isSuggestingPrompt || !l(npc.secretPersona)}
-                className="text-[9px] font-bold text-emerald-500 hover:text-white disabled:opacity-30 transition-all uppercase tracking-widest"
+                className="text-[9px] font-bold text-emerald-500 hover:text-foreground disabled:opacity-30 transition-all uppercase tracking-widest"
               >
                 {isSuggestingPrompt ? t.working : '✨ ' + t.aiSuggest}
               </button>
             </div>
-            <textarea value={npc.imagePrompt || ''} onChange={(e) => onUpdate({ imagePrompt: e.target.value })} className="w-full h-24 bg-zinc-800 border border-white/10 rounded-lg p-3 text-sm text-white outline-none focus:border-emerald-500 transition-all resize-none" placeholder="..." />
+            <textarea value={npc.imagePrompt || ''} onChange={(e) => onUpdate({ imagePrompt: e.target.value })} className="w-full h-24 bg-background border border-border rounded-lg p-3 text-sm text-foreground outline-none focus:border-emerald-500 transition-all resize-none" placeholder="..." />
           </div>
 
-          <div className="bg-zinc-900/50 p-6 rounded-2xl border border-white/5 flex items-center gap-4">
+          <div className="bg-card p-6 rounded-2xl border border-border shadow-sm flex items-center gap-4">
             <input
               type="checkbox"
               id="useAiOnlyChat"
@@ -261,20 +261,20 @@ const NPCEditor: React.FC<NPCEditorProps> = ({ npc, onUpdate, lang, allAssets })
               className="accent-red-600 w-5 h-5"
             />
             <div className="flex flex-col">
-              <label htmlFor="useAiOnlyChat" className="text-xs font-bold text-white uppercase tracking-widest cursor-pointer">AI Discovery Mode</label>
-              <span className="text-[9px] text-zinc-500 font-medium">Chat unlocks dialogue branches automatically.</span>
+              <label htmlFor="useAiOnlyChat" className="text-xs font-bold text-foreground uppercase tracking-widest cursor-pointer">AI Discovery Mode</label>
+              <span className="text-[9px] text-muted-foreground font-medium">Chat unlocks dialogue branches automatically.</span>
             </div>
           </div>
         </section>
 
         <section className="lg:col-span-8 space-y-8">
-          <div className="bg-emerald-900/5 p-6 rounded-2xl border border-emerald-500/10">
+          <div className="bg-emerald-900/5 p-6 rounded-2xl border border-emerald-500/10 shadow-sm">
             <div className="flex justify-between items-center mb-1">
               <label className="block text-xs font-bold text-emerald-500/70 uppercase tracking-widest">{t.secretPersona}</label>
               <button
                 onClick={handleSuggestPersona}
                 disabled={isSuggestingPersona || !l(npc.name)}
-                className="text-[9px] font-bold text-emerald-500 hover:text-white disabled:opacity-30 transition-all uppercase tracking-widest"
+                className="text-[9px] font-bold text-emerald-500 hover:text-foreground disabled:opacity-30 transition-all uppercase tracking-widest"
               >
                 {isSuggestingPersona ? t.working : '✨ ' + t.aiSuggest}
               </button>
@@ -282,9 +282,9 @@ const NPCEditor: React.FC<NPCEditorProps> = ({ npc, onUpdate, lang, allAssets })
             <LocalizedInput label="" value={npc.secretPersona || { KO: '', EN: '' }} onChange={(v) => onUpdate({ secretPersona: v })} lang={lang} multiline />
           </div>
 
-          <div className="bg-zinc-900/30 rounded-3xl border border-white/5 p-8 space-y-6">
-            <div className="flex justify-between items-center border-b border-white/5 pb-4">
-              <h3 className="mystery-font text-2xl text-white font-bold">{t.dialogueOverview}</h3>
+          <div className="bg-card rounded-3xl border border-border p-8 space-y-6 shadow-md">
+            <div className="flex justify-between items-center border-b border-border pb-4">
+              <h3 className="mystery-font text-2xl text-foreground font-bold">{t.dialogueOverview}</h3>
               <button onClick={handleAddNode} className="text-[10px] px-4 py-2 bg-emerald-600/10 text-emerald-500 rounded-lg border border-emerald-500/30 font-bold uppercase tracking-widest transition-all hover:bg-emerald-600 hover:text-white">
                 {t.addDialogueNode}
               </button>
@@ -298,7 +298,7 @@ const NPCEditor: React.FC<NPCEditorProps> = ({ npc, onUpdate, lang, allAssets })
                     setEditingNodeId(nodeId);
                     setTempNodeId(nodeId);
                   }}
-                  className={`flex-shrink-0 px-4 py-2 rounded-lg border text-[10px] font-mono transition-all group relative ${editingNodeId === nodeId ? 'bg-emerald-600 border-emerald-500 text-white shadow-lg' : 'bg-zinc-900 border-white/5 text-zinc-500 hover:text-zinc-300'}`}
+                  className={`flex-shrink-0 px-4 py-2 rounded-lg border text-[10px] font-mono transition-all group relative ${editingNodeId === nodeId ? 'bg-emerald-600 border-emerald-500 text-white shadow-lg' : 'bg-background border-border text-muted-foreground hover:text-foreground'}`}
                 >
                   {nodeId}
                   {nodeId !== 'start' && editingNodeId === nodeId && (
@@ -313,20 +313,20 @@ const NPCEditor: React.FC<NPCEditorProps> = ({ npc, onUpdate, lang, allAssets })
 
             {currentNode && (
               <div className="space-y-6 animate-in fade-in duration-300">
-                <div className="grid grid-cols-1 md:grid-cols-2 gap-4 items-end bg-zinc-950 p-6 rounded-2xl border border-white/5">
+                <div className="grid grid-cols-1 md:grid-cols-2 gap-4 items-end bg-background p-6 rounded-2xl border border-border">
                   <div className="space-y-2">
-                    <label className="block text-[10px] font-bold text-zinc-500 uppercase tracking-widest">{t.nodeId}</label>
+                    <label className="block text-[10px] font-bold text-muted-foreground uppercase tracking-widest">{t.nodeId}</label>
                     <div className="flex gap-2">
                       <input
                         value={tempNodeId}
                         onChange={(e) => setTempNodeId(e.target.value)}
-                        className="flex-1 bg-zinc-900 border border-white/10 rounded-lg px-3 py-2 text-xs text-white outline-none focus:border-emerald-500 font-mono"
+                        className="flex-1 bg-card border border-border rounded-lg px-3 py-2 text-xs text-foreground outline-none focus:border-emerald-500 font-mono"
                         placeholder="node_name"
                       />
                       <button
                         onClick={() => handleRenameNode(currentNode.id, tempNodeId)}
                         disabled={!tempNodeId || tempNodeId === currentNode.id || !!npc.dialogueTree[tempNodeId]}
-                        className="px-3 py-2 bg-zinc-800 text-[10px] font-bold text-zinc-400 rounded-lg hover:text-white disabled:opacity-30 transition-all uppercase"
+                        className="px-3 py-2 bg-background border border-border text-[10px] font-bold text-muted-foreground rounded-lg hover:text-foreground disabled:opacity-30 transition-all uppercase"
                       >
                         Rename
                       </button>
@@ -334,7 +334,7 @@ const NPCEditor: React.FC<NPCEditorProps> = ({ npc, onUpdate, lang, allAssets })
                   </div>
                   <div className="flex items-center gap-3 py-2">
                     <input type="checkbox" checked={currentNode.isEnding || false} onChange={(e) => handleUpdateNode(currentNode.id, { isEnding: e.target.checked })} id="isEnding" className="accent-emerald-500 w-4 h-4" />
-                    <label htmlFor="isEnding" className="text-xs text-white font-bold cursor-pointer">{t.isEndingNode}</label>
+                    <label htmlFor="isEnding" className="text-xs text-foreground font-bold cursor-pointer">{t.isEndingNode}</label>
                   </div>
                 </div>
 
@@ -343,7 +343,7 @@ const NPCEditor: React.FC<NPCEditorProps> = ({ npc, onUpdate, lang, allAssets })
                 {!currentNode.isEnding && (
                   <div className="space-y-4">
                     <div className="flex justify-between items-center">
-                      <label className="block text-[10px] font-bold text-zinc-600 uppercase tracking-widest">{t.playerOptions}</label>
+                      <label className="block text-[10px] font-bold text-muted-foreground uppercase tracking-widest">{t.playerOptions}</label>
                       <button
                         onClick={() => handleUpdateNode(currentNode.id, { options: [...(currentNode.options || []), { text: { KO: '...', EN: '...' }, nextNodeId: '', requiredItems: [] }] })}
                         className="text-[9px] text-emerald-500 font-bold uppercase tracking-widest hover:text-emerald-400"
@@ -354,13 +354,13 @@ const NPCEditor: React.FC<NPCEditorProps> = ({ npc, onUpdate, lang, allAssets })
 
                     <div className="space-y-4">
                       {(currentNode.options || []).map((opt, idx) => (
-                        <div key={idx} className="bg-zinc-950 p-6 rounded-2xl border border-white/5 space-y-6 relative group/opt">
+                        <div key={idx} className="bg-background p-6 rounded-2xl border border-border space-y-6 relative group/opt shadow-sm">
                           <button
                             onClick={() => {
                               const newOptions = currentNode.options.filter((_, i) => i !== idx);
                               handleUpdateNode(currentNode.id, { options: newOptions });
                             }}
-                            className="absolute top-4 right-4 text-zinc-700 hover:text-red-500 transition-colors"
+                            className="absolute top-4 right-4 text-muted-foreground hover:text-red-500 transition-colors"
                           >
                             <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M18 6L6 18M6 6l12 12" /></svg>
                           </button>
@@ -373,7 +373,7 @@ const NPCEditor: React.FC<NPCEditorProps> = ({ npc, onUpdate, lang, allAssets })
 
                           <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                             <div className="space-y-2">
-                              <label className="block text-[8px] font-bold text-zinc-600 uppercase tracking-widest">{t.nextNode}</label>
+                              <label className="block text-[8px] font-bold text-muted-foreground uppercase tracking-widest">{t.nextNode}</label>
                               <select
                                 value={opt.nextNodeId || ''}
                                 onChange={(e) => {
@@ -381,7 +381,7 @@ const NPCEditor: React.FC<NPCEditorProps> = ({ npc, onUpdate, lang, allAssets })
                                   newOptions[idx] = { ...opt, nextNodeId: e.target.value || undefined };
                                   handleUpdateNode(currentNode.id, { options: newOptions });
                                 }}
-                                className="w-full bg-zinc-900 border border-white/10 rounded-lg p-2 text-[10px] text-emerald-500 font-mono outline-none focus:border-emerald-500"
+                                className="w-full bg-card border border-border rounded-lg p-2 text-[10px] text-emerald-500 font-mono outline-none focus:border-emerald-500"
                               >
                                 <option value="">[{t.closeDialogue}]</option>
                                 {Object.keys(npc.dialogueTree || {}).map(id => <option key={id} value={id}>{id}</option>)}
@@ -389,7 +389,7 @@ const NPCEditor: React.FC<NPCEditorProps> = ({ npc, onUpdate, lang, allAssets })
                             </div>
 
                             <div className="space-y-2">
-                              <label className="block text-[8px] font-bold text-zinc-600 uppercase tracking-widest">{t.rewardItem}</label>
+                              <label className="block text-[8px] font-bold text-muted-foreground uppercase tracking-widest">{t.rewardItem}</label>
                               <select
                                 value={opt.rewardItemId || ''}
                                 onChange={(e) => {
@@ -397,7 +397,7 @@ const NPCEditor: React.FC<NPCEditorProps> = ({ npc, onUpdate, lang, allAssets })
                                   newOptions[idx] = { ...opt, rewardItemId: e.target.value || undefined };
                                   handleUpdateNode(currentNode.id, { options: newOptions });
                                 }}
-                                className="w-full bg-zinc-900 border border-white/10 rounded-lg p-2 text-[10px] text-zinc-400 outline-none focus:border-emerald-500"
+                                className="w-full bg-card border border-border rounded-lg p-2 text-[10px] text-muted-foreground outline-none focus:border-emerald-500"
                               >
                                 <option value="">[{t.none}]</option>
                                 {itemsList.map(item => <option key={item.id} value={item.id}>{l(item.name)}</option>)}
@@ -406,8 +406,8 @@ const NPCEditor: React.FC<NPCEditorProps> = ({ npc, onUpdate, lang, allAssets })
                           </div>
 
                           <div className="space-y-3">
-                            <label className="block text-[8px] font-bold text-zinc-600 uppercase tracking-widest">{t.requiredItem} (Multiple)</label>
-                            <div className="flex flex-wrap gap-2 min-h-[40px] p-2 bg-zinc-900/50 rounded-xl border border-white/5">
+                            <label className="block text-[8px] font-bold text-muted-foreground uppercase tracking-widest">{t.requiredItem} (Multiple)</label>
+                            <div className="flex flex-wrap gap-2 min-h-[40px] p-2 bg-card rounded-xl border border-border">
                               {(opt.requiredItems || []).map(itemId => {
                                 const item = allAssets.items[itemId];
                                 return (
@@ -417,7 +417,7 @@ const NPCEditor: React.FC<NPCEditorProps> = ({ npc, onUpdate, lang, allAssets })
                                       const newOptions = [...currentNode.options];
                                       newOptions[idx] = { ...opt, requiredItems: (opt.requiredItems || []).filter(id => id !== itemId) };
                                       handleUpdateNode(currentNode.id, { options: newOptions });
-                                    }} className="hover:text-white transition-colors">×</button>
+                                    }} className="hover:text-foreground transition-colors">×</button>
                                   </div>
                                 );
                               })}
@@ -430,7 +430,7 @@ const NPCEditor: React.FC<NPCEditorProps> = ({ npc, onUpdate, lang, allAssets })
                                   newOptions[idx] = { ...opt, requiredItems: [...(opt.requiredItems || []), val] };
                                   handleUpdateNode(currentNode.id, { options: newOptions });
                                 }}
-                                className="bg-transparent border-none outline-none text-[10px] text-zinc-500 font-bold uppercase cursor-pointer"
+                                className="bg-transparent border-none outline-none text-[10px] text-muted-foreground font-bold uppercase cursor-pointer"
                               >
                                 <option value="">+ Add Requirement</option>
                                 {itemsList.map(item => <option key={item.id} value={item.id}>{l(item.name)}</option>)}

@@ -155,6 +155,9 @@ export const translations = {
     templateRevealClue: '단서 발견',
     visualMap: '시각적 맵',
     mapHelp: '장소 사이의 연결 관계를 한눈에 확인하세요. 노드를 클릭하면 해당 장소로 이동합니다.',
+    startInvestigation: '사건 수사하기',
+    resumeInvestigation: '수사 진행 중',
+    continue: '재개하기',
   },
   EN: {
     playMode: 'Play Mode',
@@ -309,5 +312,8 @@ export const translations = {
     templateRevealClue: 'Clue Revelation',
     visualMap: 'Visual Map',
     mapHelp: 'View connections between scenes at a glance. Click a node to navigate.',
+    startInvestigation: 'Investigating...',
+    resumeInvestigation: 'In Progress',
+    continue: 'Continue',
   }
 };

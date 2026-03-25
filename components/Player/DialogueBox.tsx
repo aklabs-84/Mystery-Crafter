@@ -101,13 +101,13 @@ const DialogueBox: React.FC<DialogueBoxProps> = ({ npc, node, onOptionClick, onC
   const showOptions = !aiResponse && (!isAiEnabled || node?.options?.length > 0);
 
   return (
-    <div className="absolute inset-0 z-40 flex flex-col justify-end p-12 bg-black/40 backdrop-blur-[2px]">
+    <div className="absolute inset-0 z-40 flex flex-col justify-end p-12 bg-background/40 backdrop-blur-[4px]">
       <div className="w-full max-w-4xl mx-auto flex flex-col gap-6 animate-in fade-in slide-in-from-bottom-10 duration-500">
         
-        <div className="bg-[#121212]/95 border border-white/10 p-10 rounded-[2.5rem] shadow-[0_30px_60px_-15px_rgba(0,0,0,0.8)] relative ring-1 ring-white/5 group">
+        <div className="bg-card/95 border border-border p-10 rounded-[2.5rem] shadow-[0_30px_60px_-15px_rgba(0,0,0,0.5)] relative ring-1 ring-white/5 group">
           <button 
             onClick={onClose}
-            className="absolute -top-3 -right-3 w-10 h-10 bg-zinc-950 border border-white/20 rounded-full flex items-center justify-center text-zinc-400 hover:text-white hover:bg-red-600 hover:border-red-500 transition-all shadow-2xl z-50 group/close"
+            className="absolute -top-3 -right-3 w-10 h-10 bg-background border border-border rounded-full flex items-center justify-center text-muted-foreground hover:text-foreground hover:bg-red-600 hover:border-red-500 transition-all shadow-2xl z-50 group/close"
           >
             <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round"><path d="M18 6L6 18M6 6l12 12"/></svg>
           </button>
@@ -115,7 +115,7 @@ const DialogueBox: React.FC<DialogueBoxProps> = ({ npc, node, onOptionClick, onC
           <div className="flex items-center justify-between mb-6">
             <div className="flex items-center gap-3">
               <div className="h-2 w-2 rounded-full bg-red-600 shadow-[0_0_8px_rgba(220,38,38,0.8)]" />
-              <h4 className="mystery-font text-zinc-400 font-bold tracking-widest text-[11px] uppercase">{l(npc.name, lang)}</h4>
+              <h4 className="mystery-font text-muted-foreground font-bold tracking-widest text-[11px] uppercase">{l(npc.name, lang)}</h4>
             </div>
             {isAiEnabled && (
               <span className="text-[8px] font-bold text-red-500/50 uppercase tracking-widest flex items-center gap-2">
@@ -127,11 +127,11 @@ const DialogueBox: React.FC<DialogueBoxProps> = ({ npc, node, onOptionClick, onC
           
           <div className="min-h-[80px]">
             {isTyping ? (
-              <div className="flex items-center gap-2 text-zinc-500 mystery-font text-xl italic animate-pulse">
+              <div className="flex items-center gap-2 text-muted-foreground font-pretendard text-xl italic animate-pulse">
                 <span>{t.thinking}</span>
               </div>
             ) : (
-              <p className="text-zinc-100 text-2xl leading-relaxed italic mystery-font animate-in fade-in duration-500">
+              <p className="text-foreground text-2xl leading-relaxed italic font-pretendard animate-in fade-in duration-500">
                 {/* Localized helper를 사용하여 현재 언어에 맞는 aiResponse 출력 */}
                 {aiResponse ? l(aiResponse, lang) : (l(node?.text, lang) || "...")}
               </p>
@@ -146,18 +146,18 @@ const DialogueBox: React.FC<DialogueBoxProps> = ({ npc, node, onOptionClick, onC
           )}
 
           {isAiEnabled && (
-            <form onSubmit={handleChatSubmit} className="mt-10 pt-8 border-t border-white/5 flex gap-4">
+            <form onSubmit={handleChatSubmit} className="mt-10 pt-8 border-t border-border flex gap-4">
               <input 
                 autoFocus
                 value={chatInput}
                 onChange={(e) => setChatInput(e.target.value)}
                 placeholder={lang === 'KO' ? '인물에게 직접 질문하기...' : 'Ask the suspect anything...'}
                 disabled={isTyping}
-                className="flex-1 bg-zinc-950/80 border border-white/5 rounded-2xl px-6 py-3.5 text-base text-zinc-200 outline-none focus:border-red-600/50 transition-all placeholder-zinc-700 shadow-inner"
+                className="flex-1 bg-background/80 border border-border rounded-2xl px-6 py-3.5 text-base text-foreground outline-none focus:border-red-600/50 transition-all placeholder-muted-foreground shadow-inner font-pretendard"
               />
               <button 
                 disabled={!chatInput.trim() || isTyping}
-                className="px-8 py-3.5 bg-red-900/40 text-red-500 rounded-2xl text-[10px] font-bold uppercase tracking-widest disabled:opacity-30 hover:bg-red-600 hover:text-white transition-all shadow-lg border border-red-900/30"
+                className="px-8 py-3.5 bg-red-600/10 text-red-600 rounded-2xl text-[10px] font-bold uppercase tracking-widest disabled:opacity-30 hover:bg-red-600 hover:text-white transition-all shadow-lg border border-red-600/20"
               >
                 {t.send}
               </button>
@@ -176,10 +176,10 @@ const DialogueBox: React.FC<DialogueBoxProps> = ({ npc, node, onOptionClick, onC
                   key={idx}
                   disabled={isLocked}
                   onClick={() => onOptionClick(opt)}
-                  className={`w-full px-10 py-5 rounded-2xl text-base font-bold uppercase tracking-widest transition-all duration-300 border shadow-2xl flex items-center justify-between gap-4 group ${
+                  className={`w-full px-10 py-5 rounded-2xl text-base font-bold uppercase tracking-widest transition-all duration-300 border shadow-2xl flex items-center justify-between gap-4 group font-pretendard ${
                     isLocked 
-                      ? 'bg-zinc-800/20 text-zinc-600 border-white/5 cursor-not-allowed hover:bg-zinc-800/40 hover:text-zinc-400 hover:border-white/20' 
-                      : 'bg-zinc-900/60 hover:bg-white text-zinc-200 hover:text-black border-white/10 hover:border-white'
+                      ? 'bg-muted/10 text-muted-foreground border-border cursor-not-allowed' 
+                      : 'bg-card/60 hover:bg-foreground text-foreground hover:text-background border-border hover:border-foreground'
                   }`}
                 >
                   <span className="flex-1 text-left">{l(opt.text, lang)}</span>
@@ -190,7 +190,7 @@ const DialogueBox: React.FC<DialogueBoxProps> = ({ npc, node, onOptionClick, onC
           ) : (aiResponse || !isAiEnabled) ? (
             <button
               onClick={aiResponse ? () => setAiResponse(null) : onClose}
-              className="w-full px-10 py-5 rounded-2xl text-base font-bold uppercase tracking-widest bg-zinc-950/80 text-zinc-500 border border-white/5 hover:bg-white hover:text-black hover:border-white transition-all shadow-2xl"
+              className="w-full px-10 py-5 rounded-2xl text-base font-bold uppercase tracking-widest bg-card/80 text-muted-foreground border border-border hover:bg-foreground hover:text-background hover:border-foreground transition-all shadow-2xl font-pretendard"
             >
               [ {aiResponse ? t.goBack : t.closeDialogue} ]
             </button>

@@ -77,20 +77,20 @@ const GamePlayerPage: React.FC = () => {
 
     if (loading) {
         return (
-            <div className="h-screen w-screen bg-black flex flex-col items-center justify-center text-white">
+            <div className="h-screen w-screen bg-background flex flex-col items-center justify-center text-foreground transition-colors duration-300">
                 <div className="w-12 h-12 border-4 border-red-600 border-t-transparent rounded-full animate-spin mb-4"></div>
-                <p className="text-zinc-500 text-xs font-bold uppercase tracking-widest">Loading Mystery...</p>
+                <p className="text-muted-foreground text-xs font-bold uppercase tracking-widest font-pretendard">Loading Mystery...</p>
             </div>
         );
     }
 
     if (error || !gameData) {
         return (
-            <div className="h-screen w-screen bg-black flex flex-col items-center justify-center text-white p-8 text-center">
+            <div className="h-screen w-screen bg-background flex flex-col items-center justify-center text-foreground p-8 text-center transition-colors duration-300">
                 <div className="text-red-500 text-6xl mb-4">⚠️</div>
-                <h1 className="text-2xl font-bold mb-2">Failed to Load Game</h1>
-                <p className="text-zinc-500 mb-8">{error || 'Unknown error occurred'}</p>
-                <Link to="/games" className="px-6 py-3 bg-zinc-900 border border-white/10 rounded-full text-xs font-bold uppercase tracking-widest hover:bg-white hover:text-black transition-all">
+                <h1 className="text-2xl font-bold mb-2 font-mystery text-foreground">Failed to Load Game</h1>
+                <p className="text-muted-foreground mb-8 font-pretendard">{error || 'Unknown error occurred'}</p>
+                <Link to="/games" className="px-6 py-3 bg-card border border-border rounded-full text-xs font-bold uppercase tracking-widest hover:bg-muted/10 transition-all font-pretendard">
                     Return to Gallery
                 </Link>
             </div>

@@ -321,13 +321,13 @@ const StudioPage: React.FC<StudioPageProps> = ({ isAdmin = false }) => {
     };
 
     return (
-        <div className="relative min-h-full">
+        <div className="relative min-h-full bg-background text-foreground transition-colors duration-300">
             <div className="flex justify-between items-center mb-8">
                 <div className="flex items-center gap-4">
                     <h2 className="text-3xl font-bold font-mystery text-red-600">내 스튜디오</h2>
                     <button 
                         onClick={() => navigate('/play/multiplayer')}
-                        className="flex items-center gap-2 px-4 py-2 bg-zinc-900 hover:bg-zinc-800 border border-zinc-800 hover:border-emerald-600/50 text-emerald-400 rounded-xl font-bold text-xs transition-all shadow-lg"
+                        className="flex items-center gap-2 px-4 py-2 bg-muted hover:bg-muted/80 border border-border hover:border-emerald-600/50 text-emerald-600 dark:text-emerald-400 rounded-xl font-bold text-xs transition-all shadow-sm font-pretendard"
                     >
                         <span>🚪</span> 참여 코드로 입장
                     </button>
@@ -350,25 +350,25 @@ const StudioPage: React.FC<StudioPageProps> = ({ isAdmin = false }) => {
 
             {!user && !loading ? (
                 <div className="flex flex-col items-center justify-center py-20 px-4 text-center">
-                    <div className="w-20 h-20 bg-red-900/10 border border-red-600/20 rounded-full flex items-center justify-center mb-8">
+                    <div className="w-20 h-20 bg-red-500/10 border border-red-500/20 rounded-full flex items-center justify-center mb-8">
                         <svg xmlns="http://www.w3.org/2000/svg" width="32" height="32" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className="text-red-600"><path d="M15 3h4a2 2 0 0 1 2 2v14a2 2 0 0 1-2 2h-4" /><polyline points="10 17 15 12 10 7" /><line x1="15" y1="12" x2="3" y2="12" /></svg>
                     </div>
-                    <h3 className="text-3xl font-bold font-mystery text-white mb-4">로그인이 필요합니다</h3>
-                    <p className="text-zinc-500 max-w-md mx-auto mb-10 break-keep">
+                    <h3 className="text-3xl font-bold font-mystery text-foreground mb-4">로그인이 필요합니다</h3>
+                    <p className="text-muted-foreground max-w-md mx-auto mb-10 break-keep font-pretendard">
                         내 스튜디오에 접근하고 사건을 창조하시려면 로그인이 필요합니다.<br />
                         상단의 로그인 버튼을 이용해 주세요.
                     </p>
                     <div className="flex flex-col sm:flex-row gap-4">
                         <button
                             onClick={signInWithGoogle}
-                            className="flex items-center justify-center gap-3 px-8 py-3.5 bg-white text-black rounded-xl font-bold hover:bg-zinc-200 transition-all shadow-lg"
+                            className="flex items-center justify-center gap-3 px-8 py-3.5 bg-foreground text-background rounded-xl font-bold hover:opacity-90 transition-all shadow-lg font-pretendard"
                         >
                             <svg viewBox="0 0 24 24" width="20" height="20" xmlns="http://www.w3.org/2000/svg"><path d="M22.56 12.25c0-.78-.07-1.53-.2-2.25H12v4.26h5.92c-.26 1.37-1.04 2.53-2.21 3.31v2.77h3.57c2.08-1.92 3.28-4.74 3.28-8.09z" fill="#4285F4" /><path d="M12 23c2.97 0 5.46-.98 7.28-2.66l-3.57-2.77c-.98.66-2.23 1.06-3.71 1.06-2.86 0-5.29-1.93-6.16-4.53H2.18v2.84C3.99 20.53 7.7 23 12 23z" fill="#34A853" /><path d="M5.84 14.09c-.22-.66-.35-1.36-.35-2.09s.13-1.43.35-2.09V7.07H2.18C1.43 8.55 1 10.22 1 12s.43 3.45 1.18 4.93l3.66-2.84z" fill="#FBBC05" /><path d="M12 5.38c1.62 0 3.06.56 4.21 1.66l3.15-3.15C17.45 2.09 14.97 1 12 1 7.7 1 3.99 3.47 2.18 7.07l3.66 2.84c.87-2.6 3.3-4.53 12-5.38z" fill="#EA4335" /></svg>
                             Google로 로그인
                         </button>
                         <button
                             onClick={signInWithKakao}
-                            className="flex items-center justify-center gap-3 px-8 py-3.5 bg-[#FEE500] text-[#3C1E1E] rounded-xl font-bold hover:bg-[#FDD100] transition-all shadow-lg"
+                            className="flex items-center justify-center gap-3 px-8 py-3.5 bg-[#FEE500] text-[#3C1E1E] rounded-xl font-bold hover:bg-[#FDD100] transition-all shadow-lg font-pretendard"
                         >
                             <svg viewBox="0 0 24 24" width="20" height="20" xmlns="http://www.w3.org/2000/svg"><path d="M12 3c-4.97 0-9 3.185-9 7.115 0 2.558 1.707 4.8 4.27 6.054l-.841 3.08c-.05.187.05.38.225.465a.434.434 0 00.187.042c.123 0 .242-.05.32-.143l3.64-2.47c.39.052.79.087 1.2.087 4.97 0 9-3.185 9-7.115S16.97 3 12 3z" fill="#3C1E1E" /></svg>
                             카카오로 로그인
@@ -378,19 +378,19 @@ const StudioPage: React.FC<StudioPageProps> = ({ isAdmin = false }) => {
             ) : loading ? (
                 <div className="flex flex-col items-center justify-center py-20">
                     <div className="w-10 h-10 border-2 border-red-600 border-t-transparent rounded-full animate-spin mb-4"></div>
-                    <div className="text-zinc-600 text-[10px] font-black uppercase tracking-widest">Profiling Projects...</div>
+                    <div className="text-muted-foreground text-[10px] font-black uppercase tracking-widest font-pretendard">Profiling Projects...</div>
                 </div>
             ) : (
                 <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
                     {/* Create New Card */}
                     <div
                         onClick={() => setShowCreateModal(true)}
-                        className="border border-dashed border-gray-700 rounded-2xl h-64 flex flex-col items-center justify-center cursor-pointer hover:border-red-600 hover:bg-zinc-900/50 transition group"
+                        className="border border-dashed border-border rounded-2xl h-64 flex flex-col items-center justify-center cursor-pointer hover:border-red-600 hover:bg-muted/50 transition-all group shadow-sm bg-card/30"
                     >
-                        <div className="w-12 h-12 rounded-full bg-zinc-800 flex items-center justify-center group-hover:bg-red-600 transition mb-4">
-                            <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" className="text-gray-400 group-hover:text-white"><line x1="12" y1="5" x2="12" y2="19" /><line x1="5" y1="12" x2="19" y2="12" /></svg>
+                        <div className="w-12 h-12 rounded-full bg-muted border border-border flex items-center justify-center group-hover:bg-red-600 transition -all mb-4">
+                            <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" className="text-muted-foreground group-hover:text-white"><line x1="12" y1="5" x2="12" y2="19" /><line x1="5" y1="12" x2="19" y2="12" /></svg>
                         </div>
-                        <span className="text-gray-400 group-hover:text-white font-bold uppercase tracking-widest text-sm text-center">새로운 미스터리 생성</span>
+                        <span className="text-muted-foreground group-hover:text-foreground font-bold uppercase tracking-widest text-sm text-center font-pretendard">새로운 미스터리 생성</span>
                     </div>
 
                     {/* Project List */}
@@ -398,7 +398,7 @@ const StudioPage: React.FC<StudioPageProps> = ({ isAdmin = false }) => {
                         <Link
                             to={`${isAdmin ? '/admin/studio' : '/user/studio'}/${p.id}`}
                             key={p.id}
-                            className="border border-gray-800 bg-zinc-900/30 rounded-2xl overflow-hidden hover:border-red-600/50 hover:bg-zinc-900 transition flex flex-col group relative"
+                            className="border border-border bg-card hover:bg-muted/30 rounded-2xl overflow-hidden hover:border-red-600/50 transition-all flex flex-col group relative shadow-sm"
                         >
                             {/* 데스크탑 hover 버튼 (lg 이상) */}
                             <div className="absolute top-4 right-4 z-20 gap-2 hidden lg:flex opacity-0 group-hover:opacity-100 transition">
@@ -430,34 +430,34 @@ const StudioPage: React.FC<StudioPageProps> = ({ isAdmin = false }) => {
                             </div>
 
                             {/* 썸네일 */}
-                            <div className="flex bg-zinc-950 aspect-video overflow-hidden relative z-10 shrink-0">
+                            <div className="flex bg-muted aspect-video overflow-hidden relative z-10 shrink-0">
                                 {p.thumbnail_url ? (
                                     <img src={p.thumbnail_url} className="w-full h-full object-cover" alt="Thumbnail" />
                                 ) : (
-                                    <div className="w-full h-full flex items-center justify-center text-zinc-800 font-bold uppercase text-[10px] tracking-widest">No Image</div>
+                                    <div className="w-full h-full flex items-center justify-center text-muted-foreground font-bold uppercase text-[10px] tracking-widest font-pretendard">No Image</div>
                                 )}
                             </div>
 
                             {/* 카드 내용 */}
                             <div className="flex flex-col flex-1 p-4 md:p-6">
                                 <div className="flex-1">
-                                    <h3 className="text-lg md:text-xl font-bold text-white mb-1 truncate group-hover:text-red-500 transition">{l(p.title)}</h3>
-                                    <p className="text-sm text-gray-500 line-clamp-2 min-h-[2.5em]">{l(p.description) || 'No description...'}</p>
+                                    <h3 className="text-lg md:text-xl font-bold text-foreground mb-1 truncate group-hover:text-red-500 transition">{l(p.title)}</h3>
+                                    <p className="text-sm text-muted-foreground line-clamp-2 min-h-[2.5em] font-pretendard">{l(p.description) || 'No description...'}</p>
                                 </div>
 
                                 {/* 상태 + 날짜 */}
-                                <div className="mt-3 pt-3 border-t border-white/5 flex justify-between items-center text-xs">
-                                    <span className={`px-2 py-1 rounded bg-black border ${p.is_public ? 'border-green-900 text-green-500' : 'border-zinc-800 text-zinc-500'}`}>
+                                <div className="mt-3 pt-3 border-t border-border flex justify-between items-center text-xs">
+                                    <span className={`px-2 py-1 rounded bg-muted border ${p.is_public ? 'border-green-500/30 text-green-500' : 'border-border text-muted-foreground'} font-pretendard`}>
                                         {p.is_public ? 'PUBLIC' : 'DRAFT'}
                                     </span>
-                                    <span className="text-zinc-600">{new Date(p.created_at).toLocaleDateString()}</span>
+                                    <span className="text-muted-foreground font-pretendard">{new Date(p.created_at).toLocaleDateString()}</span>
                                 </div>
 
                                 {/* 모바일/태블릿 액션 버튼 바 (lg 미만에서만 표시) */}
                                 <div className="mt-3 pt-3 border-t border-white/5 flex gap-2 lg:hidden">
                                     <button
                                         onClick={(e) => { e.preventDefault(); e.stopPropagation(); navigate(`${isAdmin ? '/admin/studio' : '/user/studio'}/${p.id}`); }}
-                                        className="flex-1 flex items-center justify-center gap-1.5 py-2 bg-zinc-800 hover:bg-zinc-700 active:bg-zinc-600 rounded-lg text-xs text-zinc-300 font-bold transition"
+                                        className="flex-1 flex items-center justify-center gap-1.5 py-2 bg-muted hover:bg-muted/80 active:bg-muted/60 border border-border rounded-lg text-xs text-foreground font-bold transition font-pretendard"
                                     >
                                         <svg xmlns="http://www.w3.org/2000/svg" width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M11 4H4a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2v-7"/><path d="M18.5 2.5a2.121 2 0 0 1 3 3L12 15l-4 1 1-4 9.5-9.5z"/></svg>
                                         편집
@@ -471,10 +471,10 @@ const StudioPage: React.FC<StudioPageProps> = ({ isAdmin = false }) => {
                                     </button>
                                     <button
                                         onClick={(e) => handleOptimize(e, p)}
-                                        className="flex items-center justify-center gap-1.5 px-3 py-2 bg-zinc-800 hover:bg-yellow-700/60 active:bg-yellow-600/60 rounded-lg text-xs text-zinc-400 hover:text-yellow-300 font-bold transition"
+                                        className="flex items-center justify-center gap-1.5 px-3 py-2 bg-muted hover:bg-muted/80 active:bg-muted/60 border border-border rounded-lg text-xs text-muted-foreground hover:text-foreground font-bold transition font-pretendard"
                                     >
                                         {optimizingId === p.id ? (
-                                            <div className="animate-spin h-3.5 w-3.5 border-2 border-white border-t-transparent rounded-full" />
+                                            <div className="animate-spin h-3.5 w-3.5 border-2 border-primary border-t-transparent rounded-full" />
                                         ) : (
                                             <svg xmlns="http://www.w3.org/2000/svg" width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M13 2L3 14h9l-1 8 10-12h-9l1-8z"/></svg>
                                         )}
@@ -494,17 +494,17 @@ const StudioPage: React.FC<StudioPageProps> = ({ isAdmin = false }) => {
 
             {/* Create New Modal */}
             {showCreateModal && (
-                <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/90 backdrop-blur-md p-4 animate-in fade-in duration-200" onClick={() => setShowCreateModal(false)}>
-                    <div className="bg-[#111] border border-zinc-800 rounded-2xl w-full max-w-2xl shadow-2xl overflow-y-auto max-h-[90vh]" onClick={e => e.stopPropagation()}>
+                <div className="fixed inset-0 z-50 flex items-center justify-center bg-background/90 backdrop-blur-md p-4 animate-in fade-in duration-200" onClick={() => setShowCreateModal(false)}>
+                    <div className="bg-card border border-border rounded-2xl w-full max-w-2xl shadow-2xl overflow-y-auto max-h-[90vh]" onClick={e => e.stopPropagation()}>
                         <div className="p-6 md:p-8 space-y-6 md:space-y-8">
-                        <div className="flex items-start justify-between">
+                        <div className="flex items-start justify-between font-pretendard">
                             <div className="space-y-1">
-                                <h3 className="text-2xl md:text-3xl font-bold font-mystery text-white">새로운 미스터리 생성</h3>
-                                <p className="text-zinc-500 text-sm">새로운 사건을 생성할 방법을 선택하세요.</p>
+                                <h3 className="text-2xl md:text-3xl font-bold font-mystery text-foreground">새로운 미스터리 생성</h3>
+                                <p className="text-muted-foreground text-sm">새로운 사건을 생성할 방법을 선택하세요.</p>
                             </div>
                             <button
                                 onClick={() => setShowCreateModal(false)}
-                                className="ml-4 mt-1 shrink-0 p-2 rounded-full text-zinc-500 hover:text-white hover:bg-zinc-800 transition"
+                                className="ml-4 mt-1 shrink-0 p-2 rounded-full text-muted-foreground hover:text-foreground hover:bg-muted transition-colors"
                             >
                                 <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg>
                             </button>
@@ -515,28 +515,28 @@ const StudioPage: React.FC<StudioPageProps> = ({ isAdmin = false }) => {
                             <button
                                 onClick={handleQuickCreate}
                                 disabled={creating}
-                                className="group relative h-56 md:h-72 border border-zinc-800 bg-zinc-900/50 hover:bg-zinc-900 hover:border-red-600/50 rounded-2xl p-6 flex flex-col items-center justify-center gap-4 md:gap-6 transition-all"
+                                className="group relative h-56 md:h-72 border border-border bg-muted/50 hover:bg-muted hover:border-red-600/50 rounded-2xl p-6 flex flex-col items-center justify-center gap-4 md:gap-6 transition-all font-pretendard"
                             >
-                                <div className="p-4 rounded-full bg-gradient-to-br from-green-500/20 to-emerald-500/20 border border-green-500/30 group-hover:scale-110 transition-transform duration-500">
+                                <div className="p-4 rounded-full bg-emerald-500/10 border border-emerald-500/20 group-hover:scale-110 transition-transform duration-500">
                                     <span className="text-2xl">🐢</span>
                                 </div>
                                 <div className="text-center space-y-2">
-                                    <h4 className="text-xl font-bold text-white group-hover:text-green-400 transition-colors">Quick Mode<br/><span className="inline-block mt-2 text-xs border border-white/20 px-3 py-1 bg-white/5 rounded-full">(바다거북스프)</span></h4>
-                                    <p className="text-sm text-zinc-500 break-keep pt-2">단 3개의 서식만 입력하여 1분 만에 AI 심문 게임을 만듭니다.</p>
+                                    <h4 className="text-xl font-bold text-foreground group-hover:text-emerald-600 dark:group-hover:text-emerald-400 transition-colors">Quick Mode<br/><span className="inline-block mt-2 text-xs border border-border px-3 py-1 bg-card rounded-full">(바다거북스프)</span></h4>
+                                    <p className="text-sm text-muted-foreground break-keep pt-2">단 3개의 서식만 입력하여 1분 만에 AI 심문 게임을 만듭니다.</p>
                                 </div>
                             </button>
 
                             {/* Pro Mode: AI Option */}
                             <button
                                 onClick={handleAiCreate}
-                                className="group relative h-56 md:h-72 border border-zinc-800 bg-zinc-900/50 hover:bg-zinc-900 hover:border-red-600/50 rounded-2xl p-6 flex flex-col items-center justify-center gap-4 md:gap-6 transition-all"
+                                className="group relative h-56 md:h-72 border border-border bg-muted/50 hover:bg-muted hover:border-red-600/50 rounded-2xl p-6 flex flex-col items-center justify-center gap-4 md:gap-6 transition-all font-pretendard"
                             >
-                                <div className="p-4 rounded-full bg-gradient-to-br from-indigo-500/20 to-purple-500/20 border border-indigo-500/30 group-hover:scale-110 transition-transform duration-500">
-                                    <svg xmlns="http://www.w3.org/2000/svg" width="32" height="32" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" className="text-indigo-400"><path d="M12 2a10 10 0 1 0 10 10H12V2z" /><path d="M12 12 2.1 10.5M22 22l-10-10" /></svg>
+                                <div className="p-4 rounded-full bg-indigo-500/10 border border-indigo-500/20 group-hover:scale-110 transition-transform duration-500">
+                                    <svg xmlns="http://www.w3.org/2000/svg" width="32" height="32" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" className="text-indigo-600 dark:text-indigo-400"><path d="M12 2a10 10 0 1 0 10 10H12V2z" /><path d="M12 12 2.1 10.5M22 22l-10-10" /></svg>
                                 </div>
                                 <div className="text-center space-y-2">
-                                    <h4 className="text-xl font-bold text-white group-hover:text-indigo-400 transition-colors">Pro Mode<br/><span className="inline-block mt-2 text-xs text-indigo-400 border border-indigo-400/50 bg-indigo-500/10 px-3 py-1 rounded-full">AI 맵 설계</span></h4>
-                                    <p className="text-sm text-zinc-500 break-keep pt-2">AI 어시스턴트를 통해 깊이 있는 다중 씬 로직을 자동 생성합니다.</p>
+                                    <h4 className="text-xl font-bold text-foreground group-hover:text-indigo-600 dark:group-hover:text-indigo-400 transition-colors">Pro Mode<br/><span className="inline-block mt-2 text-xs text-indigo-600 dark:text-indigo-400 border border-indigo-500/30 bg-indigo-500/10 px-3 py-1 rounded-full text-indigo-600 dark:text-indigo-400">AI 맵 설계</span></h4>
+                                    <p className="text-sm text-muted-foreground break-keep pt-2">AI 어시스턴트를 통해 깊이 있는 다중 씬 로직을 자동 생성합니다.</p>
                                 </div>
                             </button>
 
@@ -544,14 +544,14 @@ const StudioPage: React.FC<StudioPageProps> = ({ isAdmin = false }) => {
                             <button
                                 onClick={handleManualCreate}
                                 disabled={creating}
-                                className="group relative h-56 md:h-72 border border-zinc-800 bg-zinc-900/50 hover:bg-zinc-900 hover:border-red-600/50 rounded-2xl p-6 flex flex-col items-center justify-center gap-4 md:gap-6 transition-all"
+                                className="group relative h-56 md:h-72 border border-border bg-muted/50 hover:bg-muted hover:border-red-600/50 rounded-2xl p-6 flex flex-col items-center justify-center gap-4 md:gap-6 transition-all font-pretendard"
                             >
-                                <div className="p-4 rounded-full bg-zinc-800 border border-zinc-700 group-hover:scale-110 transition-transform duration-500">
-                                    <svg xmlns="http://www.w3.org/2000/svg" width="32" height="32" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" className="text-zinc-400 group-hover:text-white"><line x1="12" y1="5" x2="12" y2="19" /><line x1="5" y1="12" x2="19" y2="12" /></svg>
+                                <div className="p-4 rounded-full bg-muted border border-border group-hover:scale-110 transition-transform duration-500">
+                                    <svg xmlns="http://www.w3.org/2000/svg" width="32" height="32" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" className="text-muted-foreground group-hover:text-foreground"><line x1="12" y1="5" x2="12" y2="19" /><line x1="5" y1="12" x2="19" y2="12" /></svg>
                                 </div>
                                 <div className="text-center space-y-2">
-                                    <h4 className="text-xl font-bold text-white group-hover:text-white transition-colors">Pro Mode<br/><span className="inline-block mt-2 text-xs text-zinc-400 border border-zinc-400/50 bg-zinc-800/50 px-3 py-1 rounded-full">수동 설계</span></h4>
-                                    <p className="text-sm text-zinc-500 break-keep pt-2">모든 디테일을 직접 구성합니다. 완벽한 제어를 원할 때 적합합니다.</p>
+                                    <h4 className="text-xl font-bold text-foreground group-hover:text-foreground transition-colors">Pro Mode<br/><span className="inline-block mt-2 text-xs text-muted-foreground border border-border bg-muted/50 px-3 py-1 rounded-full">수동 설계</span></h4>
+                                    <p className="text-sm text-muted-foreground break-keep pt-2">모든 디테일을 직접 구성합니다. 완벽한 제어를 원할 때 적합합니다.</p>
                                 </div>
                             </button>
                         </div>
@@ -563,11 +563,11 @@ const StudioPage: React.FC<StudioPageProps> = ({ isAdmin = false }) => {
 
             {/* Edit Modal */}
             {editingGame && (
-                <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/80 backdrop-blur-sm p-4 animate-in fade-in duration-200">
-                    <div className="bg-[#111] border border-zinc-800 rounded-2xl w-full max-w-lg p-6 shadow-2xl space-y-6" onClick={e => e.stopPropagation()}>
-                        <div className="flex justify-between items-center border-b border-white/5 pb-4">
-                            <h3 className="text-xl font-bold text-white">게임 정보 수정</h3>
-                            <button onClick={() => setEditingGame(null)} className="text-zinc-500 hover:text-white">
+                <div className="fixed inset-0 z-50 flex items-center justify-center bg-background/80 backdrop-blur-sm p-4 animate-in fade-in duration-200">
+                    <div className="bg-card border border-border rounded-2xl w-full max-w-lg p-6 shadow-2xl space-y-6 font-pretendard" onClick={e => e.stopPropagation()}>
+                        <div className="flex justify-between items-center border-b border-border pb-4">
+                            <h3 className="text-xl font-bold text-foreground">게임 정보 수정</h3>
+                            <button onClick={() => setEditingGame(null)} className="text-muted-foreground hover:text-foreground transition-colors">
                                 <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2"><line x1="18" y1="6" x2="6" y2="18" /><line x1="6" y1="6" x2="18" y2="18" /></svg>
                             </button>
                         </div>
@@ -578,28 +578,28 @@ const StudioPage: React.FC<StudioPageProps> = ({ isAdmin = false }) => {
                                 <button
                                     onClick={() => setEditIsPublic(!editIsPublic)}
                                     className={`flex items-center gap-2 px-3 py-1.5 rounded-full border transition-all text-[10px] font-bold uppercase tracking-widest ${editIsPublic
-                                        ? 'bg-green-950/30 border-green-600/50 text-green-500 hover:bg-green-900/50'
-                                        : 'bg-zinc-900 border-zinc-700 text-zinc-500 hover:text-zinc-300 hover:border-zinc-600'
+                                        ? 'bg-emerald-500/10 border-emerald-500/50 text-emerald-600 dark:text-emerald-500 hover:bg-emerald-500/20'
+                                        : 'bg-muted border-border text-muted-foreground hover:text-foreground hover:border-border/80'
                                         }`}
                                 >
-                                    <div className={`w-2 h-2 rounded-full transition-colors ${editIsPublic ? 'bg-green-500 shadow-[0_0_8px_rgba(34,197,94,0.6)]' : 'bg-zinc-600'}`} />
+                                    <div className={`w-2 h-2 rounded-full transition-colors ${editIsPublic ? 'bg-emerald-500 shadow-[0_0_8px_rgba(16,185,129,0.6)]' : 'bg-muted-foreground/50'}`} />
                                     {editIsPublic ? 'Public' : 'Draft'}
                                 </button>
                             </div>
                             {/* Thumbnail */}
                             <div className="space-y-2">
-                                <label className="text-xs font-bold text-zinc-500 uppercase tracking-widest">썸네일</label>
-                                <div className="h-40 bg-black rounded-xl border border-dashed border-zinc-800 overflow-hidden relative group">
+                                <label className="text-xs font-bold text-muted-foreground uppercase tracking-widest">썸네일</label>
+                                <div className="h-40 bg-muted rounded-xl border border-dashed border-border overflow-hidden relative group shadow-inner">
                                     {editThumbnail ? (
                                         <img src={editThumbnail} className="w-full h-full object-cover opacity-50 group-hover:opacity-20 transition-opacity" alt="Preview" />
                                     ) : (
-                                        <div className="w-full h-full flex items-center justify-center text-zinc-700 text-xs">이미지 없음</div>
+                                        <div className="w-full h-full flex items-center justify-center text-muted-foreground text-xs font-pretendard">이미지 없음</div>
                                     )}
-                                    <div className="absolute inset-0 flex items-center justify-center gap-2 bg-black/40 opacity-0 group-hover:opacity-100 transition-opacity">
-                                        <ImageUploader onUpload={setEditThumbnail} className="bg-red-600 hover:bg-red-500 text-white px-4 py-2 rounded-full text-xs font-bold shadow-lg" label="업로드" />
+                                    <div className="absolute inset-0 flex items-center justify-center gap-2 bg-background/40 opacity-0 group-hover:opacity-100 transition-opacity">
+                                        <ImageUploader onUpload={setEditThumbnail} className="bg-red-600 hover:bg-red-500 text-white px-4 py-2 rounded-full text-xs font-bold shadow-lg transition-transform hover:scale-105" label="업로드" />
                                         <button
                                             onClick={handleOpenAssetPicker}
-                                            className="bg-zinc-800 hover:bg-zinc-700 border border-white/10 text-white px-4 py-2 rounded-full text-xs font-bold shadow-lg flex items-center gap-2"
+                                            className="bg-card hover:bg-muted border border-border text-foreground px-4 py-2 rounded-full text-xs font-bold shadow-lg flex items-center gap-2 transition-transform hover:scale-105"
                                         >
                                             <svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2"><rect x="3" y="3" width="18" height="18" rx="2" ry="2" /><circle cx="8.5" cy="8.5" r="1.5" /><polyline points="21 15 16 10 5 21" /></svg>
                                             에셋 선택
@@ -629,7 +629,7 @@ const StudioPage: React.FC<StudioPageProps> = ({ isAdmin = false }) => {
                             </div>
                         </div>
 
-                        <div className="flex justify-between gap-3 pt-4 border-t border-white/5 items-center">
+                        <div className="flex justify-between gap-3 pt-4 border-t border-border items-center">
                             <button
                                 onClick={async () => {
                                     showConfirm(
@@ -650,14 +650,14 @@ const StudioPage: React.FC<StudioPageProps> = ({ isAdmin = false }) => {
                                         true
                                     );
                                 }}
-                                className="px-4 py-2 rounded-lg text-xs font-bold bg-zinc-900 border border-zinc-800 text-red-700 hover:bg-red-950/30 hover:border-red-900 transition flex items-center gap-2"
+                                className="px-4 py-2 rounded-lg text-xs font-bold bg-muted border border-border text-red-600 hover:bg-red-500/10 hover:border-red-500/30 transition-all flex items-center gap-2 shadow-sm"
                             >
                                 <svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2"><polyline points="3 6 5 6 21 6"></polyline><path d="M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6m3 0V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2"></path></svg>
                                 삭제
                             </button>
                             <div className="flex gap-3">
-                                <button onClick={() => setEditingGame(null)} className="px-5 py-2 rounded-lg text-sm font-bold text-zinc-400 hover:text-white hover:bg-zinc-800 transition">취소</button>
-                                <button onClick={handleSaveMetadata} disabled={savingMeta} className="px-5 py-2 rounded-lg text-sm font-bold bg-red-600 text-white hover:bg-red-500 shadow-lg">{savingMeta ? '저장 중...' : '변경사항 저장'}</button>
+                                <button onClick={() => setEditingGame(null)} className="px-5 py-2 rounded-lg text-sm font-bold text-muted-foreground hover:text-foreground hover:bg-muted transition-colors">취소</button>
+                                <button onClick={handleSaveMetadata} disabled={savingMeta} className="px-5 py-2 rounded-lg text-sm font-bold bg-red-600 text-white hover:bg-red-500 shadow-lg transition-transform active:scale-95">{savingMeta ? '저장 중...' : '변경사항 저장'}</button>
                             </div>
                         </div>
                     </div>
@@ -666,11 +666,11 @@ const StudioPage: React.FC<StudioPageProps> = ({ isAdmin = false }) => {
 
             {/* Asset Picker Modal */}
             {assetPickerOpen && (
-                <div className="fixed inset-0 z-[60] flex items-center justify-center bg-black/90 backdrop-blur-md p-4 animate-in fade-in duration-200" onClick={() => setAssetPickerOpen(false)}>
-                    <div className="bg-[#111] border border-zinc-800 rounded-2xl w-full max-w-4xl max-h-[80vh] flex flex-col shadow-2xl" onClick={e => e.stopPropagation()}>
-                        <div className="p-6 border-b border-white/5 flex justify-between items-center">
-                            <h3 className="text-xl font-bold text-white">이미지 에셋 선택</h3>
-                            <button onClick={() => setAssetPickerOpen(false)} className="text-zinc-500 hover:text-white">
+                <div className="fixed inset-0 z-[60] flex items-center justify-center bg-background/90 backdrop-blur-md p-4 animate-in fade-in duration-200" onClick={() => setAssetPickerOpen(false)}>
+                    <div className="bg-card border border-border rounded-2xl w-full max-w-4xl max-h-[80vh] flex flex-col shadow-2xl font-pretendard" onClick={e => e.stopPropagation()}>
+                        <div className="p-6 border-b border-border flex justify-between items-center">
+                            <h3 className="text-xl font-bold text-foreground">이미지 에셋 선택</h3>
+                            <button onClick={() => setAssetPickerOpen(false)} className="text-muted-foreground hover:text-foreground transition-colors">
                                 <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2"><line x1="18" y1="6" x2="6" y2="18" /><line x1="6" y1="6" x2="18" y2="18" /></svg>
                             </button>
                         </div>
@@ -689,11 +689,11 @@ const StudioPage: React.FC<StudioPageProps> = ({ isAdmin = false }) => {
                                                 setEditThumbnail(url);
                                                 setAssetPickerOpen(false);
                                             }}
-                                            className="group relative aspect-square bg-zinc-900 rounded-xl overflow-hidden border border-white/5 hover:border-red-600 transition-colors"
+                                            className="group relative aspect-square bg-muted rounded-xl overflow-hidden border border-border hover:border-red-600 transition-all shadow-sm"
                                         >
                                             <img src={url} className="w-full h-full object-cover group-hover:scale-110 transition-transform duration-500" alt="Asset" />
-                                            <div className="absolute inset-0 bg-black/50 opacity-0 group-hover:opacity-100 flex items-center justify-center transition-opacity">
-                                                <span className="text-white text-xs font-bold uppercase tracking-widest border border-white px-3 py-1 rounded-full">Select</span>
+                                            <div className="absolute inset-0 bg-background/50 opacity-0 group-hover:opacity-100 flex items-center justify-center transition-opacity backdrop-blur-[2px]">
+                                                <span className="text-foreground text-xs font-bold uppercase tracking-widest border border-foreground px-3 py-1 rounded-full shadow-lg bg-card/80">Select</span>
                                             </div>
                                         </button>
                                     ))}
@@ -712,10 +712,10 @@ const StudioPage: React.FC<StudioPageProps> = ({ isAdmin = false }) => {
 
             {/* Importing Loading Overlay */}
             {importing && (
-                <div className="fixed inset-0 z-[100] flex flex-col items-center justify-center bg-black/90 backdrop-blur-md p-4 animate-in fade-in duration-300">
+                <div className="fixed inset-0 z-[100] flex flex-col items-center justify-center bg-background/90 backdrop-blur-md p-4 animate-in fade-in duration-300 font-pretendard">
                     <Spinner className="w-16 h-16 border-4 border-red-600 border-t-transparent" />
-                    <h3 className="mt-8 text-2xl font-bold font-mystery text-white animate-pulse">Importing Mystery...</h3>
-                    <p className="text-zinc-500 mt-2 text-sm uppercase tracking-widest">Optimizing assets and generating database...</p>
+                    <h3 className="mt-8 text-2xl font-bold font-mystery text-foreground animate-pulse">Importing Mystery...</h3>
+                    <p className="text-muted-foreground mt-2 text-sm uppercase tracking-widest">Optimizing assets and generating database...</p>
                 </div>
             )}
             {modalConfig && (

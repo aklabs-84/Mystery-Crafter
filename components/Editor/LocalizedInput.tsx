@@ -40,21 +40,21 @@ const LocalizedInput: React.FC<LocalizedInputProps> = ({ label, value, onChange,
     }
   };
 
-  const inputClass = "w-full bg-zinc-900/50 border border-white/5 rounded-lg p-3 text-sm outline-none focus:border-red-500/50 transition-all text-white placeholder-zinc-800";
+  // Improved theme-aware input styling
+  const inputClass = "w-full bg-slate-100/50 dark:bg-slate-900/50 border border-slate-200 dark:border-white/5 rounded-lg p-3 text-sm outline-none focus:border-red-500/50 dark:focus:border-red-500/50 transition-all text-foreground placeholder-slate-400 dark:placeholder-slate-700 shadow-sm";
   
-  // 번역 버튼 활성화 조건: 대상 언어 필드가 비어있거나 편집 중일 때 소스 언어 필드에 내용이 있는 경우
   const canTranslate = (lang === 'EN' ? !!locValue.KO : !!locValue.EN);
 
   return (
     <div className={`space-y-2 ${className}`}>
       <div className="flex justify-between items-center">
-        {label && <label className="block text-[10px] font-bold text-zinc-500 uppercase tracking-widest">{label}</label>}
+        {label && <label className="block text-[10px] font-bold text-muted-foreground uppercase tracking-widest">{label}</label>}
         {canTranslate && (
           <button 
             onClick={handleAutoTranslate} 
             disabled={isTranslating}
             title="Auto-translate using AI"
-            className={`flex items-center gap-1.5 text-[8px] font-bold uppercase tracking-widest px-2 py-0.5 rounded border transition-all ${isTranslating ? 'text-zinc-600 border-zinc-800' : 'text-emerald-500 border-emerald-500/30 hover:bg-emerald-500 hover:text-white'}`}
+            className={`flex items-center gap-1.5 text-[8px] font-bold uppercase tracking-widest px-2 py-0.5 rounded border transition-all ${isTranslating ? 'text-muted-foreground border-slate-200 dark:border-slate-800' : 'text-emerald-500 border-emerald-500/30 hover:bg-emerald-500 hover:text-white'}`}
           >
             {isTranslating ? '...' : (
               <>
@@ -66,7 +66,7 @@ const LocalizedInput: React.FC<LocalizedInputProps> = ({ label, value, onChange,
         )}
       </div>
       <div className="relative">
-        <span className="absolute top-2 right-3 text-[8px] font-bold text-zinc-700 pointer-events-none select-none">{lang}</span>
+        <span className="absolute top-2 right-3 text-[8px] font-bold text-muted-foreground pointer-events-none select-none">{lang}</span>
         {multiline ? (
           <textarea
             value={locValue[lang] || ''}

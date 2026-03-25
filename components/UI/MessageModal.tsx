@@ -37,30 +37,30 @@ const MessageModal: React.FC<MessageModalProps> = ({
     if (!isOpen) return null;
 
     return (
-        <div className="fixed inset-0 z-[100] flex items-center justify-center bg-black/80 backdrop-blur-sm p-4 animate-in fade-in duration-200">
+        <div className="fixed inset-0 z-[100] flex items-center justify-center bg-background/80 backdrop-blur-sm p-4 animate-in fade-in duration-200">
             <div
-                className="bg-[#111] border border-zinc-800 rounded-2xl w-full max-w-md p-6 shadow-2xl space-y-6 scale-100 animate-in zoom-in-95 duration-200"
+                className="bg-card border border-border rounded-2xl w-full max-w-md p-6 shadow-2xl space-y-6 scale-100 animate-in zoom-in-95 duration-200"
                 onClick={e => e.stopPropagation()}
             >
-                <div className="space-y-2 text-center">
-                    <h3 className="text-xl font-bold text-white font-mystery">{title}</h3>
-                    <p className="text-zinc-400 text-sm leading-relaxed">{message}</p>
+                <div className="space-y-2 text-center font-pretendard">
+                    <h3 className="text-xl font-bold text-foreground font-mystery">{title}</h3>
+                    <p className="text-muted-foreground text-sm leading-relaxed">{message}</p>
                 </div>
 
                 <div className="flex justify-center gap-3 pt-2">
                     {type === 'CONFIRM' && (
                         <button
                             onClick={onCancel}
-                            className="px-6 py-2.5 rounded-xl text-xs font-bold bg-zinc-900 border border-zinc-700 text-zinc-400 hover:text-white hover:bg-zinc-800 transition uppercase tracking-widest"
+                            className="px-6 py-2.5 rounded-xl text-xs font-bold bg-muted border border-border text-muted-foreground hover:text-foreground hover:bg-muted/80 transition uppercase tracking-widest font-pretendard shadow-sm"
                         >
                             {cancelLabel}
                         </button>
                     )}
                     <button
                         onClick={onConfirm}
-                        className={`px-8 py-2.5 rounded-xl text-xs font-bold transition uppercase tracking-widest shadow-lg ${isDestructive
+                        className={`px-8 py-2.5 rounded-xl text-xs font-bold transition uppercase tracking-widest shadow-lg font-pretendard ${isDestructive
                             ? 'bg-red-600 hover:bg-red-500 text-white shadow-red-900/20'
-                            : 'bg-white text-black hover:bg-zinc-200 shadow-white/10'
+                            : 'bg-foreground text-background hover:opacity-90 shadow-foreground/10'
                             }`}
                     >
                         {confirmLabel}

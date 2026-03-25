@@ -48,11 +48,11 @@ const DraggableItem: React.FC<{
     <div
       ref={attachRef}
       onPointerDown={onInteraction}
-      className={`relative aspect-square bg-zinc-900 rounded-xl border flex-shrink-0 cursor-pointer transition-all duration-300 group overflow-hidden shadow-lg ${isSelected
+      className={`relative aspect-square bg-card rounded-xl border flex-shrink-0 cursor-pointer transition-all duration-300 group overflow-hidden shadow-lg ${isSelected
           ? 'border-red-500 ring-2 ring-red-500/40 scale-105 z-20 shadow-[0_0_25px_rgba(220,38,38,0.5)]'
           : isOver
             ? 'border-red-500 ring-2 ring-red-500/80 scale-110 z-30'
-            : 'border-white/5 hover:border-white/20'
+            : 'border-border hover:border-white/20'
         } ${isDragging ? 'opacity-50' : 'opacity-100'}`}
     >
       {item.iconUrl ? (
@@ -62,13 +62,13 @@ const DraggableItem: React.FC<{
           className={`w-full h-full object-contain p-2 group-hover:scale-110 transition-transform duration-500 pointer-events-none ${isSelected ? 'animate-pulse' : ''}`}
         />
       ) : (
-        <div className="w-full h-full flex items-center justify-center text-zinc-700 font-bold uppercase tracking-tighter text-[8px] text-center p-1 pointer-events-none">
+        <div className="w-full h-full flex items-center justify-center text-muted-foreground/40 font-bold uppercase tracking-tighter text-[8px] text-center p-1 pointer-events-none">
           {l(item.name)}
         </div>
       )}
 
       {/* Overlay for selection state */}
-      <div className={`absolute inset-0 transition-opacity duration-300 ${isSelected ? 'bg-red-600/10 opacity-100' : 'bg-white/0 group-hover:bg-white/5 opacity-0 group-hover:opacity-100'}`}></div>
+      <div className={`absolute inset-0 transition-opacity duration-300 ${isSelected ? 'bg-red-600/10 opacity-100' : 'bg-background/0 group-hover:bg-background/5 opacity-0 group-hover:opacity-100'}`}></div>
 
       {isSelected && (
         <div className="absolute inset-0 flex items-center justify-center pointer-events-none">
@@ -109,8 +109,8 @@ const InventoryBar: React.FC<InventoryBarProps> = ({ items, onCombine, onInspect
 
   if (items.length === 0) {
     return (
-      <div className="flex-1 min-h-[120px] flex items-center justify-center border border-dashed border-white/10 rounded-2xl bg-zinc-950/50">
-        <span className="text-zinc-800 text-[10px] font-bold uppercase tracking-widest px-4 text-center">{t.noClues}</span>
+      <div className="flex-1 min-h-[120px] flex items-center justify-center border border-dashed border-border rounded-2xl bg-muted/50">
+        <span className="text-muted-foreground text-[10px] font-bold uppercase tracking-widest px-4 text-center">{t.noClues}</span>
       </div>
     );
   }

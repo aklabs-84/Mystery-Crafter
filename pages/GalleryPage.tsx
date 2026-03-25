@@ -7,7 +7,7 @@ const GalleryPage: React.FC = () => {
     const { user, userType, signInWithKakao } = useAuth();
 
     return (
-        <div className="min-h-screen bg-[#050505] text-white font-sans selection:bg-red-900 selection:text-white break-keep">
+        <div className="min-h-screen bg-background text-foreground font-sans selection:bg-red-900 selection:text-white break-keep transition-colors duration-300">
             <Header />
 
             {/* ── Hero ── */}
@@ -25,13 +25,13 @@ const GalleryPage: React.FC = () => {
                         AI Powered Mystery Platform · 실시간 멀티플레이 지원
                     </div>
 
-                    <h1 className="text-5xl sm:text-7xl md:text-[7rem] font-mystery font-black mb-6 md:mb-8 leading-[1.05] tracking-tight">
+                    <h1 className="text-5xl sm:text-7xl md:text-[7rem] font-mystery font-black mb-6 md:mb-8 leading-[1.05] tracking-tight text-foreground">
                         상상하는 모든<br />
-                        <span className="text-transparent bg-clip-text bg-gradient-to-r from-red-500 via-orange-400 to-amber-400">
+                        <span className="text-transparent bg-clip-text bg-gradient-to-r from-red-600 via-orange-500 to-amber-500">
                             사건을 창조하세요
                         </span>
                     </h1>
-                    <p className="text-zinc-400 text-base md:text-xl max-w-2xl mx-auto mb-12 leading-relaxed">
+                    <p className="text-muted-foreground text-base md:text-xl max-w-2xl mx-auto mb-12 leading-relaxed font-pretendard">
                         솔로 탐정으로 사건을 파헤치거나, 친구들과 실시간으로 함께 수사하세요.<br className="hidden md:block" />
                         AI가 단 몇 분 만에 완벽한 미스터리 세계를 구축합니다.
                     </p>
@@ -55,14 +55,14 @@ const GalleryPage: React.FC = () => {
                         {user ? (
                             <Link
                                 to={userType === 'admin' ? '/admin/studio' : '/user/studio'}
-                                className="w-full sm:w-auto px-8 py-4 bg-red-600 hover:bg-red-500 text-white font-bold rounded-full hover:scale-105 transition-all shadow-[0_0_30px_rgba(220,38,38,0.2)] text-sm md:text-base flex items-center justify-center gap-2"
+                                className="w-full sm:w-auto px-8 py-4 bg-red-600 hover:bg-red-500 text-white font-bold rounded-full hover:scale-105 transition-all shadow-lg text-sm md:text-base flex items-center justify-center gap-2"
                             >
                                 ⚡ 나만의 사건 만들기
                             </Link>
                         ) : (
                             <button
                                 onClick={signInWithKakao}
-                                className="w-full sm:w-auto px-8 py-4 bg-zinc-900 border border-white/10 text-zinc-300 font-bold rounded-full hover:bg-zinc-800 transition-colors text-sm md:text-base flex items-center justify-center gap-2"
+                                className="w-full sm:w-auto px-8 py-4 bg-card border border-border text-foreground font-bold rounded-full hover:bg-muted/10 transition-colors text-sm md:text-base flex items-center justify-center gap-2 shadow-sm"
                             >
                                 ✏️ 계정 만들고 창작하기
                             </button>
@@ -71,50 +71,50 @@ const GalleryPage: React.FC = () => {
                 </div>
 
                 {/* Scroll hint */}
-                <div className="absolute bottom-8 left-1/2 -translate-x-1/2 flex flex-col items-center gap-2 opacity-20 animate-bounce">
-                    <div className="w-px h-8 bg-white" />
-                    <div className="w-1 h-1 bg-white rounded-full" />
+                <div className="absolute bottom-8 left-1/2 -translate-x-1/2 flex flex-col items-center gap-2 opacity-50 animate-bounce">
+                    <div className="w-px h-8 bg-foreground/20" />
+                    <div className="w-1 h-1 bg-foreground/40 rounded-full" />
                 </div>
             </section>
 
             {/* ── Feature Cards ── */}
-            <section className="py-20 md:py-32 bg-zinc-950/60 border-y border-white/5 px-6">
+            <section className="py-20 md:py-32 bg-card/30 border-y border-border px-6">
                 <div className="max-w-7xl mx-auto">
                     <div className="text-center mb-12 md:mb-16">
-                        <p className="text-xs text-zinc-500 uppercase tracking-[0.3em] mb-3">모든 경험을 하나로</p>
-                        <h2 className="text-2xl md:text-4xl font-mystery font-bold">Mystery Crafter가 제공하는 것</h2>
+                        <p className="text-xs text-muted-foreground uppercase tracking-[0.3em] mb-3">모든 경험을 하나로</p>
+                        <h2 className="text-2xl md:text-4xl font-mystery font-bold text-foreground">Mystery Crafter가 제공하는 것</h2>
                     </div>
                     <div className="grid grid-cols-1 md:grid-cols-3 gap-6 md:gap-8">
                         {/* 솔로 플레이 */}
-                        <Link to="/games" className="block p-7 md:p-9 rounded-[2rem] bg-black border border-white/5 hover:border-white/20 transition-all duration-500 group">
+                        <Link to="/games" className="block p-7 md:p-9 rounded-[2rem] bg-card border border-border hover:border-red-500/30 transition-all duration-500 group shadow-sm">
                             <div className="text-3xl mb-6 group-hover:scale-110 transition-transform origin-left">🔍</div>
-                            <h3 className="text-lg md:text-xl font-bold mb-2 text-white group-hover:text-red-400 transition-colors">솔로 탐정 플레이</h3>
-                            <p className="text-xs text-zinc-500 uppercase tracking-widest mb-4 font-mono">회원가입 없이 즉시</p>
-                            <p className="text-zinc-500 text-sm md:text-base leading-relaxed break-keep">
+                            <h3 className="text-lg md:text-xl font-bold mb-2 text-foreground group-hover:text-red-500 transition-colors">솔로 탐정 플레이</h3>
+                            <p className="text-xs text-muted-foreground uppercase tracking-widest mb-4 font-mono">회원가입 없이 즉시</p>
+                            <p className="text-muted-foreground text-sm md:text-base leading-relaxed break-keep font-pretendard">
                                 다른 창작자들이 제작한 사건 현장을 방문하세요. 증거를 분석하고 용의자를 취조해 진실에 다가갑니다.
                             </p>
                         </Link>
 
                         {/* 멀티플레이어 - Highlighted */}
-                        <Link to="/games?mode=multiplayer" className="block p-7 md:p-9 rounded-[2rem] bg-emerald-950/20 border border-emerald-900/40 hover:border-emerald-500/50 hover:bg-emerald-950/30 transition-all duration-500 group relative overflow-hidden">
-                            <div className="absolute top-4 right-4 px-2 py-0.5 bg-emerald-500/20 border border-emerald-500/40 rounded-full text-[9px] font-bold text-emerald-400 uppercase tracking-widest">New</div>
-                            <div className="absolute inset-0 bg-gradient-to-br from-emerald-900/10 to-transparent pointer-events-none" />
+                        <Link to="/games?mode=multiplayer" className="block p-7 md:p-9 rounded-[2rem] bg-emerald-500/5 border border-emerald-500/20 hover:border-emerald-500/50 hover:bg-emerald-500/10 transition-all duration-500 group relative overflow-hidden shadow-sm">
+                            <div className="absolute top-4 right-4 px-2 py-0.5 bg-emerald-500/20 border border-emerald-500/40 rounded-full text-[9px] font-bold text-emerald-600 dark:text-emerald-400 uppercase tracking-widest">New</div>
+                            <div className="absolute inset-0 bg-gradient-to-br from-emerald-500/5 to-transparent pointer-events-none" />
                             <div className="relative z-10">
                                 <div className="text-3xl mb-6 group-hover:scale-110 transition-transform origin-left">👥</div>
-                                <h3 className="text-lg md:text-xl font-bold mb-2 text-white group-hover:text-emerald-400 transition-colors">실시간 멀티플레이</h3>
+                                <h3 className="text-lg md:text-xl font-bold mb-2 text-foreground group-hover:text-emerald-600 dark:group-hover:text-emerald-400 transition-colors">실시간 멀티플레이</h3>
                                 <p className="text-xs text-emerald-600 uppercase tracking-widest mb-4 font-mono">친구와 함께 수사</p>
-                                <p className="text-zinc-400 text-sm md:text-base leading-relaxed break-keep">
+                                <p className="text-muted-foreground text-sm md:text-base leading-relaxed break-keep font-pretendard">
                                     6자리 코드로 방을 만들고 친구를 초대하세요. 턴제 수사로 함께 진실을 밝혀내는 실시간 바다거북스프.
                                 </p>
                             </div>
                         </Link>
 
                         {/* AI 창작 */}
-                        <div className="p-7 md:p-9 rounded-[2rem] bg-black border border-white/5 hover:border-red-600/30 transition-all duration-500 group">
+                        <div className="p-7 md:p-9 rounded-[2rem] bg-card border border-border hover:border-red-600/30 transition-all duration-500 group shadow-sm">
                             <div className="text-3xl mb-6 group-hover:scale-110 transition-transform origin-left">🤖</div>
-                            <h3 className="text-lg md:text-xl font-bold mb-2 text-white group-hover:text-red-400 transition-colors">AI 스튜디오 창작</h3>
-                            <p className="text-xs text-zinc-500 uppercase tracking-widest mb-4 font-mono">단 몇 분 만에 완성</p>
-                            <p className="text-zinc-500 text-sm md:text-base leading-relaxed break-keep">
+                            <h3 className="text-lg md:text-xl font-bold mb-2 text-foreground group-hover:text-red-500 transition-colors">AI 스튜디오 창작</h3>
+                            <p className="text-xs text-muted-foreground uppercase tracking-widest mb-4 font-mono">단 몇 분 만에 완성</p>
+                            <p className="text-muted-foreground text-sm md:text-base leading-relaxed break-keep font-pretendard">
                                 키워드 하나로 시작해 완벽한 스토리보드를 생성합니다. AI가 만든 기초 위에 세밀한 커스터마이징까지.
                             </p>
                         </div>
@@ -125,19 +125,19 @@ const GalleryPage: React.FC = () => {
             {/* ── Multiplayer Showcase ── */}
             <section className="py-20 md:py-32 px-6">
                 <div className="max-w-6xl mx-auto">
-                    <div className="rounded-[2.5rem] bg-gradient-to-br from-zinc-900 to-zinc-950 border border-white/5 overflow-hidden">
+                    <div className="rounded-[2.5rem] bg-card border border-border overflow-hidden shadow-xl">
                         <div className="grid grid-cols-1 lg:grid-cols-2 gap-0">
                             {/* Text */}
                             <div className="p-10 md:p-16 flex flex-col justify-center">
-                                <div className="inline-flex items-center gap-2 px-3 py-1 bg-emerald-950/40 border border-emerald-900/50 rounded-full text-emerald-400 text-[10px] uppercase tracking-widest font-bold mb-8 w-fit">
+                                <div className="inline-flex items-center gap-2 px-3 py-1 bg-emerald-500/10 border border-emerald-500/20 rounded-full text-emerald-600 dark:text-emerald-400 text-[10px] uppercase tracking-widest font-bold mb-8 w-fit">
                                     <span className="w-1.5 h-1.5 bg-emerald-500 rounded-full animate-pulse" />
                                     실시간 멀티플레이어
                                 </div>
-                                <h2 className="text-3xl md:text-5xl font-mystery font-black mb-6 leading-tight">
+                                <h2 className="text-3xl md:text-5xl font-mystery font-black mb-6 leading-tight text-foreground">
                                     친구들과 함께<br />
-                                    <span className="text-emerald-400">수사본부를 열어보세요</span>
+                                    <span className="text-emerald-600 dark:text-emerald-400">수사본부를 열어보세요</span>
                                 </h2>
-                                <p className="text-zinc-400 text-base md:text-lg leading-relaxed mb-8 break-keep">
+                                <p className="text-muted-foreground text-base md:text-lg leading-relaxed mb-8 break-keep font-pretendard">
                                     방장이 6자리 코드를 공유하면 누구나 입장 가능. 턴제로 돌아가며 AI 심문관에게 질문을 던지고, 팀원들과 단서를 공유해 진범을 찾아내세요.
                                 </p>
                                 <div className="flex flex-col sm:flex-row gap-3">
@@ -149,7 +149,7 @@ const GalleryPage: React.FC = () => {
                                     </Link>
                                     <Link
                                         to="/games"
-                                        className="px-6 py-3 bg-zinc-800 hover:bg-zinc-700 text-zinc-300 font-bold rounded-full transition-all text-sm flex items-center justify-center gap-2"
+                                        className="px-6 py-3 bg-muted border border-border text-foreground hover:bg-muted/80 font-bold rounded-full transition-all text-sm flex items-center justify-center gap-2 shadow-sm font-pretendard"
                                     >
                                         게임 목록 보기
                                     </Link>
@@ -157,33 +157,33 @@ const GalleryPage: React.FC = () => {
                             </div>
 
                             {/* Visual */}
-                            <div className="relative p-10 md:p-16 flex items-center justify-center bg-zinc-950/50 border-t lg:border-t-0 lg:border-l border-white/5 min-h-[300px]">
+                            <div className="relative p-10 md:p-16 flex items-center justify-center bg-background/50 border-t lg:border-t-0 lg:border-l border-border min-h-[300px]">
                                 <div className="w-full max-w-xs space-y-3">
                                     {/* Fake chat UI */}
                                     <div className="flex items-center gap-2 mb-5">
                                         <div className="w-2 h-2 bg-emerald-500 rounded-full animate-pulse" />
-                                        <span className="text-xs text-zinc-400 font-mono">CODE: AB12CD · 탐정 3명 접속 중</span>
+                                        <span className="text-xs text-muted-foreground font-mono">CODE: AB12CD · 탐정 3명 접속 중</span>
                                     </div>
-                                    <div className="bg-zinc-900 border border-zinc-800 rounded-xl px-4 py-2.5 text-sm text-zinc-300 self-end w-fit ml-auto">
+                                    <div className="bg-card border border-border rounded-xl px-4 py-2.5 text-sm text-foreground self-end w-fit ml-auto shadow-sm">
                                         피해자는 독살당했나요?
                                     </div>
-                                    <div className="bg-red-950/30 border border-red-900/40 rounded-xl px-4 py-2.5 text-sm text-red-300 w-fit">
+                                    <div className="bg-red-500/10 dark:bg-red-950/30 border border-red-500/20 dark:border-red-900/40 rounded-xl px-4 py-2.5 text-sm text-red-600 dark:text-red-300 w-fit">
                                         <div className="text-[9px] font-black uppercase tracking-widest opacity-60 mb-0.5">NO</div>
                                         아닙니다. 독은 사용되지 않았습니다.
                                     </div>
-                                    <div className="bg-zinc-900 border border-zinc-800 rounded-xl px-4 py-2.5 text-sm text-zinc-300 self-end w-fit ml-auto">
+                                    <div className="bg-card border border-border rounded-xl px-4 py-2.5 text-sm text-foreground self-end w-fit ml-auto shadow-sm">
                                         현장에 두 번째 사람이 있었나요?
                                     </div>
-                                    <div className="bg-emerald-950/30 border border-emerald-900/40 rounded-xl px-4 py-2.5 text-sm text-emerald-300 w-fit">
+                                    <div className="bg-emerald-500/10 dark:bg-emerald-950/30 border border-emerald-500/20 dark:border-emerald-900/40 rounded-xl px-4 py-2.5 text-sm text-emerald-600 dark:text-emerald-300 w-fit">
                                         <div className="text-[9px] font-black uppercase tracking-widest opacity-60 mb-0.5">YES</div>
                                         맞습니다. 현장에는 두 번째 인물이 있었습니다.
                                     </div>
                                     <div className="text-center py-2">
-                                        <span className="text-[10px] text-zinc-600 font-mono">📢 턴이 홍길동 탐정에게 넘어갔습니다.</span>
+                                        <span className="text-[10px] text-muted-foreground font-mono font-bold">📢 턴이 홍길동 탐정에게 넘어갔습니다.</span>
                                     </div>
-                                    <div className="flex items-center gap-2 mt-3 bg-zinc-950 border border-zinc-800 rounded-xl px-3 py-2">
-                                        <div className="flex-1 text-xs text-zinc-600">질문을 입력하세요...</div>
-                                        <div className="w-7 h-7 rounded-lg bg-white/10 flex items-center justify-center text-xs">➡️</div>
+                                    <div className="flex items-center gap-2 mt-3 bg-muted/30 border border-border rounded-xl px-3 py-2 shadow-inner">
+                                        <div className="flex-1 text-xs text-muted-foreground font-pretendard">질문을 입력하세요...</div>
+                                        <div className="w-7 h-7 rounded-lg bg-card border border-border flex items-center justify-center text-xs text-foreground shadow-sm">➡️</div>
                                     </div>
                                 </div>
                             </div>
@@ -193,11 +193,11 @@ const GalleryPage: React.FC = () => {
             </section>
 
             {/* ── How to Create ── */}
-            <section className="py-20 md:py-32 px-6 bg-zinc-950/40 border-y border-white/5">
+            <section className="py-20 md:py-32 px-6 bg-card/40 border-y border-border">
                 <div className="max-w-5xl mx-auto">
                     <div className="text-center mb-16 md:mb-24">
-                        <p className="text-xs text-zinc-500 uppercase tracking-[0.3em] mb-3">창작 가이드</p>
-                        <h2 className="text-3xl md:text-5xl font-mystery font-bold">어떻게 만드나요?</h2>
+                        <p className="text-xs text-muted-foreground uppercase tracking-[0.3em] mb-3">창작 가이드</p>
+                        <h2 className="text-3xl md:text-5xl font-mystery font-bold text-foreground">어떻게 만드나요?</h2>
                     </div>
 
                     <div className="grid grid-cols-1 md:grid-cols-3 gap-6 md:gap-8">
@@ -221,11 +221,11 @@ const GalleryPage: React.FC = () => {
                                 desc: '스튜디오에서 세밀하게 편집하고 발행하세요. 혼자 즐기거나 멀티로 친구를 초대할 수 있습니다.',
                             },
                         ].map((step) => (
-                            <div key={step.num} className="group relative p-8 rounded-[2rem] bg-black border border-white/5 hover:border-red-600/20 transition-all duration-500">
+                            <div key={step.num} className="group relative p-8 rounded-[2rem] bg-card border border-border hover:border-red-600/20 transition-all duration-500 shadow-sm">
                                 <div className="absolute top-6 right-6 text-red-600 font-mystery text-5xl font-black opacity-5 group-hover:opacity-20 transition-opacity select-none">{step.num}</div>
                                 <div className="text-4xl mb-6 group-hover:scale-110 transition-transform origin-left">{step.emoji}</div>
-                                <h3 className="text-lg font-bold mb-3 text-white group-hover:text-red-400 transition-colors">{step.title}</h3>
-                                <p className="text-zinc-500 text-sm leading-relaxed break-keep">{step.desc}</p>
+                                <h3 className="text-lg font-bold mb-3 text-foreground group-hover:text-red-600 transition-colors">{step.title}</h3>
+                                <p className="text-muted-foreground text-sm leading-relaxed break-keep font-pretendard">{step.desc}</p>
                             </div>
                         ))}
                     </div>
@@ -253,22 +253,22 @@ const GalleryPage: React.FC = () => {
             </section>
 
             {/* ── Footer ── */}
-            <footer className="border-t border-white/5 py-16 md:py-24 px-6 bg-black/60">
+            <footer className="border-t border-border py-16 md:py-24 px-6 bg-background">
                 <div className="max-w-7xl mx-auto">
                     <div className="mb-12 md:mb-16">
                         <h2 className="text-xl md:text-2xl font-mystery font-bold text-red-600 tracking-tighter mb-2">Mystery Crafter</h2>
-                        <p className="text-zinc-600 text-sm max-w-xl">Where AI meets noir storytelling. 경험해본 적 없는 새로운 추리의 세계.</p>
+                        <p className="text-muted-foreground text-sm max-w-xl font-pretendard">Where AI meets noir storytelling. 경험해본 적 없는 새로운 추리의 세계.</p>
                     </div>
 
                     {/* AKLABS Promo */}
-                    <div className="w-full bg-white/4 border border-white/8 rounded-[2rem] p-8 md:p-12 hover:border-red-600/20 transition-all duration-500 group relative overflow-hidden mb-12">
-                        <div className="absolute top-0 right-0 p-8 opacity-5 group-hover:opacity-15 transition-opacity pointer-events-none">
+                    <div className="w-full bg-card border border-border rounded-[2rem] p-8 md:p-12 hover:border-red-600/20 transition-all duration-500 group relative overflow-hidden mb-12 shadow-sm">
+                        <div className="absolute top-0 right-0 p-8 opacity-5 group-hover:opacity-10 transition-opacity pointer-events-none">
                             <span className="text-[100px] md:text-[130px] leading-none">🚀</span>
                         </div>
                         <div className="relative z-10 max-w-2xl">
-                            <h3 className="text-white text-lg md:text-xl font-bold mb-4 font-mystery">더 많은 혁신을 만나보세요</h3>
-                            <p className="text-zinc-400 text-sm md:text-base mb-8 leading-relaxed break-keep">
-                                Mystery Crafter는 <strong className="text-white">AKLABS</strong>의 실험적인 프로젝트 중 하나입니다. 인공지능과 창의성이 만나는 지점에 관심이 있다면, 저희의 다른 프로젝트들도 확인해보세요.
+                            <h3 className="text-foreground text-lg md:text-xl font-bold mb-4 font-mystery">더 많은 혁신을 만나보세요</h3>
+                            <p className="text-muted-foreground text-sm md:text-base mb-8 leading-relaxed break-keep font-pretendard">
+                                Mystery Crafter는 <strong className="text-foreground">AKLABS</strong>의 실험적인 프로젝트 중 하나입니다. 인공지능과 창의성이 만나는 지점에 관심이 있다면, 저희의 다른 프로젝트들도 확인해보세요.
                             </p>
                             <a
                                 href="https://litt.ly/aklabs"

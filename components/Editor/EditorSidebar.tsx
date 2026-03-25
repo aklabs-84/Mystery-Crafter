@@ -42,8 +42,8 @@ const EditorSidebar: React.FC<EditorSidebarProps> = ({
 
   const getPlaceholder = (tab: string) => {
     if (tab === 'SCENES') return (
-      <div className="w-full h-full bg-zinc-900 flex items-center justify-center">
-        <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className="text-zinc-700 opacity-50"><path d="M3 9h18v10a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V9Z" /><path d="M3 9V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2v4" /></svg>
+      <div className="w-full h-full bg-muted flex items-center justify-center font-pretendard">
+        <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className="text-muted-foreground opacity-50"><path d="M3 9h18v10a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V9Z" /><path d="M3 9V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2v4" /></svg>
       </div>
     );
     if (tab === 'NPCS') return (
@@ -75,12 +75,12 @@ const EditorSidebar: React.FC<EditorSidebarProps> = ({
 
   return (
     <div
-      className={`relative h-full bg-zinc-950 flex flex-col z-40 transition-all duration-500 ease-in-out border-r border-white/10 shadow-2xl ${isOpen ? 'w-80' : 'w-0 border-r-0'}`}
+      className={`relative h-full bg-card/80 backdrop-blur-md flex flex-col z-40 transition-all duration-500 ease-in-out border-r border-border shadow-2xl ${isOpen ? 'w-80' : 'w-0 border-r-0'}`}
     >
       {/* Toggle Button - Absolute positioned at the right edge of the sidebar container */}
       <button
         onClick={(e) => { e.stopPropagation(); onToggle(); }}
-        className="absolute top-1/2 -translate-y-1/2 left-full z-[60] p-2 bg-zinc-900 border-y border-r border-white/10 text-zinc-400 hover:text-white rounded-r-xl transition-all shadow-2xl hover:bg-zinc-800"
+        className="absolute top-1/2 -translate-y-1/2 left-full z-[60] p-2 bg-card border-y border-r border-border text-muted-foreground hover:text-foreground rounded-r-xl transition-all shadow-2xl hover:bg-muted font-pretendard"
         title={isOpen ? "Collapse Sidebar" : "Expand Sidebar"}
       >
         <svg
@@ -100,15 +100,15 @@ const EditorSidebar: React.FC<EditorSidebarProps> = ({
       </button>
 
       {/* Sidebar Inner Content - Hidden via opacity and width transition */}
-      <div className={`flex flex-col h-full w-80 shrink-0 transition-opacity duration-300 ${isOpen ? 'opacity-100' : 'opacity-0 pointer-events-none'}`}>
+      <div className={`flex flex-col h-full w-80 shrink-0 transition-opacity duration-300 font-pretendard ${isOpen ? 'opacity-100' : 'opacity-0 pointer-events-none'}`}>
         {/* Navigation Tabs */}
-        <div className="p-4 flex flex-col gap-2 border-b border-white/10 bg-zinc-950">
+        <div className="p-4 flex flex-col gap-2 border-b border-border bg-card/50">
           <div className="flex gap-1">
             {(['SCENES', 'ITEMS', 'NPCS'] as const).map(tab => (
               <button
                 key={tab}
                 onClick={() => onTabChange(tab)}
-                className={`flex-1 py-2 text-[10px] font-bold tracking-widest uppercase rounded transition-all ${activeTab === tab ? 'bg-zinc-800 text-zinc-300 shadow-lg' : 'text-zinc-500 hover:text-zinc-300'}`}
+                className={`flex-1 py-2 text-[10px] font-bold tracking-widest uppercase rounded-lg transition-all ${activeTab === tab ? 'bg-foreground text-background shadow-lg scale-105' : 'text-muted-foreground hover:text-foreground hover:bg-muted'}`}
               >
                 {tab === 'SCENES' ? t.scenes : tab === 'ITEMS' ? t.items : t.npcs}
               </button>
@@ -116,27 +116,27 @@ const EditorSidebar: React.FC<EditorSidebarProps> = ({
           </div>
           <button
             onClick={() => onTabChange('SETTINGS')}
-            className={`w-full py-2 text-[10px] font-bold tracking-widest uppercase rounded transition-all ${activeTab === 'SETTINGS' ? 'bg-red-900/30 text-red-500 border border-red-900/50' : 'text-zinc-500 hover:text-zinc-300'}`}
+            className={`w-full py-2 text-[10px] font-bold tracking-widest uppercase rounded-lg transition-all ${activeTab === 'SETTINGS' ? 'bg-red-500/10 text-red-600 border border-red-500/30' : 'text-muted-foreground hover:text-foreground hover:bg-muted'}`}
           >
             {t.settings}
           </button>
         </div>
 
         {/* Assets List */}
-        <div className="flex-1 overflow-y-auto p-2 space-y-1 scrollbar-thin bg-zinc-950">
+        <div className="flex-1 overflow-y-auto p-2 space-y-1 scrollbar-thin bg-card/30">
           {activeTab === 'SETTINGS' && (
             <div className="space-y-1">
-              <button onClick={() => onSelect('settings-global')} className={`w-full text-left p-3 rounded-lg flex items-center gap-3 transition-all ${selectedId === 'settings-global' ? 'bg-white/10' : 'hover:bg-white/5'}`}>
-                <div className="w-10 h-10 rounded bg-zinc-900 border border-white/5 flex items-center justify-center text-zinc-500 text-lg">⚙️</div>
-                <div className="text-sm font-medium text-zinc-200">{t.settings}</div>
+              <button onClick={() => onSelect('settings-global')} className={`w-full text-left p-3 rounded-xl flex items-center gap-3 transition-all ${selectedId === 'settings-global' ? 'bg-muted shadow-inner' : 'hover:bg-muted/50'}`}>
+                <div className="w-10 h-10 rounded-lg bg-card border border-border flex items-center justify-center text-muted-foreground text-lg shadow-sm">⚙️</div>
+                <div className="text-sm font-bold text-foreground">{t.settings}</div>
               </button>
-              <button onClick={() => onSelect('settings-conclusion')} className={`w-full text-left p-3 rounded-lg flex items-center gap-3 transition-all ${selectedId === 'settings-conclusion' ? 'bg-white/10' : 'hover:bg-white/5'}`}>
-                <div className="w-10 h-10 rounded bg-zinc-900 border border-white/5 flex items-center justify-center text-zinc-500 text-lg">🏁</div>
-                <div className="text-sm font-medium text-zinc-200">{t.conclusionSettings}</div>
+              <button onClick={() => onSelect('settings-conclusion')} className={`w-full text-left p-3 rounded-xl flex items-center gap-3 transition-all ${selectedId === 'settings-conclusion' ? 'bg-muted shadow-inner' : 'hover:bg-muted/50'}`}>
+                <div className="w-10 h-10 rounded-lg bg-card border border-border flex items-center justify-center text-muted-foreground text-lg shadow-sm">🏁</div>
+                <div className="text-sm font-bold text-foreground">{t.conclusionSettings}</div>
               </button>
-              <button onClick={() => onSelect('settings-map')} className={`w-full text-left p-3 rounded-lg flex items-center gap-3 transition-all ${selectedId === 'settings-map' ? 'bg-white/10' : 'hover:bg-white/5'}`}>
-                <div className="w-10 h-10 rounded bg-zinc-900 border border-white/5 flex items-center justify-center text-zinc-500 text-lg">🗺️</div>
-                <div className="text-sm font-medium text-zinc-200">{t.visualMap}</div>
+              <button onClick={() => onSelect('settings-map')} className={`w-full text-left p-3 rounded-xl flex items-center gap-3 transition-all ${selectedId === 'settings-map' ? 'bg-muted shadow-inner' : 'hover:bg-muted/50'}`}>
+                <div className="w-10 h-10 rounded-lg bg-card border border-border flex items-center justify-center text-muted-foreground text-lg shadow-sm">🗺️</div>
+                <div className="text-sm font-bold text-foreground">{t.visualMap}</div>
               </button>
             </div>
           )}
@@ -148,9 +148,9 @@ const EditorSidebar: React.FC<EditorSidebarProps> = ({
               <div key={item.id} className="group relative">
                 <div
                   onClick={() => onSelect(item.id)}
-                  className={`w-full text-left p-3 rounded-lg flex items-center gap-3 transition-all cursor-pointer ${selectedId === item.id ? 'bg-white/10' : 'hover:bg-white/5'}`}
+                  className={`w-full text-left p-3 rounded-xl flex items-center gap-3 transition-all cursor-pointer ${selectedId === item.id ? 'bg-muted shadow-sm' : 'hover:bg-muted/50'}`}
                 >
-                  <div className="w-10 h-10 rounded bg-zinc-900 border border-white/5 overflow-hidden flex-shrink-0 flex items-center justify-center shadow-inner">
+                  <div className="w-10 h-10 rounded-lg bg-card border border-border overflow-hidden flex-shrink-0 flex items-center justify-center shadow-inner">
                     {url && !isBroken ? (
                       <img src={url} className="w-full h-full object-cover" onError={() => handleImageError(item.id)} />
                     ) : (
@@ -158,12 +158,12 @@ const EditorSidebar: React.FC<EditorSidebarProps> = ({
                     )}
                   </div>
                   <div className="min-w-0 flex-1">
-                    <div className="text-sm font-medium text-zinc-200 truncate">{l(item.name)}</div>
-                    <div className="text-[10px] text-zinc-600 uppercase font-mono truncate">{item.id}</div>
+                    <div className="text-sm font-bold text-foreground truncate">{l(item.name)}</div>
+                    <div className="text-[9px] text-muted-foreground uppercase font-mono truncate tracking-tight">{item.id}</div>
                   </div>
                   <button
                     onClick={(e) => { e.stopPropagation(); onDelete(item.id); }}
-                    className="opacity-0 group-hover:opacity-100 p-2 text-zinc-700 hover:text-red-500 transition-all rounded-lg hover:bg-red-500/10"
+                    className="opacity-0 group-hover:opacity-100 p-2 text-muted-foreground hover:text-red-500 transition-all rounded-lg hover:bg-red-500/10"
                     title={t.delete}
                   >
                     <svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M3 6h18m-2 0v14c0 1-1 2-2 2H7c-1 0-2-1-2-2V6m3 0V4c0-1 1-2 2-2h4c1 0 2 1 2 2v2m-6 3v10m4-10v10" /></svg>
@@ -173,17 +173,17 @@ const EditorSidebar: React.FC<EditorSidebarProps> = ({
             );
           })}
           {activeTab !== 'SETTINGS' && (
-            <button onClick={onAdd} className="w-full p-4 mt-4 border border-dashed border-white/10 rounded-lg text-zinc-500 hover:text-white hover:border-white/30 text-xs font-bold uppercase tracking-widest transition-all">
+            <button onClick={onAdd} className="w-full p-4 mt-4 border border-dashed border-border rounded-xl text-muted-foreground hover:text-foreground hover:bg-muted/50 hover:border-border/80 text-[10px] font-bold uppercase tracking-[0.2em] transition-all bg-card/20 font-pretendard">
               {activeTab === 'SCENES' ? t.addScene : activeTab === 'ITEMS' ? t.addItem : t.addNPC}
             </button>
           )}
         </div>
 
         {/* Back Home & Save Buttons */}
-        <div className="p-4 border-t border-white/10 bg-zinc-950 space-y-2">
+        <div className="p-4 border-t border-border bg-card/80 space-y-2">
           <button
             onClick={onBackToHome}
-            className="w-full flex items-center justify-center gap-2 py-3 px-4 rounded-xl bg-zinc-900 border border-white/5 text-zinc-400 hover:text-white hover:bg-zinc-800 transition-all text-[10px] font-bold uppercase tracking-[0.2em]"
+            className="w-full flex items-center justify-center gap-2 py-3 px-4 rounded-xl bg-muted border border-border text-muted-foreground hover:text-foreground hover:bg-muted/80 transition-all text-[10px] font-bold uppercase tracking-[0.2em] font-pretendard"
           >
             <svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round"><path d="m3 9 9-7 9 7v11a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z" /><polyline points="9 22 9 12 15 12 15 22" /></svg>
             {t.backToHome}
@@ -192,11 +192,11 @@ const EditorSidebar: React.FC<EditorSidebarProps> = ({
           <button
             onClick={onSave}
             disabled={isSaving}
-            className={`w-full flex items-center justify-center gap-2 py-3 px-4 rounded-xl transition-all text-[10px] font-bold uppercase tracking-[0.2em] shadow-lg ${isSaving ? 'bg-zinc-800 text-zinc-500' : 'bg-red-600 text-white hover:bg-red-500 border border-red-500'}`}
+            className={`w-full flex items-center justify-center gap-2 py-3 px-4 rounded-xl transition-all text-[10px] font-bold uppercase tracking-[0.2em] shadow-lg font-pretendard ${isSaving ? 'bg-muted text-muted-foreground cursor-not-allowed' : 'bg-red-600 text-white hover:bg-red-500 border border-red-500'}`}
           >
             {isSaving ? (
               <>
-                <div className="w-2 h-2 bg-zinc-500 rounded-full animate-bounce"></div>
+                <div className="w-2 h-2 bg-muted-foreground rounded-full animate-bounce"></div>
                 Saving...
               </>
             ) : (

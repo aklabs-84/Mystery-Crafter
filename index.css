@@ -1,9 +1,44 @@
 @import "tailwindcss";
 
-
 @layer base {
+  :root {
+    --background: #ffffff;
+    --foreground: #09090b;
+    --card: #f8fafc;
+    --card-foreground: #09090b;
+    --border: #e2e8f0;
+    --input: #ffffff;
+    --input-border: #cbd5e1;
+    --ring: #ef4444;
+    --muted: #f1f5f9;
+    --muted-foreground: #64748b;
+  }
+
+  .dark {
+    --background: #050507;
+    --foreground: #fafafa;
+    --card: #0a0a0c;
+    --card-foreground: #fafafa;
+    --border: #1e1e24;
+    --input: #0c0c0e;
+    --input-border: #27272a;
+    --ring: #dc2626;
+    --muted: #1e1e24;
+    --muted-foreground: #a1a1aa;
+  }
+
   body {
-    @apply bg-[#0a0a0a] text-[#e5e5e5];
+    font-family: 'Pretendard', 'Noto Sans KR', sans-serif;
+    background-color: var(--background);
+    color: var(--foreground);
+    transition: background-color 0.3s ease, color 0.3s ease;
+  }
+
+  /* Theme-aware defaults */
+  input, textarea, select {
+    background-color: var(--input);
+    color: var(--foreground);
+    border-color: var(--input-border);
   }
 
   img {
@@ -20,14 +55,21 @@
   --animate-fade-in: fade-in 0.8s ease-out forwards;
   --animate-slide-up: slide-up 0.8s ease-out forwards;
 
-  @keyframes fade-in {
-    from {
-      opacity: 0;
-    }
+  --color-background: var(--background);
+  --color-foreground: var(--foreground);
+  --color-card: var(--card);
+  --color-card-foreground: var(--card-foreground);
+  --color-border: var(--border);
+  --color-input: var(--input);
+  --color-input-border: var(--input-border);
+  --color-ring: var(--ring);
+  --color-muted: var(--muted);
+  --color-muted-foreground: var(--muted-foreground);
+  --font-pretendard: "Pretendard", sans-serif;
 
-    to {
-      opacity: 1;
-    }
+  @keyframes fade-in {
+    from { opacity: 0; }
+    to { opacity: 1; }
   }
 
   @keyframes slide-up {
@@ -35,7 +77,6 @@
       opacity: 0;
       transform: translateY(30px);
     }
-
     to {
       opacity: 1;
       transform: translateY(0);
@@ -43,26 +84,13 @@
   }
 }
 
-/* Custom Utilities that might not be easily mapped */
-.hide-scrollbar::-webkit-scrollbar {
-  display: none;
-}
+.hide-scrollbar::-webkit-scrollbar { display: none; }
+.hide-scrollbar { -ms-overflow-style: none; scrollbar-width: none; }
 
-.hide-scrollbar {
-  -ms-overflow-style: none;
-  scrollbar-width: none;
-}
-
-.scrollbar-thin::-webkit-scrollbar {
-  width: 4px;
-}
-
-.scrollbar-thin::-webkit-scrollbar-track {
-  background: rgba(255, 255, 255, 0.05);
-}
-
+.scrollbar-thin::-webkit-scrollbar { width: 4px; }
+.scrollbar-thin::-webkit-scrollbar-track { background: transparent; }
 .scrollbar-thin::-webkit-scrollbar-thumb {
-  background: rgba(220, 38, 38, 0.5);
+  background: var(--border);
   border-radius: 10px;
 }
 

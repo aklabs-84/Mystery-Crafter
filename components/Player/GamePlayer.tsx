@@ -8,6 +8,8 @@ import DialogueBox from './DialogueBox';
 import TutorialOverlay from './TutorialOverlay';
 import { DndProvider } from 'react-dnd';
 import { TouchBackend } from 'react-dnd-touch-backend';
+import { useTheme } from '../../context/ThemeContext';
+import ThemeToggle from '../UI/ThemeToggle';
 
 const l = (val: any, lang: Language): string => {
   if (!val) return '';
@@ -30,6 +32,7 @@ interface GamePlayerProps {
 
 const GamePlayer: React.FC<GamePlayerProps> = ({ gameData, initialState, gameId, lang, onBackToHome, onBgmChange, onProgressUpdate }) => {
   const t = translations[lang];
+  const { theme } = useTheme();
 
   const getInitialState = useCallback((): GameState => {
     if (initialState) return initialState;
@@ -421,16 +424,16 @@ const GamePlayer: React.FC<GamePlayerProps> = ({ gameData, initialState, gameId,
             <span className={`text-[10px] font-bold uppercase tracking-[0.5em] ${isSuccess ? 'text-emerald-500' : 'text-red-500'}`}>{isSuccess ? t.caseClosed : t.gameOver}</span>
             <h1 className="mystery-font text-7xl font-bold text-white leading-tight">{isSuccess ? l(conclusion?.successTitle, lang) : l(conclusion?.failureTitle, lang)}</h1>
           </div>
-          <div className="bg-zinc-900/30 border border-white/5 p-10 rounded-[3rem] backdrop-blur-xl space-y-8 shadow-2xl">
-            <p className="text-zinc-300 text-xl leading-relaxed mystery-font italic">{isSuccess ? l(conclusion?.successBody, lang) : l(conclusion?.failureBody, lang)}</p>
-            <div className="pt-8 border-t border-white/5 space-y-4">
-              <h3 className="text-[10px] font-bold text-zinc-500 uppercase tracking-widest">{t.mysterySolution}</h3>
-              <p className="text-zinc-500 text-sm leading-relaxed max-w-2xl mx-auto">{l(conclusion?.mysterySolution, lang)}</p>
+          <div className="bg-card/30 border border-border p-10 rounded-[3rem] backdrop-blur-xl space-y-8 shadow-2xl">
+            <p className="text-foreground/90 text-xl leading-relaxed font-pretendard italic">{isSuccess ? l(conclusion?.successBody, lang) : l(conclusion?.failureBody, lang)}</p>
+            <div className="pt-8 border-t border-border space-y-4">
+              <h3 className="text-[10px] font-bold text-muted-foreground uppercase tracking-widest">{t.mysterySolution}</h3>
+              <p className="text-muted-foreground text-sm leading-relaxed max-w-2xl mx-auto font-pretendard">{l(conclusion?.mysterySolution, lang)}</p>
             </div>
           </div>
           <div className="flex flex-col sm:flex-row gap-4 justify-center">
-            <button onClick={handleRestart} className="px-12 py-4 bg-white text-black font-bold rounded-full hover:bg-red-600 hover:text-white transition-all shadow-xl uppercase tracking-widest text-xs">{t.tryAgain}</button>
-            <button onClick={onBackToHome} className="px-12 py-4 bg-zinc-900 border border-white/10 text-zinc-400 font-bold rounded-full hover:text-white transition-all uppercase tracking-widest text-xs">{t.backToHome}</button>
+            <button onClick={handleRestart} className="px-12 py-4 bg-foreground text-background font-bold rounded-full hover:bg-red-600 hover:text-white transition-all shadow-xl uppercase tracking-widest text-xs font-pretendard">{t.tryAgain}</button>
+            <button onClick={onBackToHome} className="px-12 py-4 bg-card border border-border text-muted-foreground font-bold rounded-full hover:text-foreground hover:bg-card/80 transition-all uppercase tracking-widest text-xs font-pretendard">{t.backToHome}</button>
           </div>
         </div>
       </div>
@@ -439,16 +442,16 @@ const GamePlayer: React.FC<GamePlayerProps> = ({ gameData, initialState, gameId,
 
   return (
     <DndProvider backend={TouchBackend} options={{ enableMouseEvents: true }}>
-      <div className={`h-screen w-screen flex bg-black overflow-hidden relative transition-all duration-300 ${isShaking ? 'animate-shake' : ''}`}>
+      <div className={`h-screen w-screen flex bg-background text-foreground overflow-hidden relative transition-all duration-300 ${isShaking ? 'animate-shake' : ''}`}>
         {isFlashing && <div className="absolute inset-0 z-[100] animate-flash pointer-events-none" />}
 
-        <button onClick={() => setIsSidebarOpen(!isSidebarOpen)} className={`absolute top-1/2 -translate-y-1/2 z-50 p-2 bg-zinc-900 border-y border-r border-white/10 text-zinc-400 hover:text-white rounded-r-xl transition-all shadow-2xl ${isSidebarOpen ? 'left-[260px]' : 'left-0'}`}>
+        <button onClick={() => setIsSidebarOpen(!isSidebarOpen)} className={`absolute top-1/2 -translate-y-1/2 z-50 p-2 bg-card border-y border-r border-border text-muted-foreground hover:text-foreground rounded-r-xl transition-all shadow-2xl ${isSidebarOpen ? 'left-[260px]' : 'left-0'}`}>
           <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round" className={`transition-transform duration-300 ${isSidebarOpen ? 'rotate-180' : ''}`}><polyline points="9 18 15 12 9 6" /></svg>
         </button>
 
-        <aside id="game-sidebar" className={`border-r border-white/5 bg-[#080808] flex flex-col z-30 shadow-[4px_0_15px_rgba(0,0,0,0.4)] shrink-0 transition-all duration-500 ease-in-out ${isSidebarOpen ? 'w-[260px] opacity-100' : 'w-0 opacity-0 pointer-events-none overflow-hidden'}`}>
-          <div id="sidebar-header" className="p-4 bg-zinc-950 border-b border-white/5 flex items-center gap-4 min-w-[260px]">
-            <div className="w-16 h-16 rounded-2xl bg-zinc-900 border border-white/10 overflow-hidden flex-shrink-0 shadow-lg relative">
+        <aside id="game-sidebar" className={`border-r border-border bg-card/80 backdrop-blur-md flex flex-col z-30 shadow-[4px_0_15px_rgba(0,0,0,0.1)] shrink-0 transition-all duration-500 ease-in-out font-pretendard ${isSidebarOpen ? 'w-[260px] opacity-100' : 'w-0 opacity-0 pointer-events-none overflow-hidden'}`}>
+          <div id="sidebar-header" className="p-4 bg-muted/50 border-b border-border flex items-center gap-4 min-w-[260px]">
+            <div className="w-16 h-16 rounded-2xl bg-background border border-border overflow-hidden flex-shrink-0 shadow-lg relative">
               <div className="absolute inset-0 opacity-20 bg-[radial-gradient(#ffffff_1px,transparent_1px)] [background-size:8px_8px]"></div>
               {activeNPC?.portraitUrl ? (
                 <img src={activeNPC.portraitUrl} className="w-full h-full object-cover animate-in fade-in duration-500 relative z-10" alt="NPC" />
@@ -461,23 +464,23 @@ const GamePlayer: React.FC<GamePlayerProps> = ({ gameData, initialState, gameId,
               )}
             </div>
             <div className="flex flex-col min-w-0">
-              <span className="text-zinc-500 text-[8px] font-bold uppercase tracking-[0.2em] mb-1 truncate">
+              <span className="text-muted-foreground text-[8px] font-bold uppercase tracking-[0.2em] mb-1 truncate">
                 {activeNPC ? (lang === 'KO' ? '대화 중' : 'Conversation') : t.location}
               </span>
-              <h2 className="mystery-font text-base text-zinc-100 font-bold truncate">
+              <h2 className="mystery-font text-base text-foreground font-bold truncate">
                 {activeNPC ? l(activeNPC.name, lang) : (currentScene ? l(currentScene.name, lang) : "...")}
               </h2>
             </div>
           </div>
 
-          <div className="flex-1 overflow-y-auto scrollbar-thin min-w-[260px] bg-zinc-900/5 flex flex-col">
-            <div id="movement-section" className="border-b border-white/5">
+          <div className="flex-1 overflow-y-auto scrollbar-thin min-w-[260px] bg-muted/5 flex flex-col">
+            <div id="movement-section" className="border-b border-border/40">
               <button
                 onClick={() => setIsMovementOpen(!isMovementOpen)}
-                className="w-full px-4 py-4 flex items-center justify-between hover:bg-white/5 transition-colors group"
+                className="w-full px-4 py-4 flex items-center justify-between hover:bg-muted/10 transition-colors group"
               >
-                <h3 className="text-zinc-500 text-[9px] font-bold uppercase tracking-widest group-hover:text-zinc-300">{t.movement}</h3>
-                <svg xmlns="http://www.w3.org/2000/svg" width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="3" className={`text-zinc-600 transition-transform duration-300 ${isMovementOpen ? 'rotate-180' : ''}`}><polyline points="6 9 12 15 18 9" /></svg>
+                <h3 className="text-muted-foreground text-[9px] font-bold uppercase tracking-widest group-hover:text-foreground">{t.movement}</h3>
+                <svg xmlns="http://www.w3.org/2000/svg" width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="3" className={`text-muted-foreground transition-transform duration-300 ${isMovementOpen ? 'rotate-180' : ''}`}><polyline points="6 9 12 15 18 9" /></svg>
               </button>
 
               {isMovementOpen && (
@@ -485,14 +488,14 @@ const GamePlayer: React.FC<GamePlayerProps> = ({ gameData, initialState, gameId,
                   {state.sceneHistory.length > 0 && (
                     <button
                       onClick={handleGoBack}
-                      className="flex items-center gap-4 p-4 rounded-2xl border bg-zinc-900/40 border-white/5 hover:border-red-600/50 hover:bg-red-950/20 group transition-all shadow-lg w-full"
+                      className="flex items-center gap-4 p-4 rounded-2xl border bg-card border-border hover:border-red-600/50 hover:bg-red-950/20 group transition-all shadow-lg w-full"
                     >
-                      <div className="w-10 h-10 rounded-xl flex items-center justify-center border border-white/10 text-zinc-400 group-hover:text-red-500 bg-black/20 shrink-0">
+                      <div className="w-10 h-10 rounded-xl flex items-center justify-center border border-border text-muted-foreground group-hover:text-red-500 bg-muted/20 shrink-0">
                         <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="3"><polyline points="15 18 9 12 15 6" /></svg>
                       </div>
                       <div className="flex flex-col text-left overflow-hidden">
-                        <span className="text-sm font-bold text-zinc-200 group-hover:text-white truncate">{t.previousLocation}</span>
-                        <span className="text-[9px] text-zinc-600 uppercase leading-none mt-1 truncate">{t.backToPrevious}</span>
+                        <span className="text-sm font-bold text-foreground group-hover:text-white truncate">{t.previousLocation}</span>
+                        <span className="text-[9px] text-muted-foreground uppercase leading-none mt-1 truncate">{t.backToPrevious}</span>
                       </div>
                     </button>
                   )}
@@ -505,9 +508,9 @@ const GamePlayer: React.FC<GamePlayerProps> = ({ gameData, initialState, gameId,
                       <button
                         key={exit.id}
                         onClick={() => handleExitClick(exit)}
-                        className={`flex items-center gap-4 p-4 rounded-2xl border transition-all group shadow-lg w-full ${isLocked ? 'bg-zinc-950/20 border-white/5 opacity-50' : 'bg-zinc-950/40 border-white/5 hover:border-emerald-600/50 hover:bg-emerald-950/20'}`}
+                        className={`flex items-center gap-4 p-4 rounded-2xl border transition-all group shadow-lg w-full ${isLocked ? 'bg-muted/20 border-border opacity-50' : 'bg-card border-border hover:border-emerald-600/50 hover:bg-emerald-950/20'}`}
                       >
-                        <div className={`w-10 h-10 rounded-xl flex items-center justify-center border border-white/10 bg-black/20 shrink-0 ${isLocked ? 'text-zinc-800' : 'text-emerald-500'}`}>
+                        <div className={`w-10 h-10 rounded-xl flex items-center justify-center border border-border bg-muted/20 shrink-0 ${isLocked ? 'text-muted-foreground/30' : 'text-emerald-500'}`}>
                           {isLocked ? (
                             <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5"><rect x="3" y="11" width="18" height="11" rx="2" ry="2" /><path d="M7 11V7a5 5 0 0 1 10 0v4" /></svg>
                           ) : (
@@ -515,8 +518,8 @@ const GamePlayer: React.FC<GamePlayerProps> = ({ gameData, initialState, gameId,
                           )}
                         </div>
                         <div className="flex flex-col text-left overflow-hidden">
-                          <span className={`text-sm font-bold truncate ${isLocked ? 'text-zinc-600' : 'text-zinc-200 group-hover:text-white'}`}>{l(exit.label, lang)}</span>
-                          <span className="text-[10px] text-zinc-500 uppercase leading-none mt-1 truncate">
+                          <span className={`text-sm font-bold truncate ${isLocked ? 'text-muted-foreground' : 'text-foreground group-hover:text-white'}`}>{l(exit.label, lang)}</span>
+                          <span className="text-[10px] text-muted-foreground uppercase leading-none mt-1 truncate">
                             {isLocked ? t.lockedPath : (targetScene ? l(targetScene.name, lang) : "")}
                           </span>
                         </div>
@@ -527,13 +530,13 @@ const GamePlayer: React.FC<GamePlayerProps> = ({ gameData, initialState, gameId,
               )}
             </div>
 
-            <div id="suspects-section" className="border-b border-white/5">
+            <div id="suspects-section" className="border-b border-border/40">
               <button
                 onClick={() => setIsSuspectsOpen(!isSuspectsOpen)}
-                className="w-full px-4 py-4 flex items-center justify-between hover:bg-white/5 transition-colors group"
+                className="w-full px-4 py-4 flex items-center justify-between hover:bg-muted/10 transition-colors group"
               >
-                <h3 className="text-zinc-500 text-[9px] font-bold uppercase tracking-widest group-hover:text-zinc-300">{t.presentSuspects}</h3>
-                <svg xmlns="http://www.w3.org/2000/svg" width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="3" className={`text-zinc-600 transition-transform duration-300 ${isSuspectsOpen ? 'rotate-180' : ''}`}><polyline points="6 9 12 15 18 9" /></svg>
+                <h3 className="text-muted-foreground text-[9px] font-bold uppercase tracking-widest group-hover:text-foreground">{t.presentSuspects}</h3>
+                <svg xmlns="http://www.w3.org/2000/svg" width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="3" className={`text-muted-foreground transition-transform duration-300 ${isSuspectsOpen ? 'rotate-180' : ''}`}><polyline points="6 9 12 15 18 9" /></svg>
               </button>
 
               {isSuspectsOpen && (
@@ -555,19 +558,19 @@ const GamePlayer: React.FC<GamePlayerProps> = ({ gameData, initialState, gameId,
                               startDialogue(config.npcId);
                             }
                           }}
-                          className={`flex items-center gap-4 p-4 rounded-2xl bg-zinc-950/30 border border-white/5 transition-all group shadow-md w-full ${isLocked ? 'opacity-50 grayscale' : 'hover:border-red-600/50 hover:bg-red-950/20'}`}
+                          className={`flex items-center gap-4 p-4 rounded-2xl bg-card border border-border transition-all group shadow-md w-full ${isLocked ? 'opacity-50 grayscale' : 'hover:border-red-600/50 hover:bg-red-950/20'}`}
                         >
-                          <div className="w-10 h-10 rounded-xl overflow-hidden border border-white/10 relative bg-black shrink-0">
+                          <div className="w-10 h-10 rounded-xl overflow-hidden border border-border relative bg-background shrink-0">
                             <img src={npc.portraitUrl} className="w-full h-full object-cover" alt="Avatar" />
                             {isLocked && (
-                              <div className="absolute inset-0 bg-black/60 flex items-center justify-center text-white">
+                              <div className="absolute inset-0 bg-background/60 flex items-center justify-center text-foreground">
                                 <svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="3"><rect x="3" y="11" width="18" height="11" rx="2" ry="2" /><path d="M7 11V7a5 5 0 0 1 10 0v4" /></svg>
                               </div>
                             )}
                           </div>
                           <div className="flex flex-col text-left overflow-hidden">
-                            <span className={`text-sm font-bold transition-colors truncate ${isLocked ? 'text-zinc-500' : 'text-zinc-200 group-hover:text-white'}`}>{l(npc.name, lang)}</span>
-                            <span className="text-[9px] text-zinc-600 uppercase tracking-tighter leading-none mt-1">
+                            <span className={`text-sm font-bold transition-colors truncate ${isLocked ? 'text-muted-foreground' : 'text-foreground group-hover:text-white'}`}>{l(npc.name, lang)}</span>
+                            <span className="text-[9px] text-muted-foreground uppercase tracking-tighter leading-none mt-1">
                               {isLocked ? t.lockedPath : t.clickToTalk}
                             </span>
                           </div>
@@ -600,9 +603,9 @@ const GamePlayer: React.FC<GamePlayerProps> = ({ gameData, initialState, gameId,
             <div className="flex-1" />
           </div>
 
-          <div className="bg-zinc-950 p-4 border-t border-white/5 space-y-4">
-            <div className="px-5 py-2 flex items-center justify-between bg-zinc-900/30 rounded-xl mb-2">
-              <span className="text-[7px] font-bold text-zinc-600 uppercase tracking-widest">{t.enableAiChat}</span>
+          <div className="bg-card p-4 border-t border-border space-y-4">
+            <div className="px-5 py-2 flex items-center justify-between bg-muted/40 rounded-xl mb-2">
+              <span className="text-[7px] font-bold text-muted-foreground uppercase tracking-widest">{t.enableAiChat}</span>
               <input type="checkbox" checked={isAiOverrideEnabled} onChange={(e) => setIsAiOverrideEnabled(e.target.checked)} className="accent-red-600 w-3 h-3 cursor-pointer" />
             </div>
 
@@ -618,7 +621,7 @@ const GamePlayer: React.FC<GamePlayerProps> = ({ gameData, initialState, gameId,
               }}
               className={`w-full py-3 rounded-xl text-[8px] font-bold uppercase tracking-[0.2em] transition-all shadow-lg flex items-center justify-center gap-2 group ${accusationPrerequisites.canAccuse
                 ? 'bg-red-600 text-white hover:bg-red-500 animate-pulse'
-                : 'bg-zinc-900 border border-white/5 text-zinc-600 opacity-60'
+                : 'bg-muted border border-border text-muted-foreground opacity-60'
                 }`}
             >
               {!accusationPrerequisites.canAccuse && (
@@ -629,29 +632,30 @@ const GamePlayer: React.FC<GamePlayerProps> = ({ gameData, initialState, gameId,
           </div>
         </aside>
 
-        <section className="flex-1 relative flex flex-col items-center justify-center p-4 bg-black overflow-hidden">
+        <section className="flex-1 relative flex flex-col items-center justify-center p-4 bg-background overflow-hidden">
 
           {/* Top Bar: Always at the top of the screen */}
-          <div className="absolute top-0 left-0 right-0 p-6 flex justify-between items-start z-30 pointer-events-none bg-gradient-to-b from-black/80 to-transparent">
+          <div className="absolute top-0 left-0 right-0 p-6 flex justify-between items-start z-30 pointer-events-none bg-gradient-to-b from-background/80 to-transparent">
             {/* Left: BGM & Exit */}
             <div className="flex items-center gap-3 pointer-events-auto">
               <button
                 onClick={onBackToHome}
-                className="w-10 h-10 flex items-center justify-center bg-white/10 hover:bg-white/20 backdrop-blur-md border border-white/10 rounded-full text-white transition-all group"
+                className="w-10 h-10 flex items-center justify-center bg-card hover:bg-muted text-foreground backdrop-blur-md border border-border rounded-full transition-all group"
                 title={t.backToHome}
               >
                 <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round" className="group-hover:-translate-x-0.5 transition-transform"><path d="M19 12H5M12 19l-7-7 7-7" /></svg>
               </button>
+              <ThemeToggle />
               <BgmPlayer url={activeBgmUrl} lang={lang} />
             </div>
 
             {/* Right: Clues */}
             <div className="flex flex-col items-end gap-2 pointer-events-auto">
-              <div className="bg-black/40 backdrop-blur-md border border-white/10 px-6 py-2 rounded-2xl shadow-lg flex items-center gap-4">
-                <span className="text-[10px] font-bold text-zinc-400 uppercase tracking-widest">{t.cluesFound}</span>
+              <div className="bg-card/40 backdrop-blur-md border border-border px-6 py-2 rounded-2xl shadow-lg flex items-center gap-4">
+                <span className="text-[10px] font-bold text-muted-foreground uppercase tracking-widest">{t.cluesFound}</span>
                 <div className="flex items-end gap-1.5">
-                  <span className="text-2xl font-bold text-white mystery-font leading-none">{accusationPrerequisites.current}</span>
-                  <span className="text-xs text-zinc-500 font-bold mb-0.5">/ {accusationPrerequisites.total}</span>
+                  <span className="text-2xl font-bold text-foreground mystery-font leading-none">{accusationPrerequisites.current}</span>
+                  <span className="text-xs text-muted-foreground font-bold mb-0.5">/ {accusationPrerequisites.total}</span>
                 </div>
               </div>
               {accusationPrerequisites.canAccuse && (
@@ -663,7 +667,7 @@ const GamePlayer: React.FC<GamePlayerProps> = ({ gameData, initialState, gameId,
           </div>
 
           {/* Game Stage Container - Enforces Aspect Ratio */}
-          <div id="game-stage" className="relative w-full max-w-full max-h-full aspect-video mx-auto bg-zinc-900 rounded-2xl overflow-hidden shadow-2xl border border-white/5">
+          <div id="game-stage" className="relative w-full max-w-full max-h-full aspect-video mx-auto bg-muted rounded-2xl overflow-hidden shadow-2xl border border-border">
 
             {currentScene?.imageUrl && <img src={currentScene.imageUrl} className="w-full h-full" alt="Scene" draggable="false" />}
 
@@ -682,9 +686,9 @@ const GamePlayer: React.FC<GamePlayerProps> = ({ gameData, initialState, gameId,
             ))}
 
             {activePuzzleHs && (
-              <div className="absolute inset-0 z-[70] flex items-center justify-center bg-black/70 backdrop-blur-md animate-in fade-in duration-300">
-                <div className="max-w-md w-full bg-[#121212] border border-white/10 p-10 rounded-[2.5rem] shadow-2xl relative animate-in zoom-in duration-500">
-                  <button onClick={() => setActivePuzzleHs(null)} className="absolute top-4 right-4 text-zinc-500 hover:text-white transition-colors">
+              <div className="absolute inset-0 z-[70] flex items-center justify-center bg-background/70 backdrop-blur-md animate-in fade-in duration-300">
+                <div className="max-w-md w-full bg-card border border-border p-10 rounded-[2.5rem] shadow-2xl relative animate-in zoom-in duration-500">
+                  <button onClick={() => setActivePuzzleHs(null)} className="absolute top-4 right-4 text-muted-foreground hover:text-foreground transition-colors">
                     <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><line x1="18" y1="6" x2="6" y2="18" /><line x1="6" y1="6" x2="18" y2="18" /></svg>
                   </button>
                   <div className="flex flex-col gap-8 text-center">
@@ -701,7 +705,7 @@ const GamePlayer: React.FC<GamePlayerProps> = ({ gameData, initialState, gameId,
                             setPuzzleInput(e.target.value);
                             if (puzzleError) setPuzzleError(null);
                           }}
-                          className={`w-full bg-zinc-950 border rounded-2xl px-6 py-4 text-2xl text-center text-white font-mono tracking-widest outline-none transition-all ${puzzleError ? 'border-red-600 ring-4 ring-red-600/20' : 'border-white/10 focus:border-red-600'}`}
+                          className={`w-full bg-muted border rounded-2xl px-6 py-4 text-2xl text-center text-foreground font-mono tracking-widest outline-none transition-all ${puzzleError ? 'border-red-600 ring-4 ring-red-600/20' : 'border-border focus:border-red-600'}`}
                           placeholder="..."
                         />
                         {puzzleError && (
@@ -710,7 +714,7 @@ const GamePlayer: React.FC<GamePlayerProps> = ({ gameData, initialState, gameId,
                           </p>
                         )}
                       </div>
-                      <button type="submit" className="w-full py-4 bg-white text-black font-bold rounded-2xl hover:bg-red-600 hover:text-white transition-all uppercase tracking-widest text-xs">{t.submit}</button>
+                      <button type="submit" className="w-full py-4 bg-foreground text-background font-bold rounded-2xl hover:bg-red-600 hover:text-white transition-all uppercase tracking-widest text-xs">{t.submit}</button>
                     </form>
                   </div>
                 </div>
@@ -718,19 +722,19 @@ const GamePlayer: React.FC<GamePlayerProps> = ({ gameData, initialState, gameId,
             )}
 
             {(examineMessage || examineHs) && (
-              <div className="absolute inset-0 z-50 flex items-center justify-center p-8 lg:p-12 bg-black/40 backdrop-blur-sm animate-in fade-in duration-300">
-                <div className="max-w-2xl w-full bg-[#121212] border border-red-900/40 p-8 lg:p-10 rounded-[2.5rem] shadow-[0_30px_60px_-15px_rgba(0,0,0,0.7)] relative overflow-hidden">
+              <div className="absolute inset-0 z-50 flex items-center justify-center p-8 lg:p-12 bg-background/40 backdrop-blur-sm animate-in fade-in duration-300">
+                <div className="max-w-2xl w-full bg-card border border-red-900/40 p-8 lg:p-10 rounded-[2.5rem] shadow-[0_30px_60px_-15px_rgba(0,0,0,0.7)] relative overflow-hidden">
                   <div className="flex items-center gap-3 mb-6">
                     <div className="w-2 h-2 rounded-full bg-red-600 shadow-[0_0_8px_rgba(220,38,38,0.8)]" />
-                    <span className="text-[10px] font-bold text-zinc-500 uppercase tracking-[0.3em]">{t.examine}</span>
+                    <span className="text-[10px] font-bold text-muted-foreground uppercase tracking-[0.3em]">{t.examine}</span>
                   </div>
                   <div className="space-y-6">
                     {!showHsDetail ? (
-                      <p className="text-zinc-100 text-xl mystery-font leading-relaxed italic animate-in fade-in duration-300">
+                      <p className="text-foreground text-xl mystery-font leading-relaxed italic animate-in fade-in duration-300">
                         {examineMessage || l(examineHs?.successMessage, lang)}
                       </p>
                     ) : (
-                      <div className="aspect-video w-full rounded-2xl overflow-hidden bg-black/40 animate-in zoom-in duration-500 shadow-inner ring-1 ring-white/5">
+                      <div className="aspect-video w-full rounded-2xl overflow-hidden bg-muted/40 animate-in zoom-in duration-500 shadow-inner ring-1 ring-border">
                         <img src={examineHs?.detailImageUrl} className="w-full h-full object-contain" alt="Detailed View" draggable="false" />
                       </div>
                     )}
@@ -798,12 +802,12 @@ const GamePlayer: React.FC<GamePlayerProps> = ({ gameData, initialState, gameId,
                           <img src={inspectedItem.iconUrl} className="w-full h-full object-contain p-4" alt="Item" draggable="false" />
                         </div>
                         <div className="space-y-4">
-                          <h3 className="mystery-font text-4xl font-bold text-white">{l(inspectedItem.name, lang)}</h3>
-                          <p className="text-zinc-500 text-base italic mystery-font max-w-lg leading-relaxed">{l(inspectedItem.description, lang)}</p>
+                          <h3 className="mystery-font text-4xl font-bold text-foreground">{l(inspectedItem.name, lang)}</h3>
+                          <p className="text-muted-foreground text-base italic mystery-font max-w-lg leading-relaxed font-pretendard">{l(inspectedItem.description, lang)}</p>
                         </div>
                       </>
                     ) : (
-                      <div className="w-full aspect-video rounded-3xl overflow-hidden bg-black/40 border border-white/5 animate-in zoom-in duration-500 shadow-2xl">
+                      <div className="w-full aspect-video rounded-3xl overflow-hidden bg-muted/40 border border-border animate-in zoom-in duration-500 shadow-2xl">
                         <img src={inspectedItem.detailImageUrl} className="w-full h-full object-contain" alt="Detailed View" />
                       </div>
                     )}
@@ -821,11 +825,11 @@ const GamePlayer: React.FC<GamePlayerProps> = ({ gameData, initialState, gameId,
             )}
 
             {obtainedItem && (
-              <div className="absolute inset-0 z-[60] flex items-center justify-center bg-black/60 backdrop-blur-md animate-in fade-in duration-300">
+              <div className="absolute inset-0 z-[60] flex items-center justify-center bg-background/60 backdrop-blur-md animate-in fade-in duration-300">
                 <div className="flex flex-col items-center gap-8 animate-in zoom-in duration-500 scale-110">
-                  <div className="relative"><div className="absolute inset-0 bg-red-600 blur-3xl opacity-20 animate-pulse"></div><div className="w-48 h-48 bg-zinc-900 border-2 border-red-500/50 rounded-3xl p-8 shadow-2xl relative overflow-hidden"><img src={obtainedItem.iconUrl} className="w-full h-full object-contain p-4" alt="Item" /></div></div>
-                  <div className="text-center space-y-2"><span className="text-red-500 text-[10px] font-bold uppercase tracking-[0.5em]">{lang === 'KO' ? '새로운 단서 획득' : 'NEW CLUE FOUND'}</span><h3 className="mystery-font text-4xl font-bold text-white">{l(obtainedItem.name, lang)}</h3></div>
-                  <button onClick={() => setObtainedItem(null)} className="px-12 py-3 bg-white text-black font-bold rounded-full hover:bg-red-600 hover:text-white transition-all shadow-xl uppercase tracking-widest text-[10px]">{lang === 'KO' ? '수첩에 추가됨' : 'Added to notebook'}</button>
+                  <div className="relative"><div className="absolute inset-0 bg-red-600 blur-3xl opacity-20 animate-pulse"></div><div className="w-48 h-48 bg-card border-2 border-red-500/50 rounded-3xl p-8 shadow-2xl relative overflow-hidden"><img src={obtainedItem.iconUrl} className="w-full h-full object-contain p-4" alt="Item" /></div></div>
+                  <div className="text-center space-y-2"><span className="text-red-500 text-[10px] font-bold uppercase tracking-[0.5em] font-pretendard">{lang === 'KO' ? '새로운 단서 획득' : 'NEW CLUE FOUND'}</span><h3 className="mystery-font text-4xl font-bold text-foreground">{l(obtainedItem.name, lang)}</h3></div>
+                  <button onClick={() => setObtainedItem(null)} className="px-12 py-3 bg-red-600 text-white font-bold rounded-full hover:bg-red-500 transition-all shadow-xl uppercase tracking-widest text-[10px] font-pretendard">{lang === 'KO' ? '수첩에 추가됨' : 'Added to notebook'}</button>
                 </div>
               </div>
             )}
@@ -835,18 +839,18 @@ const GamePlayer: React.FC<GamePlayerProps> = ({ gameData, initialState, gameId,
             )}
 
             {isAccusing && (
-              <div className="absolute inset-0 z-[60] bg-black/95 backdrop-blur-md flex flex-col items-center justify-center p-8 lg:p-12 animate-in fade-in duration-300">
+              <div className="absolute inset-0 z-[60] bg-background/95 backdrop-blur-md flex flex-col items-center justify-center p-8 lg:p-12 animate-in fade-in duration-300">
                 <div className="max-w-4xl w-full text-center space-y-8 lg:space-y-12">
-                  <div className="space-y-4"><h2 className="mystery-font text-5xl font-bold text-white uppercase tracking-tight">{t.makeAccusation}</h2><p className="text-red-500 text-xs font-bold uppercase tracking-widest animate-pulse">{t.accusationWarning}</p></div>
+                  <div className="space-y-4"><h2 className="mystery-font text-5xl font-bold text-foreground uppercase tracking-tight">{t.makeAccusation}</h2><p className="text-red-500 text-xs font-bold uppercase tracking-widest animate-pulse font-pretendard">{t.accusationWarning}</p></div>
                   <div className="grid grid-cols-2 md:grid-cols-4 gap-4 lg:gap-6">
                     {(Object.values(gameData.npcs) as NPC[]).map(npc => (
-                      <button key={npc.id} onClick={() => handleAccuse(npc.id)} className="group flex flex-col items-center gap-4 p-4 rounded-2xl bg-zinc-900/50 border border-white/5 hover:border-red-600 hover:bg-red-950/20 transition-all">
-                        <div className="aspect-square w-full rounded-xl overflow-hidden grayscale group-hover:grayscale-0 transition-all"><img src={npc.portraitUrl} className="w-full h-full object-cover" alt={l(npc.name, lang)} /></div>
-                        <span className="text-sm font-bold text-zinc-400 group-hover:text-white transition-colors mystery-font">{l(npc.name, lang)}</span>
+                      <button key={npc.id} onClick={() => handleAccuse(npc.id)} className="group flex flex-col items-center gap-4 p-4 rounded-2xl bg-card/50 border border-border hover:border-red-600 hover:bg-red-500/10 transition-all shadow-sm">
+                        <div className="aspect-square w-full rounded-xl overflow-hidden grayscale group-hover:grayscale-0 transition-all shadow-inner"><img src={npc.portraitUrl} className="w-full h-full object-cover" alt={l(npc.name, lang)} /></div>
+                        <span className="text-sm font-bold text-muted-foreground group-hover:text-foreground transition-colors mystery-font">{l(npc.name, lang)}</span>
                       </button>
                     ))}
                   </div>
-                  <button onClick={() => setIsAccusing(false)} className="px-8 py-2 bg-zinc-800 text-zinc-500 rounded-full text-[10px] font-bold uppercase tracking-widest hover:text-white transition-colors">{t.goBack}</button>
+                  <button onClick={() => setIsAccusing(false)} className="px-8 py-2 bg-muted border border-border text-muted-foreground rounded-full text-[10px] font-bold uppercase tracking-widest hover:text-foreground hover:bg-muted/80 transition-colors font-pretendard">{t.goBack}</button>
                 </div>
               </div>
             )}

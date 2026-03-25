@@ -229,13 +229,13 @@ const QuickModePlayer: React.FC<QuickModePlayerProps> = ({ gameData, gameId, onB
     };
 
     return (
-        <div className="min-h-screen bg-[#050505] text-white p-4 md:p-8 font-sans selection:bg-red-900 selection:text-white">
+        <div className="min-h-screen bg-background text-foreground p-4 md:p-8 font-sans selection:bg-red-900 selection:text-white transition-colors duration-300">
             {/* 크레딧 부족 / 입장 오류 오버레이 */}
             {sessionError && (
-                <div className="fixed inset-0 z-50 bg-black/90 backdrop-blur-sm flex flex-col items-center justify-center gap-6 p-8">
+                <div className="fixed inset-0 z-50 bg-background/90 backdrop-blur-sm flex flex-col items-center justify-center gap-6 p-8">
                     <div className="text-5xl">⚡</div>
-                    <h2 className="text-2xl font-black text-white text-center">{sessionError}</h2>
-                    <p className="text-zinc-400 text-sm text-center max-w-sm">
+                    <h2 className="text-2xl font-black text-foreground text-center font-mystery">{sessionError}</h2>
+                    <p className="text-muted-foreground text-sm text-center max-w-sm font-pretendard">
                         {(credits ?? 0) >= 5
                             ? '일시적인 오류입니다. 다시 시도하거나 페이지를 새로고침해 주세요.'
                             : '크레딧을 충전하고 다시 입장해 주세요.'}
@@ -244,12 +244,12 @@ const QuickModePlayer: React.FC<QuickModePlayerProps> = ({ gameData, gameId, onB
                         {(credits ?? 0) >= 5 && (
                             <button
                                 onClick={() => { setSessionError(null); setCreditAttempted(false); }}
-                                className="px-6 py-3 bg-red-700 hover:bg-red-600 text-white rounded-xl font-bold transition"
+                                className="px-6 py-3 bg-red-600 hover:bg-red-500 text-white rounded-xl font-bold transition font-pretendard shadow-lg"
                             >
                                 다시 시도
                             </button>
                         )}
-                        <button onClick={onBackToHome} className="px-6 py-3 bg-zinc-800 hover:bg-zinc-700 text-white rounded-xl font-bold transition">
+                        <button onClick={onBackToHome} className="px-6 py-3 bg-card border border-border hover:bg-muted/10 text-foreground rounded-xl font-bold transition font-pretendard">
                             목록으로
                         </button>
                     </div>
@@ -258,7 +258,7 @@ const QuickModePlayer: React.FC<QuickModePlayerProps> = ({ gameData, gameId, onB
             <header className="flex justify-between items-center mb-8 max-w-6xl mx-auto">
                 <button 
                     onClick={onBackToHome}
-                    className="flex items-center gap-2 text-zinc-400 hover:text-white transition-colors text-sm font-bold uppercase tracking-widest"
+                    className="flex items-center gap-2 text-muted-foreground hover:text-foreground transition-colors text-sm font-bold uppercase tracking-widest font-pretendard"
                 >
                     <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="3" strokeLinecap="round" strokeLinejoin="round"><path d="M19 12H5M12 19l-7-7 7-7"/></svg>
                     사건 목록으로
@@ -273,7 +273,7 @@ const QuickModePlayer: React.FC<QuickModePlayerProps> = ({ gameData, gameId, onB
                 {/* Visual & Context Section (Left/Top) */}
                 <div className="lg:col-span-6 flex flex-col gap-6">
                     {/* Image Viewer */}
-                    <div className="w-full aspect-video md:aspect-[4/3] bg-zinc-900 rounded-[2rem] border border-white/5 overflow-hidden relative shadow-2xl">
+                    <div className="w-full aspect-video md:aspect-[4/3] bg-card rounded-[2rem] border border-border overflow-hidden relative shadow-2xl">
                         {imageUrl ? (
                             <img src={imageUrl} alt="사건 현장" className="w-full h-full object-cover" />
                         ) : (
@@ -282,43 +282,43 @@ const QuickModePlayer: React.FC<QuickModePlayerProps> = ({ gameData, gameId, onB
                                 <span className="text-sm tracking-widest">NO ASSET AVAILABLE</span>
                             </div>
                         )}
-                        <div className="absolute inset-0 bg-gradient-to-t from-black/80 via-transparent to-transparent pointer-events-none"></div>
+                             <div className="absolute inset-x-0 bottom-0 h-1/2 bg-gradient-to-t from-background/90 via-background/40 to-transparent pointer-events-none"></div>
                         <div className="absolute bottom-6 left-6 right-6">
-                            <h1 className="text-3xl md:text-4xl font-black text-white mb-2 font-mystery drop-shadow-lg">
+                            <h1 className="text-3xl md:text-4xl font-black text-foreground mb-2 font-mystery drop-shadow-sm">
                                 {gameData.title?.KO || '사건 기록'}
                             </h1>
                             <div className="flex items-center gap-2 flex-wrap">
                                 <div className="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-red-950/50 border border-red-900/50 text-red-500 text-xs font-bold tracking-widest">
                                     <span>🔒</span> 기밀 문서
                                 </div>
-                                <div className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full bg-zinc-900/80 border border-zinc-700/50 text-zinc-300 text-xs font-bold tracking-widest">
+                                 <div className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full bg-card/80 border border-border text-foreground text-xs font-bold tracking-widest shadow-sm">
                                     {DIFFICULTY_LABELS[difficulty]}
                                 </div>
                             </div>
                         </div>
                     </div>
 
-                    {/* Surface Story */}
-                    <div className="bg-[#0a0a0a] border border-white/5 rounded-[2rem] p-6 md:p-8 shadow-xl">
-                        <h2 className="text-sm font-bold text-zinc-500 uppercase tracking-widest mb-4 flex items-center gap-2">
+                     {/* Surface Story */}
+                    <div className="bg-card border border-border rounded-[2rem] p-6 md:p-8 shadow-xl">
+                        <h2 className="text-sm font-bold text-muted-foreground uppercase tracking-widest mb-4 flex items-center gap-2">
                             <div className="w-2 h-2 bg-amber-500 rounded-full"></div> 
                             사건 개요
                         </h2>
-                        <p className="text-lg md:text-xl text-zinc-300 leading-relaxed font-serif break-keep">
+                        <p className="text-lg md:text-xl text-foreground leading-relaxed font-pretendard break-keep italic">
                             {surfaceStory}
                         </p>
                     </div>
                 </div>
 
-                {/* AI Chat Terminal Section (Right/Bottom) */}
-                <div className="lg:col-span-6 flex flex-col h-[600px] lg:h-auto bg-[#0a0a0a] border border-white/5 rounded-[2rem] shadow-xl overflow-hidden relative">
+                 {/* AI Chat Terminal Section (Right/Bottom) */}
+                <div className="lg:col-span-6 flex flex-col h-[600px] lg:h-auto bg-card border border-border rounded-[2rem] shadow-xl overflow-hidden relative transition-colors duration-300">
                     {/* Terminal Header */}
-                    <div className="h-14 border-b border-white/5 bg-zinc-900/50 flex items-center px-4 md:px-6 justify-between shrink-0">
+                     <div className="h-14 border-b border-border bg-muted/30 flex items-center px-4 md:px-6 justify-between shrink-0">
                         <div className="flex items-center gap-3">
                             <div className="w-3 h-3 rounded-full bg-red-500/20 flex items-center justify-center">
                                 <div className="w-1.5 h-1.5 rounded-full bg-red-500 animate-pulse"></div>
                             </div>
-                            <span className="text-xs font-bold text-zinc-400 tracking-widest uppercase">AI 심문 단말기</span>
+                            <span className="text-xs font-bold text-muted-foreground tracking-widest uppercase">AI 심문 단말기</span>
                         </div>
                         <div className="flex items-center gap-2">
                             <button 
@@ -334,22 +334,25 @@ const QuickModePlayer: React.FC<QuickModePlayerProps> = ({ gameData, gameId, onB
                                 disabled={isGameOver}
                                 className={`text-[10px] md:text-xs font-bold px-3 py-1.5 rounded-lg transition-colors disabled:opacity-30 ${
                                     isSolving 
-                                    ? 'text-zinc-400 bg-zinc-800 hover:bg-zinc-700 border border-zinc-700' 
-                                    : 'text-emerald-500 bg-emerald-500/10 hover:bg-emerald-500/20 border border-emerald-500/20'
+                                    ? 'text-zinc-400 bg-zinc-800/50 border border-zinc-700/50 hover:bg-zinc-800/70' 
+                                    : 'text-red-500 bg-red-500/10 border border-red-500/20 hover:bg-red-500/20'
                                 }`}
                             >
-                                {isSolving ? '질문 모드로 돌아가기' : '정답 제출하기'}
+                                {isSolving ? '질문 모드' : '진상 제출'}
                             </button>
                         </div>
                     </div>
 
                     {/* Chat Messages */}
-                    <div className="flex-1 overflow-y-auto p-6 space-y-6 flex flex-col bg-gradient-to-b from-[#0a0a0a] to-[#050505]">
-                        {messages.map((msg) => (
-                            <div key={msg.id} className={`flex ${msg.sender === 'user' ? 'justify-end' : 'justify-start'} max-w-full animate-fade-in`}>
-                                <div className={`max-w-[85%] rounded-2xl px-5 py-3 ${
+                    <div className="flex-1 overflow-y-auto p-6 space-y-6 flex flex-col bg-background transition-colors duration-300">
+                        {messages.map((msg, index) => (
+                            <div 
+                                key={msg.id} 
+                                className={`flex ${msg.sender === 'user' ? 'justify-end' : 'justify-start'}`}
+                            >
+                                <div className={`max-w-[85%] rounded-2xl px-5 py-3 shadow-sm ${
                                     msg.sender === 'user' 
-                                        ? 'bg-zinc-800 text-white rounded-br-sm' 
+                                        ? 'bg-red-600 text-white rounded-br-sm' 
                                         : msg.status === 'yes' ? 'bg-emerald-950/30 border border-emerald-900/50 text-emerald-300 rounded-bl-sm'
                                         : msg.status === 'no' ? 'bg-red-950/30 border border-red-900/50 text-red-300 rounded-bl-sm'
                                         : msg.status === 'irrelevant' ? 'bg-zinc-900 border border-zinc-800 text-zinc-400 rounded-bl-sm'
@@ -369,32 +372,32 @@ const QuickModePlayer: React.FC<QuickModePlayerProps> = ({ gameData, gameId, onB
                         <div ref={chatEndRef} />
                     </div>
 
-                    {/* Input Area */}
-                    <div className="p-4 bg-zinc-950 border-t border-white/5 shrink-0 relative">
+                     {/* Input Area */}
+                    <div className="p-4 bg-muted/30 border-t border-border shrink-0 relative transition-colors duration-300">
                         {isGameOver && (
                             <div className="absolute inset-0 bg-emerald-900/20 backdrop-blur-sm z-10 flex items-center justify-center">
                                 <span className="font-black text-emerald-400 tracking-widest uppercase">CASE CLOSED</span>
                             </div>
                         )}
-                        <form 
+                         <form 
                             onSubmit={(e) => { 
                                 e.preventDefault(); 
                                 if (isSolving) handleSolveSubmit(); else handleAsk(); 
                             }}
-                            className={`flex items-center gap-2 border rounded-xl p-1 focus-within:border-zinc-600 transition-colors ${isSolving ? 'bg-emerald-950/20 border-emerald-900/50' : 'bg-zinc-900 border-zinc-800'}`}
+                            className={`flex items-center gap-2 border rounded-xl p-1 focus-within:ring-2 focus-within:ring-red-500/20 transition-all ${isSolving ? 'bg-emerald-500/5 border-emerald-500/20' : 'bg-background border-border'}`}
                         >
-                            <input
+                             <input
                                 type="text"
                                 value={inputValue}
                                 onChange={(e) => setInputValue(e.target.value)}
                                 placeholder={isSolving ? "사건의 최후의 진상을 상세히 적어 제출하세요..." : "예/아니오로 대답할 수 있는 질문을 입력하세요..."}
-                                className={`flex-1 bg-transparent border-none outline-none text-white text-sm md:text-base px-4 py-2 placeholder:text-zinc-600 focus:ring-0 ${isSolving ? 'text-emerald-300 font-bold' : ''}`}
+                                className={`flex-1 bg-transparent border-none outline-none text-foreground text-sm md:text-base px-4 py-2 placeholder:text-muted-foreground/50 focus:ring-0 font-pretendard ${isSolving ? 'text-emerald-600 dark:text-emerald-400 font-bold' : ''}`}
                                 disabled={isThinking || isGameOver}
                             />
-                            <button
+                             <button
                                 type="submit"
                                 disabled={!inputValue.trim() || isThinking || isGameOver}
-                                className="w-10 h-10 rounded-lg bg-white text-black flex items-center justify-center disabled:opacity-30 disabled:bg-zinc-800 disabled:text-zinc-500 transition-colors shrink-0"
+                                className="w-10 h-10 rounded-lg bg-red-600 text-white flex items-center justify-center disabled:opacity-30 disabled:bg-muted disabled:text-muted-foreground transition-all shrink-0 shadow-lg shadow-red-600/20 hover:scale-105"
                             >
                                 <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round"><line x1="22" y1="2" x2="11" y2="13"></line><polygon points="22 2 15 22 11 13 2 9 22 2"></polygon></svg>
                             </button>

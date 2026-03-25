@@ -1,3 +1,4 @@
+
 import React, { useState } from 'react';
 import { useNavigate, useLocation } from 'react-router-dom';
 import { GameData, Scene, VisualStyle, Item, NPC, CaseConclusion } from '../../types';
@@ -209,21 +210,21 @@ const GameEditor: React.FC<GameEditorProps> = ({ gameData, onSave, isSaving, isP
       const sceneList = Object.values(gameData.scenes || {}) as Scene[];
       return (
         <div className="p-8 max-w-4xl mx-auto space-y-10">
-          <header className="flex justify-between items-end border-b border-white/5 pb-6">
+          <header className="flex justify-between items-end border-b border-border pb-6">
             <div>
-              <span className="text-[10px] font-bold text-zinc-500 tracking-[0.2em] uppercase">{t.settings}</span>
-              <h2 className="text-4xl mystery-font font-bold text-white mt-1">{t.settings}</h2>
+              <span className="text-[10px] font-bold text-muted-foreground tracking-[0.2em] uppercase">{t.settings}</span>
+              <h2 className="text-4xl mystery-font font-bold text-foreground mt-1">{t.settings}</h2>
             </div>
             <button
               onClick={handleTranslateAll}
               disabled={isTranslatingAll}
-              className={`flex items-center gap-2 px-6 py-2 rounded-lg font-bold text-xs uppercase tracking-widest transition-all ${isTranslatingAll ? 'bg-zinc-800 text-zinc-600' : 'bg-emerald-600 text-white hover:bg-emerald-500 shadow-lg shadow-emerald-600/20'}`}
+              className={`flex items-center gap-2 px-6 py-2 rounded-lg font-bold text-xs uppercase tracking-widest transition-all ${isTranslatingAll ? 'bg-muted/10 text-muted-foreground' : 'bg-emerald-600 text-white hover:bg-emerald-500 shadow-lg shadow-emerald-600/20'}`}
             >
               {isTranslatingAll ? t.translating : t.translateAllToEn}
             </button>
           </header>
           <div className="space-y-8">
-            <div className="bg-zinc-900/50 p-6 rounded-2xl border border-white/5 space-y-8">
+            <div className="bg-card p-6 rounded-2xl border border-border space-y-8 shadow-sm">
               <div>
                 <LocalizedInput
                   label={t.gameTitle}
@@ -233,13 +234,13 @@ const GameEditor: React.FC<GameEditorProps> = ({ gameData, onSave, isSaving, isP
                 />
               </div>
 
-              <div className="grid grid-cols-1 md:grid-cols-2 gap-6 pt-4 border-t border-white/5">
+              <div className="grid grid-cols-1 md:grid-cols-2 gap-6 pt-4 border-t border-border">
                 <div>
-                  <label className="block text-[10px] font-bold text-zinc-500 uppercase tracking-widest mb-2">{t.startScene}</label>
+                  <label className="block text-[10px] font-bold text-muted-foreground uppercase tracking-widest mb-2">{t.startScene}</label>
                   <select
                     value={gameData.startSceneId}
                     onChange={(e) => onSave({ ...gameData, startSceneId: e.target.value })}
-                    className="w-full bg-zinc-800 border border-white/10 rounded-lg p-3 text-sm outline-none focus:border-red-500 transition-all text-white"
+                    className="w-full bg-background border border-border rounded-lg p-3 text-sm outline-none focus:border-red-500 transition-all text-foreground"
                   >
                     {sceneList.length > 0 ? (
                       sceneList.map(s => (
@@ -251,15 +252,15 @@ const GameEditor: React.FC<GameEditorProps> = ({ gameData, onSave, isSaving, isP
                   </select>
                 </div>
                 <div>
-                  <label className="block text-[10px] font-bold text-zinc-500 uppercase tracking-widest mb-2">{t.globalBgm}</label>
+                  <label className="block text-[10px] font-bold text-muted-foreground uppercase tracking-widest mb-2">{t.globalBgm}</label>
                   <input
                     type="text"
                     placeholder="https://..."
                     value={gameData.globalBgmUrl || ''}
                     onChange={(e) => onSave({ ...gameData, globalBgmUrl: e.target.value })}
-                    className="w-full bg-zinc-800 border border-white/10 rounded-lg p-3 text-sm outline-none focus:border-red-500 transition-all text-white"
+                    className="w-full bg-background border border-border rounded-lg p-3 text-sm outline-none focus:border-red-500 transition-all text-foreground"
                   />
-                  <p className="text-[9px] text-zinc-600 mt-2 italic">{t.globalBgmDesc}</p>
+                  <p className="text-[9px] text-muted-foreground mt-2 italic font-medium">{t.globalBgmDesc}</p>
                 </div>
               </div>
             </div>
@@ -293,8 +294,8 @@ const GameEditor: React.FC<GameEditorProps> = ({ gameData, onSave, isSaving, isP
     }
 
     if (!selectedEntityId) return (
-      <div className="h-full flex flex-col items-center justify-center text-zinc-600 p-10 text-center">
-        <div className="text-6xl mb-4 opacity-20">📂</div>
+      <div className="h-full flex flex-col items-center justify-center text-muted-foreground p-10 text-center">
+        <div className="text-6xl mb-4 opacity-10">📂</div>
         <h2 className="text-xl font-medium mb-2">{t.selectionRequired}</h2>
         <p className="max-w-xs text-sm">{t.selectSidebar}</p>
       </div>
@@ -334,21 +335,21 @@ const GameEditor: React.FC<GameEditorProps> = ({ gameData, onSave, isSaving, isP
   };
 
   return (
-    <div className="h-full flex flex-col bg-zinc-900 overflow-hidden relative">
+    <div className="h-full flex flex-col bg-background overflow-hidden relative transition-colors duration-300">
       {/* Top Header for Editor */}
-      <div className="h-14 bg-black border-b border-zinc-800 flex items-center justify-between px-4 shrink-0">
+      <div className="h-14 bg-card border-b border-border flex items-center justify-between px-4 shrink-0 shadow-sm">
         <div className="flex items-center gap-4">
           <button
             onClick={() => navigate(location.pathname.includes('/admin/') ? '/admin/studio' : '/user/studio')}
-            className="flex items-center gap-2 text-zinc-400 hover:text-white transition group"
+            className="flex items-center gap-2 text-muted-foreground hover:text-foreground transition group"
           >
-            <div className="w-8 h-8 rounded-full bg-zinc-900 border border-zinc-700 flex items-center justify-center group-hover:border-red-600 transition">
+            <div className="w-8 h-8 rounded-full bg-background border border-border flex items-center justify-center group-hover:border-red-600 transition shadow-sm">
               <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M19 12H5M12 19l-7-7 7-7" /></svg>
             </div>
             <span className="text-sm font-bold uppercase tracking-widest">Back to Studio</span>
           </button>
-          <div className="h-6 w-px bg-zinc-800"></div>
-          <h1 className="text-sm font-bold text-white truncate max-w-xs">{gameData.title[lang] || 'Untitled Mystery'}</h1>
+          <div className="h-6 w-px bg-border"></div>
+          <h1 className="text-sm font-bold text-foreground truncate max-w-xs">{gameData.title[lang] || 'Untitled Mystery'}</h1>
         </div>
 
         <div id="header-controls" className="flex items-center gap-4">
@@ -357,23 +358,23 @@ const GameEditor: React.FC<GameEditorProps> = ({ gameData, onSave, isSaving, isP
             <button
               onClick={onTogglePublish}
               className={`flex items-center gap-2 px-3 py-1.5 rounded-full border transition-all text-[10px] font-bold uppercase tracking-widest ${isPublic
-                ? 'bg-green-950/30 border-green-600/50 text-green-500 hover:bg-green-900/50'
-                : 'bg-zinc-900 border-zinc-700 text-zinc-500 hover:text-zinc-300 hover:border-zinc-600'
+                ? 'bg-green-950/20 border-green-600/30 text-green-600 hover:bg-green-950/30'
+                : 'bg-background border-border text-muted-foreground hover:text-foreground hover:border-muted'
                 }`}
             >
-              <div className={`w-2 h-2 rounded-full transition-colors ${isPublic ? 'bg-green-500 shadow-[0_0_8px_rgba(34,197,94,0.6)]' : 'bg-zinc-600'}`} />
+              <div className={`w-2 h-2 rounded-full transition-colors ${isPublic ? 'bg-green-500 shadow-[0_0_8px_rgba(34,197,94,0.6)]' : 'bg-muted/40'}`} />
               {isPublic ? 'Public' : 'Draft'}
             </button>
           )}
 
           {/* Save Indicator */}
           {isSaving ? (
-            <div className="flex items-center gap-2 text-green-500 text-xs font-bold uppercase tracking-widest">
+            <div className="flex items-center gap-2 text-green-600 text-xs font-bold uppercase tracking-widest">
               <div className="w-2 h-2 bg-green-500 rounded-full animate-pulse"></div>
               Saving...
             </div>
           ) : (
-            <div className="flex items-center gap-2 text-zinc-600 text-xs font-bold uppercase tracking-widest">
+            <div className="flex items-center gap-2 text-muted-foreground text-xs font-bold uppercase tracking-widest">
               <svg xmlns="http://www.w3.org/2000/svg" width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M19 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h11l5 5v11a2 2 0 0 1-2 2z" /><polyline points="17 21 17 13 7 13 7 21" /><polyline points="7 3 7 8 15 8" /></svg>
               Saved
             </div>
@@ -412,7 +413,7 @@ const GameEditor: React.FC<GameEditorProps> = ({ gameData, onSave, isSaving, isP
           />
         </div>
 
-        <div id="main-editor-stage" className="flex-1 overflow-y-auto bg-[#0a0a0a] transition-all duration-500">
+        <div id="main-editor-stage" className="flex-1 overflow-y-auto bg-background transition-all duration-300">
           {renderEditor()}
         </div>
       </div>

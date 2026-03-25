@@ -339,7 +339,7 @@ const SceneEditor: React.FC<SceneEditorProps> = ({ scene, onUpdate, onUpdateProj
   const canvasHotspots = (scene.hotspots || []).filter(h => !h.isSubAction);
 
   return (
-    <div className="p-8 max-7xl mx-auto space-y-10 pb-20 select-none">
+    <div className="p-8 max-w-7xl mx-auto space-y-10 pb-20 select-none">
       <InputModal
         isOpen={showApiKeyModal}
         title={t.apiKeyRequired || "API Key Required"}
@@ -361,7 +361,7 @@ const SceneEditor: React.FC<SceneEditorProps> = ({ scene, onUpdate, onUpdateProj
         placeholder="AIza..."
         inputType="password"
       />
-      <header className="flex justify-between items-end border-b border-white/5 pb-6">
+      <header className="flex justify-between items-end border-b border-border pb-6">
         <LocalizedInput label={t.location} value={scene.name} onChange={(v) => onUpdate({ name: v })} lang={lang} className="flex-1 mr-10" />
         <button onClick={handleGenerateImage} disabled={isGenerating} className="px-6 py-2 bg-red-600 text-white rounded-lg font-bold text-xs uppercase tracking-widest disabled:opacity-50 hover:bg-red-500 shadow-lg shadow-red-600/20 transition-all">
           {isGenerating ? t.working : t.generateAIArt}
@@ -370,13 +370,13 @@ const SceneEditor: React.FC<SceneEditorProps> = ({ scene, onUpdate, onUpdateProj
 
       <div className="grid grid-cols-1 lg:grid-cols-12 gap-10">
         <div className="lg:col-span-4 space-y-6">
-          <div className="bg-zinc-900/50 p-6 rounded-2xl border border-white/5 space-y-4">
+          <div className="bg-card p-6 rounded-2xl border border-border space-y-4 shadow-sm">
             <div className="flex justify-between items-center mb-1">
-              <label className="block text-[10px] font-bold text-zinc-500 uppercase tracking-widest">{t.atmosphericText}</label>
+              <label className="block text-[10px] font-bold text-muted-foreground uppercase tracking-widest">{t.atmosphericText}</label>
               <button
                 onClick={handleSuggestDescription}
                 disabled={isSuggestingDescription || !l(scene.name)}
-                className="text-[9px] font-bold text-red-500 hover:text-white disabled:opacity-30 transition-all uppercase tracking-widest"
+                className="text-[9px] font-bold text-red-500 hover:text-foreground disabled:opacity-30 transition-all uppercase tracking-widest"
               >
                 {isSuggestingDescription ? t.working : '✨ ' + t.aiSuggest}
               </button>
@@ -384,43 +384,43 @@ const SceneEditor: React.FC<SceneEditorProps> = ({ scene, onUpdate, onUpdateProj
             <LocalizedInput label="" value={scene.descriptionText} onChange={(v) => onUpdate({ descriptionText: v })} lang={lang} multiline />
           </div>
 
-          <div className="bg-zinc-900/50 p-6 rounded-2xl border border-white/5 space-y-4">
+          <div className="bg-card p-6 rounded-2xl border border-border space-y-4 shadow-sm">
             <div className="flex justify-between items-center mb-1">
-              <label className="block text-[10px] font-bold text-zinc-500 uppercase tracking-widest">{t.aiPrompt}</label>
+              <label className="block text-[10px] font-bold text-muted-foreground uppercase tracking-widest">{t.aiPrompt}</label>
               <button
                 onClick={handleSuggestPrompt}
                 disabled={isSuggestingPrompt || !l(scene.descriptionText)}
-                className="text-[9px] font-bold text-red-500 hover:text-white disabled:opacity-30 transition-all uppercase tracking-widest"
+                className="text-[9px] font-bold text-red-500 hover:text-foreground disabled:opacity-30 transition-all uppercase tracking-widest"
               >
                 {isSuggestingPrompt ? t.working : '✨ ' + t.aiSuggest}
               </button>
             </div>
-            <textarea value={scene.imagePrompt} onChange={(e) => onUpdate({ imagePrompt: e.target.value })} className="w-full h-24 bg-zinc-800 border border-white/10 rounded-lg p-3 text-xs text-white outline-none focus:border-red-500 transition-all resize-none" />
+            <textarea value={scene.imagePrompt} onChange={(e) => onUpdate({ imagePrompt: e.target.value })} className="w-full h-24 bg-background border border-border rounded-lg p-3 text-xs text-foreground outline-none focus:border-red-500 transition-all resize-none" />
           </div>
 
-          <div className="bg-zinc-900/50 p-6 rounded-2xl border border-white/5">
-            <label className="block text-[10px] font-bold text-zinc-500 uppercase tracking-widest mb-4">{t.npcsInScene}</label>
+          <div className="bg-card p-6 rounded-2xl border border-border shadow-sm">
+            <label className="block text-[10px] font-bold text-muted-foreground uppercase tracking-widest mb-4">{t.npcsInScene}</label>
             <div className="space-y-3 max-h-[300px] overflow-y-auto pr-2 scrollbar-thin">
               {(Object.values(allAssets.npcs) as NPC[]).map(npc => {
                 const isAssigned = assignedNpcIds.includes(npc.id);
                 const config = (scene.npcConfigs || []).find(c => c.npcId === npc.id);
                 return (
-                  <div key={npc.id} className={`p-3 rounded-xl border transition-all space-y-2 ${isAssigned ? 'bg-emerald-600/5 border-emerald-500/30' : 'bg-zinc-800/40 border-white/5'}`}>
+                  <div key={npc.id} className={`p-3 rounded-xl border transition-all space-y-2 ${isAssigned ? 'bg-emerald-600/5 border-emerald-500/30' : 'bg-background border-border shadow-sm'}`}>
                     <div className="flex items-center justify-between">
                       <button
                         onClick={() => toggleNpcInScene(npc.id)}
-                        className={`text-[11px] font-bold ${isAssigned ? 'text-emerald-500' : 'text-zinc-500 hover:text-zinc-300'}`}
+                        className={`text-[11px] font-bold ${isAssigned ? 'text-emerald-500' : 'text-muted-foreground hover:text-foreground'}`}
                       >
                         {isAssigned ? '✓ ' : '+ '}{l(npc.name)}
                       </button>
                     </div>
                     {isAssigned && (
-                      <div className="pt-2 border-t border-white/5">
-                        <label className="block text-[8px] font-bold text-zinc-600 uppercase tracking-widest mb-1">{t.requiredItem}</label>
+                      <div className="pt-2 border-t border-border">
+                        <label className="block text-[8px] font-bold text-muted-foreground uppercase tracking-widest mb-1">{t.requiredItem}</label>
                         <select
                           value={config?.requiredItemId || ''}
                           onChange={(e) => updateNpcConfig(npc.id, { requiredItemId: e.target.value || undefined })}
-                          className="w-full bg-zinc-900 text-[10px] p-2 rounded border border-white/5 text-zinc-400 outline-none focus:border-emerald-500"
+                          className="w-full bg-background text-[10px] p-2 rounded border border-border text-foreground outline-none focus:border-emerald-500"
                         >
                           <option value="">[{t.none}]</option>
                           {Object.values(allAssets.items).map((i: any) => <option key={i.id} value={i.id}>{l(i.name)}</option>)}
@@ -433,10 +433,10 @@ const SceneEditor: React.FC<SceneEditorProps> = ({ scene, onUpdate, onUpdateProj
             </div>
           </div>
 
-          <div className="bg-zinc-950 p-6 rounded-2xl border border-white/5 space-y-4 shadow-xl">
+          <div className="bg-background p-6 rounded-2xl border border-border space-y-4 shadow-md">
             <div className="flex justify-between items-center mb-2">
-              <label className="block text-[10px] font-bold text-zinc-500 uppercase tracking-widest">{t.navigationExits}</label>
-              <button onClick={addExit} className="text-[8px] font-bold text-red-500 uppercase tracking-widest hover:text-white transition-colors">
+              <label className="block text-[10px] font-bold text-muted-foreground uppercase tracking-widest">{t.navigationExits}</label>
+              <button onClick={addExit} className="text-[8px] font-bold text-red-500 uppercase tracking-widest hover:text-foreground transition-colors">
                 {t.addExit}
               </button>
             </div>
@@ -444,24 +444,24 @@ const SceneEditor: React.FC<SceneEditorProps> = ({ scene, onUpdate, onUpdateProj
               {(scene.exits || []).map(exit => {
                 const isExExpanded = expandedExitId === exit.id;
                 return (
-                  <div key={exit.id} className="rounded-xl bg-zinc-900 border border-white/5 overflow-hidden">
-                    <div onClick={() => setExpandedExitId(isExExpanded ? null : exit.id)} className="p-3 flex items-center justify-between cursor-pointer hover:bg-white/5">
-                      <span className="text-[10px] font-bold text-zinc-300 truncate">{l(exit.label)}</span>
-                      <button onClick={(e) => { e.stopPropagation(); deleteExit(exit.id); }} className="text-zinc-600 hover:text-red-500 transition-colors">×</button>
+                  <div key={exit.id} className="rounded-xl bg-card border border-border overflow-hidden shadow-sm">
+                    <div onClick={() => setExpandedExitId(isExExpanded ? null : exit.id)} className="p-3 flex items-center justify-between cursor-pointer hover:bg-muted/5">
+                      <span className="text-[10px] font-bold text-foreground truncate">{l(exit.label)}</span>
+                      <button onClick={(e) => { e.stopPropagation(); deleteExit(exit.id); }} className="text-muted-foreground hover:text-red-500 transition-colors">×</button>
                     </div>
                     {isExExpanded && (
-                      <div className="p-4 border-t border-white/5 space-y-4 bg-black/20">
+                      <div className="p-4 border-t border-border space-y-4 bg-background/50">
                         <LocalizedInput label="Label" value={exit.label} onChange={(v) => updateExit(exit.id, { label: v })} lang={lang} />
                         <div className="space-y-1">
-                          <label className="text-[8px] font-bold text-zinc-600 uppercase tracking-widest">{t.targetScene}</label>
-                          <select value={exit.targetSceneId} onChange={(e) => updateExit(exit.id, { targetSceneId: e.target.value })} className="w-full bg-zinc-800 text-[10px] p-2 rounded border border-white/10 text-white outline-none">
+                          <label className="text-[8px] font-bold text-muted-foreground uppercase tracking-widest">{t.targetScene}</label>
+                          <select value={exit.targetSceneId} onChange={(e) => updateExit(exit.id, { targetSceneId: e.target.value })} className="w-full bg-background text-[10px] p-2 rounded border border-border text-foreground outline-none">
                             <option value="">[{t.none}]</option>
                             {Object.values(allAssets.scenes).map((s: any) => <option key={s.id} value={s.id}>{l(s.name)}</option>)}
                           </select>
                         </div>
                         <div className="space-y-1">
-                          <label className="text-[8px] font-bold text-zinc-600 uppercase tracking-widest">{t.requiredItem}</label>
-                          <select value={exit.requiredItemId || ''} onChange={(e) => updateExit(exit.id, { requiredItemId: e.target.value || undefined })} className="w-full bg-zinc-800 text-[10px] p-2 rounded border border-white/10 text-white outline-none">
+                          <label className="text-[8px] font-bold text-muted-foreground uppercase tracking-widest">{t.requiredItem}</label>
+                          <select value={exit.requiredItemId || ''} onChange={(e) => updateExit(exit.id, { requiredItemId: e.target.value || undefined })} className="w-full bg-background text-[10px] p-2 rounded border border-border text-foreground outline-none">
                             <option value="">[{t.none}]</option>
                             {Object.values(allAssets.items).map((i: any) => <option key={i.id} value={i.id}>{l(i.name)}</option>)}
                           </select>
@@ -479,17 +479,17 @@ const SceneEditor: React.FC<SceneEditorProps> = ({ scene, onUpdate, onUpdateProj
           <div
             ref={imageRef}
             onClick={handleImageClick}
-            className={`relative aspect-video bg-zinc-950 rounded-2xl overflow-hidden border border-white/10 shadow-2xl transition-all ${isPlacingHotspot ? 'cursor-crosshair ring-2 ring-red-500' : ''}`}
+            className={`relative aspect-video bg-background rounded-2xl overflow-hidden border border-border shadow-2xl transition-all ${isPlacingHotspot ? 'cursor-crosshair ring-2 ring-red-500' : ''}`}
           >
             {!showPlaceholder ? (
               <img src={scene.imageUrl} className="w-full h-full pointer-events-none" onError={() => setImageError(true)} alt="Scene Preview" />
             ) : (
-              <div className="w-full h-full bg-[#0a0a0a] flex flex-col items-center justify-center relative">
+              <div className="w-full h-full bg-card flex flex-col items-center justify-center relative">
                 <div className="z-10 flex flex-col items-center gap-6">
-                  <div className="w-20 h-20 bg-zinc-900 rounded-full flex items-center justify-center border border-white/5 shadow-inner">
-                    <svg xmlns="http://www.w3.org/2000/svg" width="32" height="32" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round" className="text-zinc-700 animate-pulse"><rect width="18" height="18" x="3" y="3" rx="2" ry="2" /><path d="m3 9 2.45-2.45a2.2 2.2 0 0 1 3.1 0L12 10l4.45-4.45a2.2 2.2 0 0 1 3.1 0L21 9" /><circle cx="15" cy="15" r="2" /></svg>
+                  <div className="w-20 h-20 bg-background rounded-full flex items-center justify-center border border-border shadow-inner">
+                    <svg xmlns="http://www.w3.org/2000/svg" width="32" height="32" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round" className="text-muted-foreground animate-pulse"><rect width="18" height="18" x="3" y="3" rx="2" ry="2" /><path d="m3 9 2.45-2.45a2.2 2.2 0 0 1 3.1 0L12 10l4.45-4.45a2.2 2.2 0 0 1 3.1 0L21 9" /><circle cx="15" cy="15" r="2" /></svg>
                   </div>
-                  <div className="text-[10px] font-bold uppercase tracking-[0.6em] text-zinc-600">Waiting for AI Art</div>
+                  <div className="text-[10px] font-bold uppercase tracking-[0.6em] text-muted-foreground">Waiting for AI Art</div>
                 </div>
               </div>
             )}
@@ -512,13 +512,13 @@ const SceneEditor: React.FC<SceneEditorProps> = ({ scene, onUpdate, onUpdateProj
             ))}
           </div>
 
-          <div className="bg-zinc-900/50 p-6 rounded-2xl border border-white/5 space-y-4">
-            <label className="block text-[8px] font-bold text-zinc-600 uppercase tracking-widest mb-2">{t.imageUrl}</label>
+          <div className="bg-card p-6 rounded-2xl border border-border shadow-sm space-y-4">
+            <label className="block text-[8px] font-bold text-muted-foreground uppercase tracking-widest mb-2">{t.imageUrl}</label>
             <div className="flex gap-2">
               <input
                 value={scene.imageUrl || ''}
                 onChange={(e) => { setImageError(false); onUpdate({ imageUrl: e.target.value }); }}
-                className="flex-1 bg-zinc-950 border border-white/5 rounded-lg p-3 text-[10px] outline-none text-zinc-500 focus:border-red-500 transition-all"
+                className="flex-1 bg-background border border-border rounded-lg p-3 text-[10px] outline-none text-muted-foreground focus:border-red-500 transition-all"
                 placeholder="https://..."
               />
               <ImageUploader
@@ -530,57 +530,57 @@ const SceneEditor: React.FC<SceneEditorProps> = ({ scene, onUpdate, onUpdateProj
             </div>
           </div>
 
-          <div className="bg-zinc-950 p-8 rounded-3xl border border-white/5 shadow-2xl">
+          <div className="bg-background p-8 rounded-3xl border border-border shadow-2xl">
             <div className="flex justify-between items-center mb-8">
-              <h3 className="mystery-font text-2xl text-white font-bold">{t.hotspots} ({scene.hotspots?.length || 0})</h3>
+              <h3 className="mystery-font text-2xl text-foreground font-bold">{t.hotspots} ({scene.hotspots?.length || 0})</h3>
               <div className="flex gap-2 relative">
                 <button onClick={() => setShowTemplateMenu(!showTemplateMenu)} className="text-[10px] px-4 py-2 bg-emerald-600/10 text-emerald-500 border border-emerald-500/30 rounded-xl font-bold uppercase tracking-widest hover:bg-emerald-600 hover:text-white transition-all">
                   {t.templates}
                 </button>
                 {showTemplateMenu && (
-                  <div className="absolute top-full right-0 mt-2 w-48 bg-zinc-900 border border-white/10 rounded-xl shadow-2xl z-50 p-2 space-y-1">
-                    <button onClick={() => applyTemplate('LOCKED_BOX')} className="w-full text-left p-2 text-[9px] font-bold text-zinc-400 hover:text-white hover:bg-white/5 rounded-lg transition-all uppercase tracking-tighter">{t.templateLockedBox}</button>
-                    <button onClick={() => applyTemplate('NUMBER_PUZZLE')} className="w-full text-left p-2 text-[9px] font-bold text-zinc-400 hover:text-white hover:bg-white/5 rounded-lg transition-all uppercase tracking-tighter">{t.templateNumberPuzzle}</button>
-                    <button onClick={() => applyTemplate('REVEAL_CLUE')} className="w-full text-left p-2 text-[9px] font-bold text-zinc-400 hover:text-white hover:bg-white/5 rounded-lg transition-all uppercase tracking-tighter">{t.templateRevealClue}</button>
+                  <div className="absolute top-full right-0 mt-2 w-48 bg-card border border-border rounded-xl shadow-2xl z-50 p-2 space-y-1">
+                    <button onClick={() => applyTemplate('LOCKED_BOX')} className="w-full text-left p-2 text-[9px] font-bold text-muted-foreground hover:text-foreground hover:bg-muted/5 rounded-lg transition-all uppercase tracking-tighter">{t.templateLockedBox}</button>
+                    <button onClick={() => applyTemplate('NUMBER_PUZZLE')} className="w-full text-left p-2 text-[9px] font-bold text-muted-foreground hover:text-foreground hover:bg-muted/5 rounded-lg transition-all uppercase tracking-tighter">{t.templateNumberPuzzle}</button>
+                    <button onClick={() => applyTemplate('REVEAL_CLUE')} className="w-full text-left p-2 text-[9px] font-bold text-muted-foreground hover:text-foreground hover:bg-muted/5 rounded-lg transition-all uppercase tracking-tighter">{t.templateRevealClue}</button>
                   </div>
                 )}
-                <button onClick={() => setIsPlacingHotspot(!isPlacingHotspot)} className={`text-[10px] px-6 py-2 rounded-xl font-bold uppercase tracking-widest transition-all ${isPlacingHotspot ? 'bg-red-600 text-white' : 'bg-zinc-800 text-zinc-400 hover:text-white'}`}>
+                <button onClick={() => setIsPlacingHotspot(!isPlacingHotspot)} className={`text-[10px] px-6 py-2 rounded-xl font-bold uppercase tracking-widest transition-all ${isPlacingHotspot ? 'bg-red-600 text-white' : 'bg-card text-muted-foreground hover:text-foreground border border-border shadow-sm'}`}>
                   {isPlacingHotspot ? t.cancelPlacement : t.addHotspot}
                 </button>
               </div>
             </div>
 
             <div className="space-y-3 overflow-y-auto max-h-[600px] pr-2 scrollbar-thin">
-              {(scene.hotspots || []).length === 0 && <div className="py-10 text-center border border-dashed border-white/5 rounded-2xl text-zinc-700 text-[10px] font-bold uppercase tracking-widest">{t.clickToPlace}</div>}
+              {(scene.hotspots || []).length === 0 && <div className="py-10 text-center border border-dashed border-border rounded-2xl text-muted-foreground text-[10px] font-bold uppercase tracking-widest">{t.clickToPlace}</div>}
               {(scene.hotspots || []).map(hs => {
                 const isExpanded = expandedHsId === hs.id;
                 const isFolded = foldedHsDetails[hs.id] !== false;
 
                 return (
-                  <div key={hs.id} className={`rounded-2xl border overflow-hidden transition-all duration-300 ${isExpanded ? 'bg-zinc-900/80 border-red-500/50 shadow-lg' : 'bg-zinc-900/30 border-white/5 hover:border-white/10'}`}>
+                  <div key={hs.id} className={`rounded-2xl border overflow-hidden transition-all duration-300 ${isExpanded ? 'bg-card border-red-500/50 shadow-lg' : 'bg-card/30 border-border hover:border-muted/30 shadow-sm'}`}>
                     <div onClick={() => { setExpandedHsId(isExpanded ? null : hs.id); setSelectedHsId(hs.id); }} className="p-4 flex items-center justify-between cursor-pointer">
                       <div className="flex items-center gap-4 min-w-0">
                         <div className={`w-2 h-2 rounded-full ${hs.actionType === 'EXAMINE' ? 'bg-blue-500' : hs.actionType === 'GOTO' ? 'bg-emerald-500' : hs.actionType === 'TALK' ? 'bg-purple-500' : hs.actionType === 'INPUT_PUZZLE' ? 'bg-yellow-500' : 'bg-red-500'}`} />
-                        <span className="text-xs font-bold text-zinc-300 truncate">{l(hs.label)}</span>
-                        <span className="text-[9px] font-mono text-zinc-600 uppercase">[{hs.actionType}]</span>
+                        <span className="text-xs font-bold text-foreground truncate">{l(hs.label)}</span>
+                        <span className="text-[9px] font-mono text-muted-foreground uppercase">[{hs.actionType}]</span>
                         {hs.isSubAction && <span className="text-[8px] bg-red-600/10 text-red-500 px-1.5 py-0.5 rounded border border-red-500/20 font-bold uppercase tracking-tighter shadow-sm">Detail Only</span>}
                       </div>
                       <div className="flex items-center gap-2">
-                        <button onClick={(e) => { e.stopPropagation(); deleteHotspot(hs.id); }} className="p-1.5 text-zinc-700 hover:text-red-500 transition-colors">
+                        <button onClick={(e) => { e.stopPropagation(); deleteHotspot(hs.id); }} className="p-1.5 text-muted-foreground hover:text-red-500 transition-colors">
                           <svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M18 6L6 18M6 6l12 12" /></svg>
                         </button>
-                        <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className={`text-zinc-600 transition-transform duration-300 ${isExpanded ? 'rotate-180' : ''}`}><polyline points="6 9 12 15 18 9" /></svg>
+                        <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className={`text-muted-foreground transition-transform duration-300 ${isExpanded ? 'rotate-180' : ''}`}><polyline points="6 9 12 15 18 9" /></svg>
                       </div>
                     </div>
 
                     {isExpanded && (
-                      <div className="p-6 border-t border-white/5 space-y-6 bg-black/20 animate-in slide-in-from-top-2 duration-300">
+                      <div className="p-6 border-t border-border space-y-6 bg-background/30 animate-in slide-in-from-top-2 duration-300">
                         <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
                           <LocalizedInput label="Label" value={hs.label} onChange={(v) => updateHotspot(hs.id, { label: v })} lang={lang} />
                           <div className="grid grid-cols-2 gap-4">
                             <div>
-                              <label className="block text-[8px] font-bold text-zinc-600 uppercase tracking-widest mb-2">Action</label>
-                              <select value={hs.actionType} onChange={(e) => updateHotspot(hs.id, { actionType: e.target.value as any })} className="w-full bg-zinc-800 text-[10px] p-3 rounded-lg text-white border border-white/10 outline-none">
+                              <label className="block text-[8px] font-bold text-muted-foreground uppercase tracking-widest mb-2">Action</label>
+                              <select value={hs.actionType} onChange={(e) => updateHotspot(hs.id, { actionType: e.target.value as any })} className="w-full bg-background text-[10px] p-3 rounded-lg text-foreground border border-border outline-none">
                                 <option value="EXAMINE">Examine</option>
                                 <option value="GOTO">Go To (Change Scene)</option>
                                 <option value="GET_ITEM">Get Item</option>
@@ -596,7 +596,7 @@ const SceneEditor: React.FC<SceneEditorProps> = ({ scene, onUpdate, onUpdateProj
                                   onChange={(e) => updateHotspot(hs.id, { initialHidden: e.target.checked })}
                                   className="accent-red-600"
                                 />
-                                <span className="text-[8px] font-bold text-zinc-500 uppercase tracking-widest">Initial Hidden</span>
+                                <span className="text-[8px] font-bold text-muted-foreground uppercase tracking-widest">Initial Hidden</span>
                               </label>
                               <label className="flex items-center gap-2 cursor-pointer group">
                                 <input
@@ -611,33 +611,32 @@ const SceneEditor: React.FC<SceneEditorProps> = ({ scene, onUpdate, onUpdateProj
                           </div>
                         </div>
 
-                        {/* Precision Position & Size Controls */}
-                        <div className="grid grid-cols-4 gap-4 bg-zinc-950/40 p-4 rounded-xl border border-white/5">
+                        <div className="grid grid-cols-4 gap-4 bg-background/50 p-4 rounded-xl border border-border shadow-inner">
                           <div>
-                            <label className="block text-[8px] font-bold text-zinc-600 uppercase tracking-widest mb-2 text-center">X (%)</label>
-                            <input type="number" step="0.1" value={hs.x} onChange={(e) => updateHotspot(hs.id, { x: parseFloat(e.target.value) || 0 })} className="w-full bg-zinc-800 border border-white/10 rounded p-1.5 text-xs text-white text-center" />
+                            <label className="block text-[8px] font-bold text-muted-foreground uppercase tracking-widest mb-2 text-center">X (%)</label>
+                            <input type="number" step="0.1" value={hs.x} onChange={(e) => updateHotspot(hs.id, { x: parseFloat(e.target.value) || 0 })} className="w-full bg-card border border-border rounded p-1.5 text-xs text-foreground text-center" />
                           </div>
                           <div>
-                            <label className="block text-[8px] font-bold text-zinc-600 uppercase tracking-widest mb-2 text-center">Y (%)</label>
-                            <input type="number" step="0.1" value={hs.y} onChange={(e) => updateHotspot(hs.id, { y: parseFloat(e.target.value) || 0 })} className="w-full bg-zinc-800 border border-white/10 rounded p-1.5 text-xs text-white text-center" />
+                            <label className="block text-[8px] font-bold text-muted-foreground uppercase tracking-widest mb-2 text-center">Y (%)</label>
+                            <input type="number" step="0.1" value={hs.y} onChange={(e) => updateHotspot(hs.id, { y: parseFloat(e.target.value) || 0 })} className="w-full bg-card border border-border rounded p-1.5 text-xs text-foreground text-center" />
                           </div>
                           <div>
-                            <label className="block text-[8px] font-bold text-zinc-600 uppercase tracking-widest mb-2 text-center">Width (%)</label>
-                            <input type="number" step="0.1" value={hs.width} onChange={(e) => updateHotspot(hs.id, { width: parseFloat(e.target.value) || 2 })} className="w-full bg-zinc-800 border border-white/10 rounded p-1.5 text-xs text-white text-center" />
+                            <label className="block text-[8px] font-bold text-muted-foreground uppercase tracking-widest mb-2 text-center">Width (%)</label>
+                            <input type="number" step="0.1" value={hs.width} onChange={(e) => updateHotspot(hs.id, { width: parseFloat(e.target.value) || 2 })} className="w-full bg-card border border-border rounded p-1.5 text-xs text-foreground text-center" />
                           </div>
                           <div>
-                            <label className="block text-[8px] font-bold text-zinc-600 uppercase tracking-widest mb-2 text-center">Height (%)</label>
-                            <input type="number" step="0.1" value={hs.height} onChange={(e) => updateHotspot(hs.id, { height: parseFloat(e.target.value) || 2 })} className="w-full bg-zinc-800 border border-white/10 rounded p-1.5 text-xs text-white text-center" />
+                            <label className="block text-[8px] font-bold text-muted-foreground uppercase tracking-widest mb-2 text-center">Height (%)</label>
+                            <input type="number" step="0.1" value={hs.height} onChange={(e) => updateHotspot(hs.id, { height: parseFloat(e.target.value) || 2 })} className="w-full bg-card border border-border rounded p-1.5 text-xs text-foreground text-center" />
                           </div>
                         </div>
 
                         {hs.actionType === 'INPUT_PUZZLE' && (
-                          <div className="bg-yellow-900/10 p-4 rounded-xl border border-yellow-500/20 space-y-6">
+                          <div className="bg-yellow-900/10 p-4 rounded-xl border border-yellow-500/20 space-y-6 shadow-sm">
                             <LocalizedInput label={t.puzzlePromptLabel} value={hs.puzzlePrompt || { KO: '', EN: '' }} onChange={(v) => updateHotspot(hs.id, { puzzlePrompt: v })} lang={lang} multiline placeholder="Enter password..." />
                             <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
                               <div>
-                                <label className="block text-[8px] font-bold text-zinc-600 uppercase tracking-widest mb-2">{t.answerKey}</label>
-                                <input value={hs.puzzleAnswer || ''} onChange={(e) => updateHotspot(hs.id, { puzzleAnswer: e.target.value })} className="w-full bg-zinc-800 text-[10px] p-3 rounded-lg text-white border border-white/10 outline-none" placeholder="724" />
+                                <label className="block text-[8px] font-bold text-muted-foreground uppercase tracking-widest mb-2">{t.answerKey}</label>
+                                <input value={hs.puzzleAnswer || ''} onChange={(e) => updateHotspot(hs.id, { puzzleAnswer: e.target.value })} className="w-full bg-background text-[10px] p-3 rounded-lg text-foreground border border-border outline-none" placeholder="724" />
                               </div>
                               <LocalizedInput label={t.failureMessageLabel} value={hs.failureMessage || { KO: '', EN: '' }} onChange={(v) => updateHotspot(hs.id, { failureMessage: v })} lang={lang} placeholder="Wrong code..." />
                             </div>
@@ -654,21 +653,21 @@ const SceneEditor: React.FC<SceneEditorProps> = ({ scene, onUpdate, onUpdateProj
                         </div>
 
                         {!hs.isSubAction && (
-                          <div className="bg-zinc-900/30 p-5 rounded-2xl border border-white/5 space-y-4">
+                          <div className="bg-muted/10 p-5 rounded-2xl border border-border space-y-4 shadow-sm">
                             <div className="flex items-center justify-between">
-                              <label className="block text-[8px] font-bold text-zinc-500 uppercase tracking-widest">Reveals Sub-Actions</label>
+                              <label className="block text-[8px] font-bold text-muted-foreground uppercase tracking-widest">Reveals Sub-Actions</label>
                               <button onClick={() => handleCreateAndLinkHotspot(hs)} className="px-3 py-1 bg-red-600/10 border border-red-500/30 rounded-full text-[8px] font-bold text-red-500 hover:bg-red-600 hover:text-white transition-all uppercase tracking-widest">
                                 + {t.createAndLinkHotspot}
                               </button>
                             </div>
 
-                            <div className="flex flex-wrap gap-2 min-h-[44px] p-2 bg-zinc-950/50 rounded-xl border border-white/5 items-center">
+                            <div className="flex flex-wrap gap-2 min-h-[44px] p-2 bg-background/50 rounded-xl border border-border items-center">
                               {(hs.revealsHotspotIds || []).map(hid => {
                                 const targetHs = scene.hotspots.find(h => h.id === hid);
                                 return (
                                   <div key={hid} className="flex items-center gap-2 bg-red-600/20 border border-red-500/30 px-3 py-1.5 rounded-lg text-[9px] text-red-400 font-bold uppercase group/link">
                                     <span onClick={() => { setExpandedHsId(hid); setSelectedHsId(hid); }} className="cursor-pointer hover:underline">{targetHs ? l(targetHs.label) : hid}</span>
-                                    <button onClick={() => updateHotspot(hs.id, { revealsHotspotIds: (hs.revealsHotspotIds || []).filter(i => i !== hid) })} className="hover:text-white transition-colors opacity-60 group-hover/link:opacity-100">×</button>
+                                    <button onClick={() => updateHotspot(hs.id, { revealsHotspotIds: (hs.revealsHotspotIds || []).filter(i => i !== hid) })} className="hover:text-foreground transition-colors opacity-60 group-hover/link:opacity-100">×</button>
                                   </div>
                                 );
                               })}
@@ -679,7 +678,7 @@ const SceneEditor: React.FC<SceneEditorProps> = ({ scene, onUpdate, onUpdateProj
                                   const nextIds = [...(hs.revealsHotspotIds || []), e.target.value];
                                   updateHotspot(hs.id, { revealsHotspotIds: Array.from(new Set(nextIds)) });
                                 }}
-                                className="bg-transparent text-zinc-600 text-[8px] font-bold uppercase outline-none cursor-pointer"
+                                className="bg-transparent text-muted-foreground text-[8px] font-bold uppercase outline-none cursor-pointer"
                               >
                                 <option value="">+ {lang === 'KO' ? '기존 포인트 연결' : 'Link Existing Point'}</option>
                                 {scene.hotspots.filter(h => h.id !== hs.id).map(h => (
@@ -690,22 +689,22 @@ const SceneEditor: React.FC<SceneEditorProps> = ({ scene, onUpdate, onUpdateProj
                           </div>
                         )}
 
-                        <div className="bg-zinc-900/50 p-6 rounded-2xl border border-white/5 space-y-4 transition-all">
+                        <div className="bg-muted/5 p-6 rounded-2xl border border-border space-y-4 transition-all shadow-sm">
                           <div className="flex justify-between items-center cursor-pointer" onClick={() => setFoldedHsDetails(prev => ({ ...prev, [hs.id]: !isFolded }))}>
                             <div className="flex items-center gap-2">
-                              <h3 className="text-[10px] font-bold text-zinc-400 uppercase tracking-widest">{t.detailImage}</h3>
+                              <h3 className="text-[10px] font-bold text-muted-foreground uppercase tracking-widest">{t.detailImage}</h3>
                               {hs.detailImageUrl && <span className="w-1 h-1 bg-emerald-500 rounded-full"></span>}
                             </div>
-                            <svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" className={`text-zinc-600 transition-transform ${!isFolded ? 'rotate-180' : ''}`}><polyline points="6 9 12 15 18 9" /></svg>
+                            <svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" className={`text-muted-foreground transition-transform ${!isFolded ? 'rotate-180' : ''}`}><polyline points="6 9 12 15 18 9" /></svg>
                           </div>
                           {!isFolded && (
                             <div className="space-y-4 pt-2 animate-in slide-in-from-top-1 duration-200">
                               <div className="flex justify-end">
-                                <button onClick={() => handleGenerateHsDetail(hs)} disabled={isGeneratingHsDetail === hs.id} className="text-[9px] font-bold text-red-500 hover:text-white transition-all uppercase tracking-widest">{isGeneratingHsDetail === hs.id ? t.working : t.generateDetailImage}</button>
+                                <button onClick={() => handleGenerateHsDetail(hs)} disabled={isGeneratingHsDetail === hs.id} className="text-[9px] font-bold text-red-500 hover:text-foreground transition-all uppercase tracking-widest">{isGeneratingHsDetail === hs.id ? t.working : t.generateDetailImage}</button>
                               </div>
-                              <textarea value={l(hs.detailImagePrompt) || ''} onChange={(e) => updateHotspot(hs.id, { detailImagePrompt: e.target.value })} className="w-full h-16 bg-zinc-800 border border-white/10 rounded-lg p-3 text-[10px] outline-none focus:border-red-500 transition-all resize-none text-white" placeholder={t.detailImagePrompt} />
+                              <textarea value={l(hs.detailImagePrompt) || ''} onChange={(e) => updateHotspot(hs.id, { detailImagePrompt: e.target.value })} className="w-full h-16 bg-background border border-border rounded-lg p-3 text-[10px] outline-none focus:border-red-500 transition-all resize-none text-foreground" placeholder={t.detailImagePrompt} />
                               <div className="flex gap-2">
-                                <input value={hs.detailImageUrl || ''} onChange={(e) => updateHotspot(hs.id, { detailImageUrl: e.target.value })} className="flex-1 bg-zinc-800 border border-white/5 rounded-lg p-2 text-[10px] outline-none text-zinc-500" placeholder={t.detailImageUrl} />
+                                <input value={hs.detailImageUrl || ''} onChange={(e) => updateHotspot(hs.id, { detailImageUrl: e.target.value })} className="flex-1 bg-background border border-border rounded-lg p-2 text-[10px] outline-none text-muted-foreground focus:border-red-500" placeholder={t.detailImageUrl} />
                                 <ImageUploader
                                   onUpload={(url) => updateHotspot(hs.id, { detailImageUrl: url })}
                                   storagePath={`games/${allAssets.id}/scenes/${scene.id}_hs_${hs.id}_${Date.now()}.webp`}
@@ -720,8 +719,8 @@ const SceneEditor: React.FC<SceneEditorProps> = ({ scene, onUpdate, onUpdateProj
                         <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
                           <div className="space-y-4">
                             <div>
-                              <label className="block text-[8px] font-bold text-zinc-600 uppercase tracking-widest mb-2">{(hs.actionType === 'GET_ITEM' || hs.actionType === 'INPUT_PUZZLE') ? t.obtainedItem : t.targetSelection}</label>
-                              <select value={hs.targetId || ''} onChange={(e) => updateHotspot(hs.id, { targetId: e.target.value })} className="w-full bg-zinc-800 text-[10px] p-3 rounded-lg text-zinc-300 border border-white/10 outline-none">
+                              <label className="block text-[8px] font-bold text-muted-foreground uppercase tracking-widest mb-2">{(hs.actionType === 'GET_ITEM' || hs.actionType === 'INPUT_PUZZLE') ? t.obtainedItem : t.targetSelection}</label>
+                              <select value={hs.targetId || ''} onChange={(e) => updateHotspot(hs.id, { targetId: e.target.value })} className="w-full bg-background text-[10px] p-3 rounded-lg text-foreground border border-border outline-none">
                                 <option value="">[{t.noTarget}]</option>
                                 {(hs.actionType === 'GET_ITEM' || hs.actionType === 'INPUT_PUZZLE') ? (
                                   <optgroup label={t.items}>
@@ -743,16 +742,16 @@ const SceneEditor: React.FC<SceneEditorProps> = ({ scene, onUpdate, onUpdateProj
                               </select>
                             </div>
                             <div>
-                              <label className="block text-[8px] font-bold text-zinc-600 uppercase tracking-widest mb-2">{t.requiredItem}</label>
-                              <select value={hs.requiredItemId || ''} onChange={(e) => updateHotspot(hs.id, { requiredItemId: e.target.value || undefined })} className="w-full bg-zinc-800 text-[10px] p-3 rounded-lg text-zinc-300 border border-white/10 outline-none">
+                              <label className="block text-[8px] font-bold text-muted-foreground uppercase tracking-widest mb-2">{t.requiredItem}</label>
+                              <select value={hs.requiredItemId || ''} onChange={(e) => updateHotspot(hs.id, { requiredItemId: e.target.value || undefined })} className="w-full bg-background text-[10px] p-3 rounded-lg text-foreground border border-border outline-none focus:border-red-500">
                                 <option value="">[{t.none}]</option>
                                 {(Object.values(allAssets.items) as Item[]).map(i => <option key={i.id} value={i.id}>{l(i.name)}</option>)}
                               </select>
                             </div>
                           </div>
                           <div>
-                            <label className="block text-[8px] font-bold text-zinc-600 uppercase tracking-widest mb-2">Visual Effect</label>
-                            <select value={hs.visualEffect || 'NONE'} onChange={(e) => updateHotspot(hs.id, { visualEffect: e.target.value as any })} className="w-full bg-zinc-800 text-[10px] p-3 rounded-lg text-zinc-300 border border-white/10 outline-none">
+                            <label className="block text-[8px] font-bold text-muted-foreground uppercase tracking-widest mb-2">Visual Effect</label>
+                            <select value={hs.visualEffect || 'NONE'} onChange={(e) => updateHotspot(hs.id, { visualEffect: e.target.value as any })} className="w-full bg-background text-[10px] p-3 rounded-lg text-foreground border border-border outline-none focus:border-red-500">
                               <option value="NONE">None</option><option value="SHAKE">Shake</option><option value="FLASH">Flash</option>
                             </select>
                           </div>

@@ -13,7 +13,8 @@ export default {
       fontFamily: {
         'mystery': ['"Gowun Batang"', 'serif'],
         'guide': ['"Nanum Gothic"', 'sans-serif'],
-        'sans': ['"Noto Sans KR"', 'sans-serif'],
+        'sans': ['Pretendard', '"Noto Sans KR"', 'sans-serif'],
+        'pretendard': ['Pretendard', 'sans-serif'],
       },
       animation: {
         'shake': 'shake 0.3s ease-in-out',
