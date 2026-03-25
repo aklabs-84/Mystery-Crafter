@@ -31,13 +31,19 @@ export const useCredits = () => {
 
         setLoading(true);
         try {
-            const { data: { session } } = await supabase.auth.getSession();
+            // 세션 갱신 후 최신 토큰 사용 (만료 토큰 방지)
+            const { data: { session } } = await supabase.auth.refreshSession();
+            if (!session) {
+                console.error('[useCredit] 세션 갱신 실패 — 재로그인 필요');
+                return false;
+            }
+
             const res = await fetch(
                 `${import.meta.env.VITE_SUPABASE_URL}/functions/v1/use-credit`,
                 {
                     method: 'POST',
                     headers: {
-                        'Authorization': `Bearer ${session?.access_token}`,
+                        'Authorization': `Bearer ${session.access_token}`,
                         'Content-Type': 'application/json',
                     },
                     body: JSON.stringify({ amount }),
@@ -45,22 +51,25 @@ export const useCredits = () => {
             );
 
             const result = await res.json();
+            console.log('[useCredit] 응답:', res.status, result);
 
             if (!res.ok) {
+                console.error('[useCredit] 실패:', result.error);
                 if (result.error === 'insufficient_credits') {
-                    setCredits(0);
+                    setCredits(result.credits ?? 0);
                 }
                 return false;
             }
 
             setCredits(result.credits); // 서버 응답값으로 동기화
             return true;
-        } catch {
+        } catch (e) {
+            console.error('[useCredit] fetch 예외:', e);
             return false;
         } finally {
             setLoading(false);
         }
-    }, [user]);
+    }, [user, isAdmin]);
 
     // Stripe Checkout 시작
     const purchaseCredits = useCallback(async (packageId: 'starter' | 'popular' | 'pro') => {

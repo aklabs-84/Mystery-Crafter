@@ -230,13 +230,25 @@ const QuickModePlayer: React.FC<QuickModePlayerProps> = ({ gameData, gameId, onB
 
     return (
         <div className="min-h-screen bg-[#050505] text-white p-4 md:p-8 font-sans selection:bg-red-900 selection:text-white">
-            {/* 크레딧 부족 오버레이 */}
+            {/* 크레딧 부족 / 입장 오류 오버레이 */}
             {sessionError && (
                 <div className="fixed inset-0 z-50 bg-black/90 backdrop-blur-sm flex flex-col items-center justify-center gap-6 p-8">
                     <div className="text-5xl">⚡</div>
                     <h2 className="text-2xl font-black text-white text-center">{sessionError}</h2>
-                    <p className="text-zinc-400 text-sm text-center max-w-sm">크레딧을 충전하고 다시 입장해 주세요.</p>
+                    <p className="text-zinc-400 text-sm text-center max-w-sm">
+                        {(credits ?? 0) >= 5
+                            ? '일시적인 오류입니다. 다시 시도하거나 페이지를 새로고침해 주세요.'
+                            : '크레딧을 충전하고 다시 입장해 주세요.'}
+                    </p>
                     <div className="flex gap-3">
+                        {(credits ?? 0) >= 5 && (
+                            <button
+                                onClick={() => { setSessionError(null); setCreditAttempted(false); }}
+                                className="px-6 py-3 bg-red-700 hover:bg-red-600 text-white rounded-xl font-bold transition"
+                            >
+                                다시 시도
+                            </button>
+                        )}
                         <button onClick={onBackToHome} className="px-6 py-3 bg-zinc-800 hover:bg-zinc-700 text-white rounded-xl font-bold transition">
                             목록으로
                         </button>
