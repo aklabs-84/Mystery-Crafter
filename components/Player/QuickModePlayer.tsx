@@ -1,6 +1,7 @@
 import React, { useState, useRef, useEffect } from 'react';
 import { GameData } from '../../types';
 import { gemini } from '../../services/geminiService';
+import { useCredits } from '../../hooks/useCredits';
 
 interface QuickModePlayerProps {
     gameData: GameData;
@@ -15,18 +16,59 @@ interface ChatMessage {
     status?: 'yes' | 'no' | 'irrelevant' | 'close' | 'error' | 'typing';
 }
 
+// localStorage 세션 키 헬퍼
+const SESSION_TTL = 2 * 60 * 60 * 1000; // 2시간
+const getSessionKey = (id: string) => `mc_solo_${id}`;
+const getChatKey    = (id: string) => `mc_chat_${id}`;
+
+interface StoredSession { paidAt: number; expiresAt: number; }
+
 const QuickModePlayer: React.FC<QuickModePlayerProps> = ({ gameData, gameId, onBackToHome }) => {
-    const [messages, setMessages] = useState<ChatMessage[]>([{
-        id: 'welcome',
-        sender: 'ai',
-        text: '사건 현장에 오신 것을 환영합니다. 무엇이든 물어보세요. 저는 오직 "예 / 아니오 / 관계없음 / 정답에 근접함" 으로만 대답합니다.'
-    }]);
+    const { useCredit, credits } = useCredits();
+
+    const difficulty = gameData.difficulty || 'normal';
+    const HINT_COUNTS = { easy: 5, normal: 3, hard: 1 } as const;
+    const DIFFICULTY_LABELS = { easy: '🟢 쉬움', normal: '🟡 보통', hard: '🔴 어려움' };
+
+    const gameIdKey = gameId || gameData.id || 'unknown';
+
+    // 세션 유효 여부 확인
+    const isSessionValid = (): boolean => {
+        try {
+            const raw = localStorage.getItem(getSessionKey(gameIdKey));
+            if (!raw) return false;
+            const s: StoredSession = JSON.parse(raw);
+            return Date.now() < s.expiresAt;
+        } catch { return false; }
+    };
+
+    // 저장된 채팅 복원
+    const loadSavedMessages = (): ChatMessage[] => {
+        try {
+            const raw = localStorage.getItem(getChatKey(gameIdKey));
+            if (!raw) return [];
+            return JSON.parse(raw) as ChatMessage[];
+        } catch { return []; }
+    };
+
+    const savedMessages = isSessionValid() ? loadSavedMessages() : [];
+    const initialMessages: ChatMessage[] = savedMessages.length > 0
+        ? savedMessages
+        : [{
+            id: 'welcome',
+            sender: 'ai',
+            text: '사건 현장에 오신 것을 환영합니다. 무엇이든 물어보세요. 저는 오직 "예 / 아니오 / 관계없음 / 정답에 근접함" 으로만 대답합니다.'
+        }];
+
+    const [messages, setMessages] = useState<ChatMessage[]>(initialMessages);
     const [inputValue, setInputValue] = useState('');
     const [isThinking, setIsThinking] = useState(false);
-    const [hintsLeft, setHintsLeft] = useState(3);
     const [isSolving, setIsSolving] = useState(false);
     const [isGameOver, setIsGameOver] = useState(false);
-    
+    const [sessionPaid, setSessionPaid] = useState<boolean>(isSessionValid());
+    const [sessionError, setSessionError] = useState<string | null>(null);
+    const [hintsLeft, setHintsLeft] = useState(HINT_COUNTS[difficulty]);
+
     // Quick Mode always uses the start scene
     const startSceneId = gameData.startSceneId || 'scene_1';
     const scene = gameData.scenes[startSceneId];
@@ -36,25 +78,49 @@ const QuickModePlayer: React.FC<QuickModePlayerProps> = ({ gameData, gameId, onB
 
     const chatEndRef = useRef<HTMLDivElement>(null);
 
+    // 입장 크레딧 차감 (세션 미존재 시에만)
+    useEffect(() => {
+        if (sessionPaid) return;
+        (async () => {
+            const ok = await useCredit(5);
+            if (ok) {
+                const session: StoredSession = { paidAt: Date.now(), expiresAt: Date.now() + SESSION_TTL };
+                localStorage.setItem(getSessionKey(gameIdKey), JSON.stringify(session));
+                setSessionPaid(true);
+            } else {
+                setSessionError('크레딧이 부족합니다. 게임 참여에는 5크레딧이 필요합니다.');
+            }
+        })();
+    }, []); // eslint-disable-line react-hooks/exhaustive-deps
+
+    // 채팅 기록 localStorage 저장
+    useEffect(() => {
+        if (!sessionPaid || messages.length === 0) return;
+        try {
+            localStorage.setItem(getChatKey(gameIdKey), JSON.stringify(messages));
+        } catch { /* 저장 실패 무시 */ }
+    }, [messages, sessionPaid, gameIdKey]);
+
+    // 스크롤
     useEffect(() => {
         chatEndRef.current?.scrollIntoView({ behavior: 'smooth' });
     }, [messages]);
 
     const handleAsk = async () => {
         if (!inputValue.trim() || isThinking) return;
-        
+
         const userQ = inputValue.trim();
         setInputValue('');
-        
+
         const newMsgId = Date.now().toString();
         setMessages(prev => [...prev, { id: newMsgId, sender: 'user', text: userQ }]);
-        
+
         setIsThinking(true);
         // Add a typing indicator message
         setMessages(prev => [...prev, { id: `wait_${newMsgId}`, sender: 'ai', text: '...', status: 'typing' }]);
 
         try {
-            const reply = await gemini.askQuickModeQuestion(userQ, surfaceStory, hiddenTruth);
+            const reply = await gemini.askQuickModeQuestion(userQ, surfaceStory, hiddenTruth, difficulty);
             
             setMessages(prev => prev.map(m => 
                 m.id === `wait_${newMsgId}` 
@@ -75,21 +141,21 @@ const QuickModePlayer: React.FC<QuickModePlayerProps> = ({ gameData, gameId, onB
 
     const handleHint = async () => {
         if (hintsLeft <= 0 || isThinking) return;
-        
+
         setIsThinking(true);
-        setHintsLeft(prev => prev - 1);
-        
+
         const newMsgId = Date.now().toString();
-        // Add a typing indicator message
         setMessages(prev => [...prev, { id: `wait_${newMsgId}`, sender: 'ai', text: '단서를 분석 중입니다...', status: 'typing' }]);
 
         try {
+            setHintsLeft(prev => prev - 1);
+
             // Compile history of user questions to give context to the AI
             const history = messages
                 .filter(m => m.sender === 'user')
                 .map(m => `- ${m.text}`)
                 .join("\n");
-            
+
             const reply = await gemini.askQuickModeHint(surfaceStory, hiddenTruth, history);
             
             setMessages(prev => prev.map(m => 
@@ -158,6 +224,19 @@ const QuickModePlayer: React.FC<QuickModePlayerProps> = ({ gameData, gameId, onB
 
     return (
         <div className="min-h-screen bg-[#050505] text-white p-4 md:p-8 font-sans selection:bg-red-900 selection:text-white">
+            {/* 크레딧 부족 오버레이 */}
+            {sessionError && (
+                <div className="fixed inset-0 z-50 bg-black/90 backdrop-blur-sm flex flex-col items-center justify-center gap-6 p-8">
+                    <div className="text-5xl">⚡</div>
+                    <h2 className="text-2xl font-black text-white text-center">{sessionError}</h2>
+                    <p className="text-zinc-400 text-sm text-center max-w-sm">크레딧을 충전하고 다시 입장해 주세요.</p>
+                    <div className="flex gap-3">
+                        <button onClick={onBackToHome} className="px-6 py-3 bg-zinc-800 hover:bg-zinc-700 text-white rounded-xl font-bold transition">
+                            목록으로
+                        </button>
+                    </div>
+                </div>
+            )}
             <header className="flex justify-between items-center mb-8 max-w-6xl mx-auto">
                 <button 
                     onClick={onBackToHome}
@@ -190,8 +269,13 @@ const QuickModePlayer: React.FC<QuickModePlayerProps> = ({ gameData, gameId, onB
                             <h1 className="text-3xl md:text-4xl font-black text-white mb-2 font-mystery drop-shadow-lg">
                                 {gameData.title?.KO || '사건 기록'}
                             </h1>
-                            <div className="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-red-950/50 border border-red-900/50 text-red-500 text-xs font-bold tracking-widest">
-                                <span>🔒</span> 기밀 문서
+                            <div className="flex items-center gap-2 flex-wrap">
+                                <div className="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-red-950/50 border border-red-900/50 text-red-500 text-xs font-bold tracking-widest">
+                                    <span>🔒</span> 기밀 문서
+                                </div>
+                                <div className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full bg-zinc-900/80 border border-zinc-700/50 text-zinc-300 text-xs font-bold tracking-widest">
+                                    {DIFFICULTY_LABELS[difficulty]}
+                                </div>
                             </div>
                         </div>
                     </div>

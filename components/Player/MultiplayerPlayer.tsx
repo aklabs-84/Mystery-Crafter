@@ -5,12 +5,18 @@ import { useMultiplayer } from '../../hooks/useMultiplayer';
 import { gemini } from '../../services/geminiService';
 import { DataManager } from '../../services/dataManager';
 import { GameData } from '../../types';
+import { useCredits } from '../../hooks/useCredits';
+
+const MULTI_SESSION_KEY = (code: string) => `mc_multi_${code}`;
 
 const MultiplayerPlayer: React.FC = () => {
     const { sessionCode } = useParams<{ sessionCode: string }>();
     const location = useLocation();
     const navigate = useNavigate();
     const playerName = location.state?.playerName;
+    const { useCredit } = useCredits();
+    const [sessionPaid, setSessionPaid] = useState<boolean>(false);
+    const [sessionError, setSessionError] = useState<string | null>(null);
 
     const [gameData, setGameData] = useState<GameData | null>(null);
     const [isThinking, setIsThinking] = useState(false);
@@ -35,6 +41,26 @@ const MultiplayerPlayer: React.FC = () => {
     const imageUrl = scene?.imageUrl;
 
     // ── 모든 useEffect는 early return 이전에 선언 (Rules of Hooks) ──
+
+    // 입장 크레딧 차감 (세션코드 기준 재접속 시 무료)
+    useEffect(() => {
+        if (!sessionCode) return;
+        const key = MULTI_SESSION_KEY(sessionCode);
+        const already = localStorage.getItem(key);
+        if (already) {
+            setSessionPaid(true);
+            return;
+        }
+        (async () => {
+            const ok = await useCredit(5);
+            if (ok) {
+                localStorage.setItem(key, JSON.stringify({ paidAt: Date.now() }));
+                setSessionPaid(true);
+            } else {
+                setSessionError('크레딧이 부족합니다. 게임 참여에는 5크레딧이 필요합니다.');
+            }
+        })();
+    }, [sessionCode]); // eslint-disable-line react-hooks/exhaustive-deps
 
     // 0.6 타이머 만료 시 자동 턴 넘기기
     const hasAutoPassedRef = useRef(false);
@@ -118,7 +144,20 @@ const MultiplayerPlayer: React.FC = () => {
 
     // ── early return은 모든 hook 선언 이후 ──
 
-    if (loading || !gameData) {
+    if (sessionError) {
+        return (
+            <div className="h-screen w-screen bg-[#050505] flex flex-col items-center justify-center text-white gap-6 p-8">
+                <div className="text-5xl">⚡</div>
+                <h2 className="text-2xl font-black text-center">{sessionError}</h2>
+                <p className="text-zinc-400 text-sm text-center max-w-sm">크레딧을 충전하고 다시 입장해 주세요.</p>
+                <button onClick={() => navigate('/games')} className="px-6 py-3 bg-zinc-800 hover:bg-zinc-700 rounded-xl font-bold transition">
+                    목록으로
+                </button>
+            </div>
+        );
+    }
+
+    if (loading || !gameData || !sessionPaid) {
         return (
             <div className="h-screen w-screen bg-[#050505] flex flex-col items-center justify-center text-white">
                 <div className="w-10 h-10 border-2 border-red-600 border-t-transparent rounded-full animate-spin"></div>

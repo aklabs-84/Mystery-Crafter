@@ -287,19 +287,86 @@ export class GeminiService {
     });
   }
 
-  async generateQuickModeMystery(idea: string): Promise<{ title: string, imagePrompt: string, surfaceStory: string, hiddenTruth: string }> {
+  async generateQuickModeMystery(idea: string, style?: string, difficulty?: string): Promise<{ title: string, imagePrompt: string, surfaceStory: string, hiddenTruth: string }> {
     return this.callWithRetry(async () => {
       const ai = new GoogleGenAI({ apiKey: AIManager.getGoogleKey() });
+
+      const styleInstructions: Record<string, string> = {
+        casual: `STYLE: Casual & Family-Friendly.
+- Target audience: all ages including children and students.
+- No death, murder, violence, or adult content. Keep it warm and wholesome.
+- Everyday settings: school, family, pets, neighborhood, hobbies.
+- Tone: light, curious, heartwarming.`,
+        mystery: `STYLE: Dark Mystery & Psychological Thriller.
+- Classic dark "Turtle Soup" style with psychological depth.
+- May involve death, crime, or disturbing revelations — tasteful but impactful.
+- Surface story feels illogical and unsettling; hidden truth is shocking yet airtight.
+- Tone: dark, suspenseful, intellectually tense.`,
+        comic: `STYLE: Comedy & Witty Twist.
+- The humor comes from a REALISTIC but hilariously unexpected explanation — not fantasy.
+- No magic, no impossible technology, no talking animals. Real world only.
+- The surface story should seem absurd; the hidden truth must be a clever, logical punchline grounded in everyday reality (misunderstanding, coincidence, wordplay, social situation).
+- Good comic Turtle Soup example: "A man laughed out loud at a funeral. The family thanked him." → He was a professional funeral mourner hired by a family who had no other mourners.
+- Tone: playful, witty, comedic — but always plausible.`,
+        horror: `STYLE: Horror & Psychological Dread.
+- No supernatural magic or fantasy. Horror must come from REAL human psychology, behavior, or situations.
+- Allowed: serial killers, cults, isolation madness, paranoia, dark secrets, trauma.
+- The surface story should feel deeply unsettling; the hidden truth should be genuinely disturbing but 100% real-world plausible.
+- Tone: terrifying, oppressive, psychologically disturbing.`,
+        scifi: `STYLE: Near-Future Sci-Fi.
+- Grounded in plausible near-future or cutting-edge technology — NO magic, NO fantasy races, NO impossible physics.
+- Allowed: AI, biotech, advanced robotics, space colonization, genetic engineering, VR.
+- The hidden truth must be scientifically plausible, even if not yet real today.
+- Tone: intellectual, wonder-filled, thought-provoking.`,
+      };
+
+      const styleKey = style && styleInstructions[style] ? style : 'mystery';
+      const styleBlock = styleInstructions[styleKey];
+
+      const difficultyInstructions: Record<string, string> = {
+        easy: `DIFFICULTY: Easy.
+- Surface story: Long and descriptive. Embed 2-3 subtle clues directly into the surface text so players can spot directions quickly.
+- Hidden truth: Single, simple cause. Requires only 1-2 logical deduction steps.
+- No red herrings or misleading details.
+- The twist should feel like a pleasant "aha!" moment, not a shock.`,
+        normal: `DIFFICULTY: Normal.
+- Surface story: Medium length. A few suggestive details, but the key clues are not obvious.
+- Hidden truth: 2-3 logical deduction steps with one non-obvious connection.
+- One minor misleading detail is acceptable.
+- Classic Turtle Soup feel — satisfying to solve with focused questioning.`,
+        hard: `DIFFICULTY: Hard.
+- Surface story: Short and dry. Minimal information given. Every word is deliberate.
+- Hidden truth: 4+ logical deduction steps. Multiple facts must be connected to reach the answer.
+- Include 1-2 intentional red herrings that seem relevant but lead nowhere.
+- The answer should feel surprising even after all the questioning, yet perfectly logical in hindsight.`,
+      };
+
+      const diffKey = difficulty && difficultyInstructions[difficulty] ? difficulty : 'normal';
+      const diffBlock = difficultyInstructions[diffKey];
+
       const prompt = `You are a master creator of "Turtle Soup" (lateral thinking) puzzles.
       Based on the following seed idea: "${idea}"
-      
-      Create a complete, chilling and clever Turtle Soup puzzle in Korean.
+
+      === ABSOLUTE RULES (apply to ALL styles and difficulties — never break these) ===
+      1. REALISM IS MANDATORY. The hidden truth must be something that could actually happen in the real world. No magic, no impossible technology, no fantasy elements unless the style explicitly allows near-future sci-fi.
+      2. LOGICAL CONSISTENCY. Every detail in the surface story must be fully explainable by the hidden truth. A player asking Yes/No questions must be able to deduce the answer through logic alone.
+      3. NO WORDPLAY TRICKS. Do not hide the answer behind a trick definition. The twist must come from a REAL misunderstanding of context, perspective, or circumstance.
+      4. FALSIFIABILITY. The hidden truth must be specific enough that the AI can clearly answer YES or NO to any reasonable player question.
+      5. STYLE SHAPES TONE ONLY. The selected style changes the emotional tone — it never overrides the realism rule.
+
+      === SELECTED STYLE ===
+      ${styleBlock}
+
+      === SELECTED DIFFICULTY ===
+      ${diffBlock}
+
+      Create a complete Turtle Soup puzzle in Korean following all rules above.
       Output ONLY valid JSON in this exact format:
       {
         "title": "A catchy title for the mystery (Korean)",
-        "surfaceStory": "The surface story presented to the player. It should be mysterious, seemingly illogical, and intriguing. (Korean)",
-        "hiddenTruth": "The complete, shocking, but logically sound hidden truth. This is the absolute truth that the AI will use to answer players' Yes/No questions. (Korean)",
-        "imagePrompt": "An English prompt for an AI image generator to create a single dramatic scene illustrating the surface story. (English)"
+        "surfaceStory": "The surface story presented to the player. Apply the difficulty rules strictly for length and embedded clues. Match the style tone. (Korean)",
+        "hiddenTruth": "The complete hidden truth. Must be realistic and logically airtight. Apply the difficulty rules strictly for complexity. Match the style tone. (Korean)",
+        "imagePrompt": "An English prompt for an AI image generator illustrating the surface story scene. Match the style tone. (English)"
       }`;
 
       const response = await ai.models.generateContent({
@@ -311,26 +378,48 @@ export class GeminiService {
     });
   }
 
-  async askQuickModeQuestion(question: string, surfaceStory: string, hiddenTruth: string): Promise<{ status: 'yes'|'no'|'irrelevant'|'close', message: string }> {
+  async askQuickModeQuestion(question: string, surfaceStory: string, hiddenTruth: string, difficulty?: string): Promise<{ status: 'yes'|'no'|'irrelevant'|'close', message: string }> {
     return this.callWithRetry(async () => {
       const googleKey = AIManager.getGoogleKey();
       if (!googleKey) throw new Error('Google API 키가 없습니다. 스튜디오 → 설정(Settings)에서 Google Gemini API 키를 입력해주세요.');
       const ai = new GoogleGenAI({ apiKey: googleKey });
-      const prompt = `You are a strict Game Master for a "Turtle Soup" (lateral thinking) puzzle.
-      
+
+      const gmRules: Record<string, string> = {
+        easy: `GM DIFFICULTY RULES (Easy):
+- Be generous with the 'close' status. If the player is on the right track even partially, answer 'close'.
+- For 'yes' answers, you may add one short encouraging hint in the message to nudge the player in the right direction. Keep it subtle.
+- Avoid 'irrelevant' unless the question is truly unrelated. When borderline, lean toward 'yes' or 'no'.`,
+        normal: `GM DIFFICULTY RULES (Normal):
+- Standard judging. Answer 'close' only when the player correctly identifies a major part of the truth.
+- Give pure yes/no/irrelevant/close responses with no extra hints.
+- Be fair and consistent.`,
+        hard: `GM DIFFICULTY RULES (Hard):
+- Be strict. Answer 'close' only when the player has essentially identified the core of the hidden truth — not just a component.
+- Never add hints or encouraging words beyond the bare minimum response.
+- For borderline questions, lean toward 'irrelevant' rather than giving free information.
+- Your tone should be cold, terse, and unreadable.`,
+      };
+
+      const gmRule = gmRules[difficulty || 'normal'] || gmRules['normal'];
+
+      const prompt = `You are a Game Master for a "Turtle Soup" (lateral thinking) puzzle.
+
       SURFACE STORY (Player knows this): "${surfaceStory}"
       HIDDEN TRUTH (Player must guess this): "${hiddenTruth}"
-      
+
       THE PLAYER ASKS: "${question}"
-      
-      RULES:
-      1. You must answer strictly based on if the player's question is true or false according to the HIDDEN TRUTH.
-      2. If the question asks about something not mentioned in or not logically deducible from the HIDDEN TRUTH, answer 'irrelevant'.
-      3. If the question correctly guesses a HUGE part of the HIDDEN TRUTH, answer 'close'.
-      4. Output ONLY valid JSON in this exact format:
+
+      CORE RULES:
+      1. Answer strictly based on whether the player's question is true or false according to the HIDDEN TRUTH.
+      2. If the question is not mentioned in or not logically deducible from the HIDDEN TRUTH, answer 'irrelevant'.
+      3. If the question correctly identifies a major part of the HIDDEN TRUTH, answer 'close'.
+
+      ${gmRule}
+
+      Output ONLY valid JSON in this exact format:
       {
         "status": "yes" | "no" | "irrelevant" | "close",
-        "message": "A short, atmospheric Korean response perfectly fitting the status. Examples: '예, 그렇습니다.', '아니오, 사실이 아닙니다.', '이 사건과 관계없는 질문입니다.', '정답에 매우 근접했습니다!'"
+        "message": "A short Korean response fitting the status and difficulty tone."
       }`;
 
       const response = await ai.models.generateContent({

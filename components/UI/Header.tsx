@@ -2,12 +2,16 @@
 import React, { useState } from 'react';
 import { Link, useLocation, useNavigate } from 'react-router-dom';
 import { useAuth } from '../../context/AuthContext';
+import { useCredits } from '../../hooks/useCredits';
+import PurchaseModal from '../Credits/PurchaseModal';
 
 const Header: React.FC = () => {
     const { user, userType, signInWithGoogle, signInWithKakao, signOut } = useAuth();
+    const { credits } = useCredits();
     const location = useLocation();
     const navigate = useNavigate();
     const [showLoginPrompt, setShowLoginPrompt] = useState(false);
+    const [showPurchaseModal, setShowPurchaseModal] = useState(false);
 
     const studioPath = userType === 'admin' ? '/admin/studio' : '/user/studio';
 
@@ -71,9 +75,20 @@ const Header: React.FC = () => {
                         </div>
 
                         {user ? (
-                            <div className="flex items-center gap-3 md:gap-6">
-                                <span className="text-zinc-500 text-xs hidden sm:block">{user.email?.split('@')[0]}님</span>
-                                <button onClick={signOut} className="text-zinc-400 hover:text-white text-xs md:text-sm font-medium transition">
+                            <div className="flex items-center gap-3 md:gap-4">
+                                {/* 크레딧 뱃지 */}
+                                <button
+                                    onClick={() => setShowPurchaseModal(true)}
+                                    className={`flex items-center gap-1.5 px-3 py-1.5 rounded-lg border text-xs font-bold transition ${
+                                        credits === 0
+                                            ? 'bg-red-950/40 border-red-800/50 text-red-400 animate-pulse'
+                                            : 'bg-zinc-900 border-zinc-700 text-emerald-400 hover:border-emerald-700'
+                                    }`}
+                                >
+                                    <span>⚡</span>
+                                    <span>{credits ?? '...'}</span>
+                                </button>
+                                <button onClick={signOut} className="text-zinc-500 hover:text-white text-xs font-medium transition hidden sm:block">
                                     로그아웃
                                 </button>
                             </div>
@@ -92,6 +107,9 @@ const Header: React.FC = () => {
                     </div>
                 </div>
             </nav>
+
+            {/* Purchase Modal */}
+            {showPurchaseModal && <PurchaseModal onClose={() => setShowPurchaseModal(false)} />}
 
             {/* Login Prompt Modal */}
             {showLoginPrompt && (

@@ -2,6 +2,7 @@ import React, { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { GameData } from '../../types';
 import { gemini } from '../../services/geminiService';
+import { useCredits } from '../../hooks/useCredits';
 
 interface QuickModeEditorProps {
     gameData: GameData;
@@ -29,16 +30,39 @@ const QuickModeEditor: React.FC<QuickModeEditorProps> = ({ gameData, onSave }) =
     // AI Auto-Complete State
     const [aiIdea, setAiIdea] = useState('');
     const [isGenerating, setIsGenerating] = useState(false);
+    const [selectedStyle, setSelectedStyle] = useState<string>('mystery');
+    const [selectedDifficulty, setSelectedDifficulty] = useState<'easy' | 'normal' | 'hard'>('normal');
+
+    const STYLES = [
+        { key: 'casual',  emoji: '🌸', label: '캐주얼',    desc: '전연령 · 따뜻한 일상' },
+        { key: 'mystery', emoji: '🔍', label: '미스터리',   desc: '심리 · 범죄 추리' },
+        { key: 'comic',   emoji: '😂', label: '코믹',      desc: '황당 · 유머 반전' },
+        { key: 'horror',  emoji: '👻', label: '호러',      desc: '공포 · 오컬트' },
+        { key: 'scifi',   emoji: '🚀', label: 'SF/판타지', desc: '미래 · 마법 세계' },
+    ];
+
+    const DIFFICULTIES = [
+        { key: 'easy'   as const, emoji: '🟢', label: '쉬움',  desc: '힌트 5개 · 단순 반전',      color: 'emerald' },
+        { key: 'normal' as const, emoji: '🟡', label: '보통',  desc: '힌트 3개 · 표준 추리',      color: 'amber'   },
+        { key: 'hard'   as const, emoji: '🔴', label: '어려움', desc: '힌트 1개 · 다단계 논리',    color: 'red'     },
+    ];
     
     const [isSaving, setIsSaving] = useState(false);
     const [saveSuccess, setSaveSuccess] = useState(false);
     const navigate = useNavigate();
+    const { useCredit, credits } = useCredits();
 
     const handleGenerate = async () => {
         if (!aiIdea) return;
         setIsGenerating(true);
         try {
-            const result = await gemini.generateQuickModeMystery(aiIdea);
+            const ok = await useCredit(10);
+            if (!ok) {
+                alert('크레딧이 부족합니다. 게임 생성에는 10크레딧이 필요합니다.\n상단의 크레딧 버튼을 눌러 충전해 주세요.');
+                setIsGenerating(false);
+                return;
+            }
+            const result = await gemini.generateQuickModeMystery(aiIdea, selectedStyle, selectedDifficulty);
             setTitle(result.title);
             setSurfaceStory(result.surfaceStory);
             setHiddenTruth(result.hiddenTruth);
@@ -65,6 +89,7 @@ const QuickModeEditor: React.FC<QuickModeEditorProps> = ({ gameData, onSave }) =
         setIsSaving(true);
         const updatedData = { ...gameData };
         
+        updatedData.difficulty = selectedDifficulty;
         updatedData.title = { ...updatedData.title, KO: title };
         updatedData.description = { ...updatedData.description, KO: surfaceStory };
         
@@ -168,33 +193,99 @@ const QuickModeEditor: React.FC<QuickModeEditorProps> = ({ gameData, onSave }) =
                 {/* AI Assistant Banner */}
                 <div className="mb-8 rounded-3xl bg-gradient-to-r from-emerald-900 via-[#0a0a0a] to-[#0a0a0a] border border-emerald-500/20 shadow-2xl relative group overflow-hidden p-0.5">
                     <div className="absolute inset-0 bg-gradient-to-r from-transparent via-white/5 to-transparent -translate-x-[150%] skew-x-[-20deg] group-hover:animate-shimmer pointer-events-none"></div>
-                    <div className="bg-[#0a0a0a] rounded-[22px] p-6 lg:p-8 flex flex-col md:flex-row gap-6 items-center relative z-10">
-                        <div className="flex-1 w-full space-y-3">
-                            <label className="text-emerald-400 font-bold text-xs tracking-widest flex items-center gap-2">
-                                <span className="animate-pulse">✨</span> 원키워드 AI 자동완성
+                    <div className="bg-[#0a0a0a] rounded-[22px] p-6 lg:p-8 flex flex-col gap-5 relative z-10">
+
+                        {/* Style Tag Buttons */}
+                        <div className="space-y-2">
+                            <label className="text-zinc-500 font-bold text-xs tracking-widest uppercase flex items-center gap-2">
+                                <span>🎭</span> 게임 스타일 선택
                             </label>
-                            <input
-                                type="text"
-                                value={aiIdea}
-                                onChange={(e) => setAiIdea(e.target.value)}
-                                placeholder="생각나는 짧은 키워드 한 줄을 적으세요. (예: 우산을 썼는데 비를 맞았다)"
-                                className="w-full bg-transparent border-none outline-none text-xl sm:text-2xl font-bold placeholder:text-zinc-600 p-0 text-white focus:ring-0"
-                            />
+                            <div className="flex flex-wrap gap-2">
+                                {STYLES.map((s) => {
+                                    const isSelected = selectedStyle === s.key;
+                                    return (
+                                        <button
+                                            key={s.key}
+                                            onClick={() => setSelectedStyle(s.key)}
+                                            className={`group/style flex items-center gap-2 px-4 py-2 rounded-xl border font-bold text-sm transition-all duration-200
+                                                ${isSelected
+                                                    ? 'bg-emerald-500/20 border-emerald-500/60 text-emerald-300 shadow-[0_0_16px_rgba(16,185,129,0.2)]'
+                                                    : 'bg-zinc-900/60 border-zinc-700/50 text-zinc-400 hover:border-zinc-500 hover:text-zinc-200'
+                                                }`}
+                                        >
+                                            <span className="text-base">{s.emoji}</span>
+                                            <span>{s.label}</span>
+                                            <span className={`text-[10px] font-normal hidden sm:block ${isSelected ? 'text-emerald-400/70' : 'text-zinc-600'}`}>
+                                                {s.desc}
+                                            </span>
+                                            {isSelected && (
+                                                <span className="w-1.5 h-1.5 rounded-full bg-emerald-400 shadow-[0_0_6px_rgba(16,185,129,0.8)]"></span>
+                                            )}
+                                        </button>
+                                    );
+                                })}
+                            </div>
                         </div>
-                        <button
-                            onClick={handleGenerate}
-                            disabled={isGenerating || !aiIdea.trim()}
-                            className="w-full md:w-auto px-8 py-4 bg-emerald-500 text-black font-black rounded-xl hover:bg-emerald-400 hover:scale-105 transition-all disabled:opacity-50 disabled:hover:scale-100 flex items-center justify-center gap-2 shrink-0 shadow-[0_0_30px_rgba(16,185,129,0.3)]"
-                        >
-                            {isGenerating ? (
-                                <>
-                                    <div className="w-5 h-5 border-2 border-black/20 border-t-black rounded-full animate-spin"></div>
-                                    마법 부리는 중...
-                                </>
-                            ) : (
-                                'AI 단숨에 게임 만들기'
-                            )}
-                        </button>
+
+                        {/* Difficulty Selector */}
+                        <div className="space-y-2">
+                            <label className="text-zinc-500 font-bold text-xs tracking-widest uppercase flex items-center gap-2">
+                                <span>⚡</span> 난이도 선택
+                            </label>
+                            <div className="flex flex-wrap gap-2">
+                                {DIFFICULTIES.map((d) => {
+                                    const isSelected = selectedDifficulty === d.key;
+                                    const colorMap: Record<string, string> = {
+                                        emerald: isSelected ? 'bg-emerald-500/20 border-emerald-500/60 text-emerald-300 shadow-[0_0_16px_rgba(16,185,129,0.2)]' : 'bg-zinc-900/60 border-zinc-700/50 text-zinc-400 hover:border-emerald-700/50 hover:text-zinc-200',
+                                        amber:   isSelected ? 'bg-amber-500/20 border-amber-500/60 text-amber-300 shadow-[0_0_16px_rgba(245,158,11,0.2)]'   : 'bg-zinc-900/60 border-zinc-700/50 text-zinc-400 hover:border-amber-700/50 hover:text-zinc-200',
+                                        red:     isSelected ? 'bg-red-500/20 border-red-500/60 text-red-300 shadow-[0_0_16px_rgba(239,68,68,0.2)]'         : 'bg-zinc-900/60 border-zinc-700/50 text-zinc-400 hover:border-red-700/50 hover:text-zinc-200',
+                                    };
+                                    return (
+                                        <button
+                                            key={d.key}
+                                            onClick={() => setSelectedDifficulty(d.key)}
+                                            className={`flex items-center gap-2 px-4 py-2 rounded-xl border font-bold text-sm transition-all duration-200 ${colorMap[d.color]}`}
+                                        >
+                                            <span className="text-base">{d.emoji}</span>
+                                            <span>{d.label}</span>
+                                            <span className="text-[10px] font-normal hidden sm:block opacity-60">{d.desc}</span>
+                                            {isSelected && <span className="w-1.5 h-1.5 rounded-full bg-current opacity-80 shadow-[0_0_6px_currentColor]"></span>}
+                                        </button>
+                                    );
+                                })}
+                            </div>
+                        </div>
+
+                        {/* Keyword Input + Generate Button */}
+                        <div className="flex flex-col md:flex-row gap-6 items-center">
+                            <div className="flex-1 w-full space-y-3">
+                                <label className="text-emerald-400 font-bold text-xs tracking-widest flex items-center gap-2">
+                                    <span className="animate-pulse">✨</span> 원키워드 AI 자동완성
+                                </label>
+                                <input
+                                    type="text"
+                                    value={aiIdea}
+                                    onChange={(e) => setAiIdea(e.target.value)}
+                                    onKeyDown={(e) => { if (e.key === 'Enter') handleGenerate(); }}
+                                    placeholder="생각나는 짧은 키워드 한 줄을 적으세요. (예: 우산을 썼는데 비를 맞았다)"
+                                    className="w-full bg-transparent border-none outline-none text-xl sm:text-2xl font-bold placeholder:text-zinc-600 p-0 text-white focus:ring-0"
+                                />
+                            </div>
+                            <button
+                                onClick={handleGenerate}
+                                disabled={isGenerating || !aiIdea.trim()}
+                                className="w-full md:w-auto px-8 py-4 bg-emerald-500 text-black font-black rounded-xl hover:bg-emerald-400 hover:scale-105 transition-all disabled:opacity-50 disabled:hover:scale-100 flex items-center justify-center gap-2 shrink-0 shadow-[0_0_30px_rgba(16,185,129,0.3)]"
+                            >
+                                {isGenerating ? (
+                                    <>
+                                        <div className="w-5 h-5 border-2 border-black/20 border-t-black rounded-full animate-spin"></div>
+                                        마법 부리는 중...
+                                    </>
+                                ) : (
+                                    <>AI 단숨에 게임 만들기 <span className="text-xs font-normal opacity-70">(-10⚡)</span></>
+                                )}
+                            </button>
+                        </div>
                     </div>
                 </div>
 

@@ -7,6 +7,7 @@ import LocalizedInput from './LocalizedInput';
 import ImageUploader from './ImageUploader';
 import { AIManager } from '../../services/aiManager';
 import InputModal from '../UI/InputModal';
+import { useCredits } from '../../hooks/useCredits';
 
 interface NPCEditorProps {
   npc: NPC;
@@ -17,6 +18,7 @@ interface NPCEditorProps {
 
 const NPCEditor: React.FC<NPCEditorProps> = ({ npc, onUpdate, lang, allAssets }) => {
   const t = translations[lang];
+  const { useCredit } = useCredits();
   const [isGenerating, setIsGenerating] = useState(false);
   const [isSuggestingPersona, setIsSuggestingPersona] = useState(false);
   const [isSuggestingPrompt, setIsSuggestingPrompt] = useState(false);
@@ -51,6 +53,8 @@ const NPCEditor: React.FC<NPCEditorProps> = ({ npc, onUpdate, lang, allAssets })
       setShowApiKeyModal(true);
       return;
     }
+    const ok = await useCredit(2);
+    if (!ok) { alert('크레딧이 부족합니다. 이미지 생성에는 2크레딧이 필요합니다.'); return; }
     await executeGeneratePortrait();
   };
 

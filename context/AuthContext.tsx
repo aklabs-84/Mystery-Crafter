@@ -31,13 +31,13 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
 
             if (error) {
                 console.warn("[Auth] Profile fetch error:", error.message);
-                // If it's a real "not found" error, try to create it. 
+                // If it's a real "not found" error, try to create it.
                 // Note: RLS might block SELECT but allow INSERT, or vice versa.
                 if (error.code === 'PGRST116') { // PGRST116 is "JSON object requested, but no rows returned"
                     console.log("[Auth] Profile missing, creating default...");
                     const { data: newData, error: insertError } = await supabase
                         .from('profiles')
-                        .upsert({ id: userId, user_type: 'user' })
+                        .upsert({ id: userId, user_type: 'user', credits: 15 })
                         .select('user_type')
                         .single();
 

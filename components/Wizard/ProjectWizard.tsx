@@ -3,6 +3,7 @@ import React, { useState } from 'react';
 import { GameData, VisualStyle, AIModelTier, Localized } from '../../types';
 import { translations, Language } from '../../translations';
 import { gemini, GameBlueprint } from '../../services/geminiService';
+import { useCredits } from '../../hooks/useCredits';
 
 interface ProjectWizardProps {
   lang: Language;
@@ -12,6 +13,7 @@ interface ProjectWizardProps {
 
 const ProjectWizard: React.FC<ProjectWizardProps> = ({ lang, onComplete, onCancel }) => {
   const t = translations[lang];
+  const { useCredit } = useCredits();
   // step: 0(Tier), 1(Core Theme), 2(Deep Dive), 2.5(Review Blueprint), 3(Asset Creation)
   const [step, setStep] = useState<number | string>(0); 
   const [tier, setTier] = useState<AIModelTier>(AIModelTier.FLASH);
@@ -101,6 +103,15 @@ const ProjectWizard: React.FC<ProjectWizardProps> = ({ lang, onComplete, onCance
   const sleep = (ms: number) => new Promise(resolve => setTimeout(resolve, ms));
 
   const handleStartGeneration = async () => {
+    const ok = await useCredit(20);
+    if (!ok) {
+      alert(lang === 'KO'
+        ? 'AI 위저드 실행에는 20크레딧이 필요합니다.\n크레딧을 충전하고 다시 시도해 주세요.'
+        : 'AI Wizard requires 20 credits. Please top up and try again.'
+      );
+      return;
+    }
+
     setStep(3);
     setIsGenerating(true);
     setStatus(t.wizardGenerating);
